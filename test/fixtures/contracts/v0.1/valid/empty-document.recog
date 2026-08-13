@@ -1,0 +1,4 @@
+llmrecog 0.1
+
+document EMPTY_DOCUMENT:
+  title "Empty recognition document"

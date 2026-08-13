@@ -1,0 +1,68 @@
+{
+  "schema": "Llmrecog.ValidationResult.v1",
+  "semantic_version": "0.1",
+  "tool_version": "contract-fixture",
+  "input": {
+    "path": "test/fixtures/contracts/v0.1/valid/empty-document.recog",
+    "document_id": "EMPTY_DOCUMENT",
+    "digest": "sha256:4ba2adbe1f2890150f4cbbee08142b6427ffcaebefb8918cd9df02fd589b611e"
+  },
+  "complete": true,
+  "truncated": false,
+  "valid": true,
+  "structural_valid": true,
+  "semantic_valid": true,
+  "source_verification": {
+    "mode": "none",
+    "state": "not_requested"
+  },
+  "ast": {
+    "schema": "Llmrecog.Ast.v1",
+    "syntax_version": "0.1",
+    "recovered": false,
+    "header": {
+      "kind": "version_header",
+      "version": "0.1",
+      "span": {
+        "start": { "line": 1, "column": 1, "offset": 0 },
+        "end": { "line": 1, "column": 13, "offset": 12 }
+      }
+    },
+    "document": {
+      "kind": "document",
+      "id": "EMPTY_DOCUMENT",
+      "header_arguments": [],
+      "fields": [
+        {
+          "name": "title",
+          "value": {
+            "kind": "string",
+            "value": "Empty recognition document"
+          },
+          "span": {
+            "start": { "line": 4, "column": 3, "offset": 41 },
+            "end": { "line": 5, "column": 1, "offset": 76 }
+          },
+          "recovered": false
+        }
+      ],
+      "span": {
+        "start": { "line": 3, "column": 1, "offset": 14 },
+        "end": { "line": 5, "column": 1, "offset": 76 }
+      },
+      "recovered": false
+    },
+    "declarations": []
+  },
+  "document": {
+    "schema": "Llmrecog.SemanticDocument.v1",
+    "semantic_version": "0.1",
+    "document_id": "EMPTY_DOCUMENT",
+    "title": "Empty recognition document",
+    "sources": [],
+    "spans": [],
+    "observations": [],
+    "recognitions": []
+  },
+  "diagnostics": []
+}

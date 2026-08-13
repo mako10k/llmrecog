@@ -1,0 +1,165 @@
+(* llmrecog text contract 0.1.
+ * INDENT, DEDENT, NL, SP, and EOF are scanner tokens defined by
+ * docs/grammar.md. Blank and whole-line comment tokens are discarded.
+ *)
+
+document = version_header, document_declaration, { declaration }, EOF ;
+
+version_header = "llmrecog", SP, "0.1", NL ;
+
+document_declaration = "document", SP, identifier, ":", NL,
+  INDENT, title_field, DEDENT ;
+
+declaration = source_declaration
+  | span_declaration
+  | observation_declaration
+  | entity_declaration
+  | record_declaration
+  | variable_declaration
+  | candidate_declaration
+  | constraint_declaration ;
+
+source_declaration = "source", SP, identifier, ":", NL,
+  INDENT, kind_field, locator_field, [ media_type_field ], [ digest_field ],
+  [ observed_at_field ], DEDENT ;
+
+span_declaration = "span", SP, identifier, ":", NL,
+  INDENT, source_field, range_field, [ quote_field ], DEDENT ;
+
+observation_declaration = "observation", SP, identifier, ":", NL,
+  INDENT, surface_field, grounded_in_field, DEDENT ;
+
+entity_declaration = "entity", SP, identifier, ":", NL,
+  INDENT, type_field, label_field, grounded_in_field,
+  [ support_field, [ confidence_field ] ], DEDENT ;
+
+record_declaration = "record", SP, identifier, ":", NL,
+  INDENT, kind_field, record_shape, grounded_in_field,
+  [ support_field, [ confidence_field ] ], [ normalization_block ], DEDENT ;
+
+record_shape = relation_shape | property_shape | subject_value_shape
+  | alias_shape | normalized_value_shape ;
+
+relation_shape = subject_field, predicate_field, object_field ;
+
+property_shape = subject_field, predicate_field, value_field ;
+
+subject_value_shape = subject_field, value_field ;
+
+alias_shape = subject_field, object_field ;
+
+normalized_value_shape = value_field ;
+
+variable_declaration = "variable", SP, identifier, ":", NL,
+  INDENT, value_type_field, candidates_field, grounded_in_field, DEDENT ;
+
+candidate_declaration = "candidate", SP, identifier, SP, "in", SP,
+  identifier, ":", NL, INDENT, value_field, grounded_in_field,
+  [ support_field, [ confidence_field ] ], DEDENT ;
+
+constraint_declaration = "constraint", SP, identifier, ":", NL,
+  INDENT, kind_field, constraint_shape, grounded_in_field, support_field,
+  [ confidence_field ], DEDENT ;
+
+constraint_shape = one_of_shape | requires_shape | binary_constraint_shape ;
+
+one_of_shape = variable_field, members_field ;
+
+requires_shape = antecedent_field, consequent_field ;
+
+binary_constraint_shape = left_field, right_field ;
+
+normalization_block = "normalization", ":", NL,
+  INDENT, surface_field, rule_field, grounded_in_field, [ anchors_field ],
+  DEDENT ;
+
+title_field = "title", SP, string, NL ;
+
+kind_field = "kind", SP, identifier, NL ;
+
+locator_field = "locator", SP, string, NL ;
+
+media_type_field = "media_type", SP, string, NL ;
+
+digest_field = "digest", SP, string, NL ;
+
+observed_at_field = "observed_at", SP, string, NL ;
+
+source_field = "source", SP, identifier, NL ;
+
+range_field = "range", SP, text_range, NL ;
+
+quote_field = "quote", SP, string, NL ;
+
+surface_field = "surface", SP, string, NL ;
+
+grounded_in_field = "grounded_in", SP, nonempty_identifier_list, NL ;
+
+type_field = "type", SP, identifier, NL ;
+
+label_field = "label", SP, string, NL ;
+
+support_field = "support", SP, identifier, NL ;
+
+confidence_field = "confidence", SP, confidence_number, NL ;
+
+subject_field = "subject", SP, identifier, NL ;
+
+predicate_field = "predicate", SP, identifier, NL ;
+
+object_field = "object", SP, scalar_value, NL ;
+
+value_field = "value", SP, scalar_value, NL ;
+
+rule_field = "rule", SP, identifier, NL ;
+
+anchors_field = "anchors", SP, nonempty_identifier_list, NL ;
+
+value_type_field = "value_type", SP, identifier, NL ;
+
+candidates_field = "candidates", SP, identifier_list, NL ;
+
+variable_field = "variable", SP, identifier, NL ;
+
+members_field = "members", SP, identifier_list, NL ;
+
+antecedent_field = "antecedent", SP, identifier, NL ;
+
+consequent_field = "consequent", SP, identifier, NL ;
+
+left_field = "left", SP, identifier, NL ;
+
+right_field = "right", SP, identifier, NL ;
+
+nonempty_identifier_list = "[", identifier, { ",", SP, identifier }, "]" ;
+
+identifier_list = "[", [ identifier, { ",", SP, identifier } ], "]" ;
+
+scalar_value = identifier | string ;
+
+text_range = position, "..", position ;
+
+position = positive_integer, ":", positive_integer ;
+
+confidence_number = "0" | "1" | "0.", digit, { digit } ;
+
+positive_integer = nonzero_digit, { digit } ;
+
+identifier = ascii_letter, { ascii_letter | digit | "_" | "-" | "." } ;
+
+string = '"', { json_string_character | json_escape }, '"' ;
+
+json_escape = "\\", ( '"' | "\\" | "/" | "b" | "f" | "n" | "r" | "t"
+  | "u", hex_digit, hex_digit, hex_digit, hex_digit ) ;
+
+json_string_character = ? any Unicode scalar value except U+0000 through
+  U+001F, quotation mark, reverse solidus, CR, or LF ? ;
+
+ascii_letter = ? A through Z or a through z ? ;
+
+digit = "0" | nonzero_digit ;
+
+nonzero_digit = "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
+
+hex_digit = digit | "A" | "B" | "C" | "D" | "E" | "F"
+  | "a" | "b" | "c" | "d" | "e" | "f" ;

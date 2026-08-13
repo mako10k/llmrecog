@@ -1,0 +1,183 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mako10k.github.io/llmrecog/schemas/Llmrecog.Common.v1.schema.json",
+  "title": "Llmrecog.Common.v1",
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "position": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["line", "column", "offset"],
+      "properties": {
+        "line": { "type": "integer", "minimum": 1 },
+        "column": { "type": "integer", "minimum": 1 },
+        "offset": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "syntax_span": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start", "end"],
+      "properties": {
+        "start": { "$ref": "#/$defs/position" },
+        "end": { "$ref": "#/$defs/position" }
+      }
+    },
+    "input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "document_id", "digest"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "document_id": {
+          "oneOf": [{ "$ref": "#/$defs/identifier" }, { "type": "null" }]
+        },
+        "digest": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "related_diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["message", "entity_id", "span"],
+      "properties": {
+        "message": { "type": "string" },
+        "entity_id": {
+          "oneOf": [{ "$ref": "#/$defs/identifier" }, { "type": "null" }]
+        },
+        "span": {
+          "oneOf": [{ "$ref": "#/$defs/syntax_span" }, { "type": "null" }]
+        }
+      }
+    },
+    "diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "severity",
+        "message",
+        "entity_id",
+        "span",
+        "reason_data",
+        "related"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^RCG-[A-Z]+-[0-9]{3}$"
+        },
+        "severity": {
+          "enum": ["error", "warning", "info"]
+        },
+        "message": { "type": "string" },
+        "entity_id": {
+          "oneOf": [{ "$ref": "#/$defs/identifier" }, { "type": "null" }]
+        },
+        "span": {
+          "oneOf": [{ "$ref": "#/$defs/syntax_span" }, { "type": "null" }]
+        },
+        "reason_data": {
+          "type": "object"
+        },
+        "related": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/related_diagnostic" }
+        }
+      }
+    },
+    "grounding_reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind"],
+      "properties": {
+        "id": { "$ref": "#/$defs/identifier" },
+        "kind": { "enum": ["span", "observation", "recognition"] }
+      }
+    },
+    "support_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "grounded_in"],
+      "properties": {
+        "kind": {
+          "enum": ["explicit", "linguistic", "normalized", "ambiguous"]
+        },
+        "grounded_in": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/grounding_reference" }
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "source_verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "state"],
+      "properties": {
+        "mode": { "enum": ["none", "local"] },
+        "state": {
+          "enum": [
+            "not_requested",
+            "unverified",
+            "verified",
+            "mismatch",
+            "unavailable"
+          ]
+        }
+      }
+    },
+    "provenance_edge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "from", "to"],
+      "properties": {
+        "kind": {
+          "enum": [
+            "selected_by",
+            "observed_in",
+            "grounded_in",
+            "normalized_by",
+            "supports",
+            "applies",
+            "depends_on",
+            "yields"
+          ]
+        },
+        "from": { "$ref": "#/$defs/identifier" },
+        "to": { "$ref": "#/$defs/identifier" }
+      }
+    },
+    "reason": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "name", "subject_id", "constraint_id", "inputs"],
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^RCG-RSN-[0-9]{3}$"
+        },
+        "name": { "$ref": "#/$defs/identifier" },
+        "subject_id": { "$ref": "#/$defs/identifier" },
+        "constraint_id": {
+          "oneOf": [{ "$ref": "#/$defs/identifier" }, { "type": "null" }]
+        },
+        "inputs": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/identifier" }
+        }
+      }
+    }
+  }
+}

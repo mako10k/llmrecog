@@ -1,0 +1,385 @@
+{
+  "schema": "Llmrecog.DiagnosticRegistry.v1",
+  "semantic_version": "0.1",
+  "diagnostics": [
+    {
+      "code": "RCG-SYNTAX-001",
+      "name": "invalid_utf8",
+      "default_severity": "error",
+      "phase": "scan",
+      "meaning": "Input is not valid UTF-8."
+    },
+    {
+      "code": "RCG-SYNTAX-002",
+      "name": "byte_order_mark_forbidden",
+      "default_severity": "error",
+      "phase": "scan",
+      "meaning": "A UTF-8 byte-order mark is present."
+    },
+    {
+      "code": "RCG-SYNTAX-003",
+      "name": "missing_version_header",
+      "default_severity": "error",
+      "phase": "parse",
+      "meaning": "The required llmrecog version header is missing or malformed."
+    },
+    {
+      "code": "RCG-SYNTAX-004",
+      "name": "unsupported_version",
+      "default_severity": "error",
+      "phase": "parse",
+      "meaning": "The declared text contract version is not supported."
+    },
+    {
+      "code": "RCG-SYNTAX-005",
+      "name": "invalid_indentation",
+      "default_severity": "error",
+      "phase": "scan",
+      "meaning": "Indentation is not an exact two-space level transition."
+    },
+    {
+      "code": "RCG-SYNTAX-006",
+      "name": "tab_outside_string",
+      "default_severity": "error",
+      "phase": "scan",
+      "meaning": "A raw tab occurs outside a JSON string."
+    },
+    {
+      "code": "RCG-SYNTAX-007",
+      "name": "malformed_string",
+      "default_severity": "error",
+      "phase": "scan",
+      "meaning": "A string violates JSON string syntax."
+    },
+    {
+      "code": "RCG-SYNTAX-008",
+      "name": "malformed_range",
+      "default_severity": "error",
+      "phase": "scan",
+      "meaning": "A text range does not match the 1-based half-open range syntax."
+    },
+    {
+      "code": "RCG-SYNTAX-009",
+      "name": "trailing_comment",
+      "default_severity": "error",
+      "phase": "scan",
+      "meaning": "A comment occurs after another token on a physical line."
+    },
+    {
+      "code": "RCG-SYNTAX-010",
+      "name": "unexpected_declaration",
+      "default_severity": "error",
+      "phase": "parse",
+      "meaning": "A top-level declaration keyword is not part of contract 0.1."
+    },
+    {
+      "code": "RCG-SYNTAX-011",
+      "name": "unexpected_field",
+      "default_severity": "error",
+      "phase": "parse",
+      "meaning": "A field is not valid at this block position."
+    },
+    {
+      "code": "RCG-SYNTAX-012",
+      "name": "missing_required_field",
+      "default_severity": "error",
+      "phase": "parse",
+      "meaning": "A declaration omits a required grammar field."
+    },
+    {
+      "code": "RCG-SYNTAX-013",
+      "name": "duplicate_field",
+      "default_severity": "error",
+      "phase": "parse",
+      "meaning": "A declaration repeats a non-repeatable field."
+    },
+    {
+      "code": "RCG-SYNTAX-014",
+      "name": "missing_final_newline",
+      "default_severity": "warning",
+      "phase": "scan",
+      "meaning": "Input lacks the canonical final newline."
+    },
+    {
+      "code": "RCG-REF-001",
+      "name": "duplicate_id",
+      "default_severity": "error",
+      "phase": "semantic",
+      "meaning": "A declaration ID is repeated in the document-wide namespace."
+    },
+    {
+      "code": "RCG-REF-002",
+      "name": "reference_unresolved_for_viability",
+      "default_severity": "error",
+      "phase": "semantic",
+      "meaning": "A referenced declaration ID does not exist."
+    },
+    {
+      "code": "RCG-REF-003",
+      "name": "wrong_reference_kind",
+      "default_severity": "error",
+      "phase": "semantic",
+      "meaning": "A reference resolves to a declaration of the wrong kind."
+    },
+    {
+      "code": "RCG-RECORD-001",
+      "name": "unsupported_record_kind",
+      "default_severity": "error",
+      "phase": "semantic",
+      "meaning": "A record kind is outside the closed 0.1 registry."
+    },
+    {
+      "code": "RCG-RECORD-002",
+      "name": "record_shape_mismatch",
+      "default_severity": "error",
+      "phase": "semantic",
+      "meaning": "Record fields do not match its declared kind."
+    },
+    {
+      "code": "RCG-VALUE-001",
+      "name": "unsupported_value_type",
+      "default_severity": "error",
+      "phase": "semantic",
+      "meaning": "A variable value type is outside the closed 0.1 registry."
+    },
+    {
+      "code": "RCG-VALUE-002",
+      "name": "candidate_value_type_mismatch",
+      "default_severity": "error",
+      "phase": "semantic",
+      "meaning": "A candidate value does not match its parent variable value type."
+    },
+    {
+      "code": "RCG-CANDIDATE-001",
+      "name": "candidate_parent_mismatch",
+      "default_severity": "error",
+      "phase": "semantic",
+      "meaning": "The candidate header and variable candidate list disagree."
+    },
+    {
+      "code": "RCG-CONSTRAINT-001",
+      "name": "unsupported_constraint_kind",
+      "default_severity": "error",
+      "phase": "semantic",
+      "meaning": "A constraint kind is outside the closed 0.1 registry."
+    },
+    {
+      "code": "RCG-CONSTRAINT-002",
+      "name": "constraint_shape_mismatch",
+      "default_severity": "error",
+      "phase": "semantic",
+      "meaning": "Constraint fields do not match its declared kind."
+    },
+    {
+      "code": "RCG-CONSTRAINT-003",
+      "name": "empty_one_of",
+      "default_severity": "error",
+      "phase": "semantic",
+      "meaning": "A one_of constraint has no members."
+    },
+    {
+      "code": "RCG-CONSTRAINT-004",
+      "name": "one_of_member_mismatch",
+      "default_severity": "error",
+      "phase": "semantic",
+      "meaning": "A one_of member is not a candidate of the referenced variable."
+    },
+    {
+      "code": "RCG-CONSTRAINT-005",
+      "name": "constraint_operand_kind_mismatch",
+      "default_severity": "error",
+      "phase": "semantic",
+      "meaning": "A constraint operand is not the required candidate or variable kind."
+    },
+    {
+      "code": "RCG-SOURCE-001",
+      "name": "invalid_digest",
+      "default_severity": "error",
+      "phase": "semantic",
+      "meaning": "A digest is not lowercase sha256 followed by 64 hexadecimal digits."
+    },
+    {
+      "code": "RCG-SOURCE-002",
+      "name": "invalid_range_order",
+      "default_severity": "error",
+      "phase": "semantic",
+      "meaning": "A source range end does not follow its start."
+    },
+    {
+      "code": "RCG-SOURCE-003",
+      "name": "invalid_observed_at",
+      "default_severity": "error",
+      "phase": "semantic",
+      "meaning": "A source observed_at value is not an RFC 3339 timestamp."
+    },
+    {
+      "code": "RCG-GROUND-001",
+      "name": "missing_provenance_path",
+      "default_severity": "error",
+      "phase": "audit",
+      "meaning": "A semantic declaration has no provenance path."
+    },
+    {
+      "code": "RCG-GROUND-002",
+      "name": "constraint_relationship_ungrounded",
+      "default_severity": "error",
+      "phase": "audit",
+      "meaning": "A constraint lacks grounding for the relationship itself."
+    },
+    {
+      "code": "RCG-GROUND-003",
+      "name": "unsealed_source",
+      "default_severity": "warning",
+      "phase": "audit",
+      "meaning": "A locatable source has no exact digest."
+    },
+    {
+      "code": "RCG-SUPPORT-001",
+      "name": "positive_support_missing",
+      "default_severity": "warning",
+      "phase": "audit",
+      "meaning": "A candidate or record has no positive support record."
+    },
+    {
+      "code": "RCG-BOUNDARY-001",
+      "name": "forbidden_reasoning_role",
+      "default_severity": "error",
+      "phase": "audit",
+      "meaning": "A reasoning, decision, or realization role is declared as recognition."
+    },
+    {
+      "code": "RCG-BOUNDARY-002",
+      "name": "inference_promoted_to_source_fact",
+      "default_severity": "error",
+      "phase": "audit",
+      "meaning": "A downstream inference artifact is presented as original-source recognition."
+    },
+    {
+      "code": "RCG-OPEN-001",
+      "name": "ungrounded_exhaustiveness",
+      "default_severity": "warning",
+      "phase": "audit",
+      "meaning": "Exhaustiveness is assumed without a grounded closure constraint."
+    },
+    {
+      "code": "RCG-CSP-001",
+      "name": "empty_closed_domain",
+      "default_severity": "error",
+      "phase": "audit",
+      "meaning": "A closed variable has no satisfying assignment."
+    },
+    {
+      "code": "RCG-CSP-002",
+      "name": "supported_but_excluded",
+      "default_severity": "warning",
+      "phase": "audit",
+      "meaning": "A source-supported candidate is excluded by grounded constraints."
+    },
+    {
+      "code": "RCG-NORM-001",
+      "name": "normalization_grounding_incomplete",
+      "default_severity": "error",
+      "phase": "audit",
+      "meaning": "Normalization lacks its rule, grounded input, or required context anchor."
+    },
+    {
+      "code": "RCG-CONF-001",
+      "name": "confidence_used_semantically",
+      "default_severity": "error",
+      "phase": "audit",
+      "meaning": "Producer confidence is used as a weight, exclusion, or ranking rule."
+    }
+  ],
+  "reasons": [
+    {
+      "code": "RCG-RSN-001",
+      "name": "open_domain",
+      "category": "unknown",
+      "meaning": "Unlisted values may exist because no grounded closure applies."
+    },
+    {
+      "code": "RCG-RSN-002",
+      "name": "no_declared_candidate",
+      "category": "unknown",
+      "meaning": "No bounded candidate represents a value for the requested variable."
+    },
+    {
+      "code": "RCG-RSN-003",
+      "name": "unresolved_reference",
+      "category": "unknown",
+      "meaning": "A required declaration reference is unresolved."
+    },
+    {
+      "code": "RCG-RSN-004",
+      "name": "unresolved_constraint_operand",
+      "category": "unknown",
+      "meaning": "A constraint cannot be evaluated because an operand is unresolved."
+    },
+    {
+      "code": "RCG-RSN-005",
+      "name": "unsupported_constraint_version",
+      "category": "unknown",
+      "meaning": "The requested semantic scope contains an unsupported constraint version."
+    },
+    {
+      "code": "RCG-RSN-006",
+      "name": "scope_incomplete",
+      "category": "unknown",
+      "meaning": "The requested scope omits a required transitive constraint dependency."
+    },
+    {
+      "code": "RCG-RSN-007",
+      "name": "limit_reached",
+      "category": "unknown",
+      "meaning": "A declared evaluation or enumeration limit prevented completion."
+    },
+    {
+      "code": "RCG-RSN-008",
+      "name": "source_not_verified",
+      "category": "unknown",
+      "meaning": "The query policy required source verification that was not established."
+    },
+    {
+      "code": "RCG-RSN-101",
+      "name": "candidate_witness_found",
+      "category": "allowed",
+      "meaning": "A represented satisfying assignment contains the candidate."
+    },
+    {
+      "code": "RCG-RSN-201",
+      "name": "one_of_single_remaining",
+      "category": "derivation",
+      "meaning": "A grounded one_of has one remaining viable member in scope."
+    },
+    {
+      "code": "RCG-RSN-202",
+      "name": "excludes_pair_forbidden",
+      "category": "derivation",
+      "meaning": "A grounded excludes constraint forbids the two candidate assignments together."
+    },
+    {
+      "code": "RCG-RSN-203",
+      "name": "requires_consequent_unavailable",
+      "category": "derivation",
+      "meaning": "An antecedent assignment cannot occur because its required consequent is unavailable."
+    },
+    {
+      "code": "RCG-RSN-204",
+      "name": "same_as_value_mismatch",
+      "category": "derivation",
+      "meaning": "A joint assignment violates grounded variable equality."
+    },
+    {
+      "code": "RCG-RSN-205",
+      "name": "distinct_from_value_collision",
+      "category": "derivation",
+      "meaning": "A joint assignment gives grounded-distinct variables the same value."
+    },
+    {
+      "code": "RCG-RSN-206",
+      "name": "no_satisfying_witness",
+      "category": "excluded",
+      "meaning": "All represented assignments containing the candidate violate grounded constraints."
+    }
+  ]
+}

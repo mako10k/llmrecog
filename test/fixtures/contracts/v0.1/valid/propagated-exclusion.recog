@@ -1,0 +1,65 @@
+llmrecog 0.1
+
+document PROPAGATED_EXCLUSION:
+  title "Constraint-propagated exclusion"
+
+source SRC:
+  kind text
+  locator "assignment.txt"
+
+span S1:
+  source SRC
+  range 1:1..1:30
+  quote "Tanaka is assigned and not weak"
+
+entity E_TANAKA:
+  type person
+  label "Tanaka"
+  grounded_in [S1]
+  support explicit
+
+variable V_ACTOR:
+  value_type entity_ref
+  candidates [C_TANAKA]
+  grounded_in [S1]
+
+candidate C_TANAKA in V_ACTOR:
+  value E_TANAKA
+  grounded_in [S1]
+  support explicit
+
+variable V_COMMITMENT:
+  value_type symbol
+  candidates [C_DESIRE, C_WEAK]
+  grounded_in [S1]
+
+candidate C_DESIRE in V_COMMITMENT:
+  value desire
+  grounded_in [S1]
+  support ambiguous
+
+candidate C_WEAK in V_COMMITMENT:
+  value weak_commitment
+  grounded_in [S1]
+  support ambiguous
+
+constraint K_ACTOR:
+  kind one_of
+  variable V_ACTOR
+  members [C_TANAKA]
+  grounded_in [S1]
+  support explicit
+
+constraint K_COMMITMENT:
+  kind one_of
+  variable V_COMMITMENT
+  members [C_DESIRE, C_WEAK]
+  grounded_in [S1]
+  support explicit
+
+constraint K_NOT_WEAK:
+  kind excludes
+  left C_TANAKA
+  right C_WEAK
+  grounded_in [S1]
+  support explicit

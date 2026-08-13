@@ -1,0 +1,36 @@
+llmrecog 0.1
+
+document OPEN_UNKNOWN:
+  title "Unknown actor and deadline"
+
+source SRC:
+  kind text
+  locator "plan.txt"
+
+span S1:
+  source SRC
+  range 1:1..1:10
+  quote "対応する予定です。"
+
+entity E_RESPONSE:
+  type action
+  label "対応"
+  grounded_in [S1]
+  support explicit
+
+record R_MODALITY:
+  kind modality
+  subject E_RESPONSE
+  value planned
+  grounded_in [S1]
+  support explicit
+
+variable V_ACTOR:
+  value_type entity_ref
+  candidates []
+  grounded_in [S1]
+
+variable V_DEADLINE:
+  value_type symbol
+  candidates []
+  grounded_in [S1]

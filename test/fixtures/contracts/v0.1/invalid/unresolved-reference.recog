@@ -1,0 +1,20 @@
+llmrecog 0.1
+
+document UNRESOLVED_REFERENCE:
+  title "Reference must resolve"
+
+source SRC:
+  kind text
+  locator "input.txt"
+
+span S1:
+  source SRC
+  range 1:1..1:5
+
+record R_STATUS:
+  kind property
+  subject E_MISSING
+  predicate status
+  value failed
+  grounded_in [S1]
+  support explicit

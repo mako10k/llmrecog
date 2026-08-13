@@ -1,0 +1,24 @@
+llmrecog 0.1
+
+document EMPTY_ONE_OF:
+  title "Closure cannot be empty"
+
+source SRC:
+  kind text
+  locator "input.txt"
+
+span S1:
+  source SRC
+  range 1:1..1:5
+
+variable V_VALUE:
+  value_type symbol
+  candidates []
+  grounded_in [S1]
+
+constraint K_EMPTY:
+  kind one_of
+  variable V_VALUE
+  members []
+  grounded_in [S1]
+  support explicit

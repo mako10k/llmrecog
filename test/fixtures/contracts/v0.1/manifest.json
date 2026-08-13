@@ -1,0 +1,223 @@
+{
+  "schema": "Llmrecog.ContractFixtureManifest.v1",
+  "semantic_version": "0.1",
+  "grammar": "contracts/llmrecog-0.1.ebnf",
+  "fixtures": [
+    {
+      "id": "empty_document",
+      "path": "test/fixtures/contracts/v0.1/valid/empty-document.recog",
+      "expectation": "valid",
+      "expected_diagnostics": [],
+      "covers_grammar": []
+    },
+    {
+      "id": "all_declarations",
+      "path": "test/fixtures/contracts/v0.1/valid/all-declarations.recog",
+      "expectation": "valid",
+      "expected_diagnostics": [],
+      "covers_grammar": [
+        "document",
+        "version_header",
+        "document_declaration",
+        "declaration",
+        "source_declaration",
+        "span_declaration",
+        "observation_declaration",
+        "entity_declaration",
+        "record_declaration",
+        "record_shape",
+        "relation_shape",
+        "property_shape",
+        "subject_value_shape",
+        "alias_shape",
+        "normalized_value_shape",
+        "variable_declaration",
+        "candidate_declaration",
+        "constraint_declaration",
+        "constraint_shape",
+        "one_of_shape",
+        "requires_shape",
+        "binary_constraint_shape",
+        "normalization_block",
+        "title_field",
+        "kind_field",
+        "locator_field",
+        "media_type_field",
+        "digest_field",
+        "observed_at_field",
+        "source_field",
+        "range_field",
+        "quote_field",
+        "surface_field",
+        "grounded_in_field",
+        "type_field",
+        "label_field",
+        "support_field",
+        "confidence_field",
+        "subject_field",
+        "predicate_field",
+        "object_field",
+        "value_field",
+        "rule_field",
+        "anchors_field",
+        "value_type_field",
+        "candidates_field",
+        "variable_field",
+        "members_field",
+        "antecedent_field",
+        "consequent_field",
+        "left_field",
+        "right_field",
+        "nonempty_identifier_list",
+        "identifier_list",
+        "scalar_value",
+        "text_range",
+        "position",
+        "confidence_number",
+        "positive_integer",
+        "identifier",
+        "string",
+        "json_escape",
+        "json_string_character",
+        "ascii_letter",
+        "digit",
+        "nonzero_digit",
+        "hex_digit"
+      ]
+    },
+    {
+      "id": "explicit_fact",
+      "path": "test/fixtures/contracts/v0.1/valid/explicit-fact.recog",
+      "expectation": "valid",
+      "expected_diagnostics": [],
+      "covers_grammar": []
+    },
+    {
+      "id": "normalized_symbolic",
+      "path": "test/fixtures/contracts/v0.1/valid/normalized-symbolic.recog",
+      "expectation": "valid",
+      "expected_diagnostics": [],
+      "covers_grammar": []
+    },
+    {
+      "id": "minimal_ambiguity",
+      "path": "docs/examples/minimal.recog",
+      "expectation": "valid",
+      "expected_diagnostics": [],
+      "covers_grammar": []
+    },
+    {
+      "id": "open_unknown",
+      "path": "test/fixtures/contracts/v0.1/valid/open-unknown.recog",
+      "expectation": "valid",
+      "expected_diagnostics": [],
+      "covers_grammar": []
+    },
+    {
+      "id": "propagated_exclusion",
+      "path": "test/fixtures/contracts/v0.1/valid/propagated-exclusion.recog",
+      "expectation": "valid",
+      "expected_diagnostics": [],
+      "covers_grammar": []
+    },
+    {
+      "id": "external_knowledge_open",
+      "path": "test/fixtures/contracts/v0.1/valid/external-knowledge-open.recog",
+      "expectation": "valid",
+      "expected_diagnostics": [],
+      "covers_grammar": []
+    },
+    {
+      "id": "inference_for_llmthink",
+      "path": "test/fixtures/contracts/v0.1/valid/inference-for-llmthink.recog",
+      "expectation": "valid",
+      "expected_diagnostics": [],
+      "covers_grammar": []
+    },
+    {
+      "id": "preference_not_decision",
+      "path": "test/fixtures/contracts/v0.1/valid/preference-not-decision.recog",
+      "expectation": "valid",
+      "expected_diagnostics": [],
+      "covers_grammar": []
+    },
+    {
+      "id": "missing_header",
+      "path": "test/fixtures/contracts/v0.1/invalid/missing-header.recog",
+      "expectation": "invalid",
+      "expected_diagnostics": ["RCG-SYNTAX-003"],
+      "covers_grammar": []
+    },
+    {
+      "id": "forbidden_conclusion",
+      "path": "test/fixtures/contracts/v0.1/invalid/forbidden-conclusion.recog",
+      "expectation": "invalid",
+      "expected_diagnostics": ["RCG-BOUNDARY-001"],
+      "covers_grammar": []
+    },
+    {
+      "id": "prohibited_backflow",
+      "path": "test/fixtures/contracts/v0.1/invalid/prohibited-backflow.recog",
+      "expectation": "invalid",
+      "expected_diagnostics": ["RCG-BOUNDARY-001", "RCG-BOUNDARY-002"],
+      "covers_grammar": []
+    },
+    {
+      "id": "ungrounded_constraint",
+      "path": "test/fixtures/contracts/v0.1/invalid/ungrounded-constraint.recog",
+      "expectation": "invalid",
+      "expected_diagnostics": ["RCG-GROUND-002"],
+      "covers_grammar": []
+    },
+    {
+      "id": "authored_viability",
+      "path": "test/fixtures/contracts/v0.1/invalid/authored-viability.recog",
+      "expectation": "invalid",
+      "expected_diagnostics": ["RCG-SYNTAX-011"],
+      "covers_grammar": []
+    },
+    {
+      "id": "empty_one_of",
+      "path": "test/fixtures/contracts/v0.1/invalid/empty-one-of.recog",
+      "expectation": "invalid",
+      "expected_diagnostics": ["RCG-CONSTRAINT-003"],
+      "covers_grammar": []
+    },
+    {
+      "id": "normalization_without_grounding",
+      "path": "test/fixtures/contracts/v0.1/invalid/normalization-without-grounding.recog",
+      "expectation": "invalid",
+      "expected_diagnostics": ["RCG-NORM-001"],
+      "covers_grammar": []
+    },
+    {
+      "id": "unresolved_reference",
+      "path": "test/fixtures/contracts/v0.1/invalid/unresolved-reference.recog",
+      "expectation": "invalid",
+      "expected_diagnostics": ["RCG-REF-002"],
+      "covers_grammar": []
+    }
+  ],
+  "boundary_cases": {
+    "explicit_fact": "explicit_fact",
+    "normalized_meaning": "normalized_symbolic",
+    "multiple_interpretations": "minimal_ambiguity",
+    "unknown": "open_unknown",
+    "explicit_exclusion": "minimal_ambiguity",
+    "propagated_exclusion": "propagated_exclusion",
+    "supported_excluded_conflict": "propagated_exclusion",
+    "allowed_not_supported": "all_declarations",
+    "external_knowledge_required": "external_knowledge_open",
+    "inference_for_llmthink": "inference_for_llmthink",
+    "decision_realization_boundary": "preference_not_decision",
+    "prohibited_backflow": "prohibited_backflow",
+    "materialization_without_decision": "minimal_ambiguity"
+  },
+  "expected_results": [
+    "test/fixtures/contracts/v0.1/expected/empty-document.validation.json",
+    "test/fixtures/contracts/v0.1/expected/missing-header.validation.json",
+    "test/fixtures/contracts/v0.1/expected/candidate-allowed.explain.json",
+    "test/fixtures/contracts/v0.1/expected/candidate-excluded.explain.json",
+    "test/fixtures/contracts/v0.1/expected/candidate-unknown.explain.json"
+  ]
+}

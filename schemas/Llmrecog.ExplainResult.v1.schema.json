@@ -1,0 +1,329 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mako10k.github.io/llmrecog/schemas/Llmrecog.ExplainResult.v1.schema.json",
+  "title": "Llmrecog.ExplainResult.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "semantic_version",
+    "tool_version",
+    "input",
+    "complete",
+    "truncated",
+    "target",
+    "support",
+    "viability",
+    "variable_resolution",
+    "scope",
+    "provenance",
+    "normalization",
+    "source_verification",
+    "relevant_constraint_ids",
+    "skipped_constraints",
+    "derivations",
+    "diagnostics"
+  ],
+  "properties": {
+    "schema": { "const": "Llmrecog.ExplainResult.v1" },
+    "semantic_version": { "const": "0.1" },
+    "tool_version": { "type": "string", "minLength": 1 },
+    "input": {
+      "$ref": "Llmrecog.Common.v1.schema.json#/$defs/input"
+    },
+    "complete": { "type": "boolean" },
+    "truncated": { "type": "boolean" },
+    "target": { "$ref": "#/$defs/target" },
+    "support": { "$ref": "#/$defs/support_projection" },
+    "viability": {
+      "oneOf": [
+        { "type": "null" },
+        { "$ref": "#/$defs/allowed" },
+        { "$ref": "#/$defs/excluded" },
+        { "$ref": "#/$defs/unknown" }
+      ]
+    },
+    "variable_resolution": {
+      "oneOf": [{ "$ref": "#/$defs/variable_resolution" }, { "type": "null" }]
+    },
+    "scope": {
+      "oneOf": [{ "$ref": "#/$defs/scope" }, { "type": "null" }]
+    },
+    "provenance": {
+      "type": "array",
+      "items": {
+        "$ref": "Llmrecog.Common.v1.schema.json#/$defs/provenance_edge"
+      }
+    },
+    "normalization": {
+      "oneOf": [
+        {
+          "$ref": "Llmrecog.SemanticDocument.v1.schema.json#/$defs/normalization"
+        },
+        { "type": "null" }
+      ]
+    },
+    "source_verification": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/source_verification_entry" }
+    },
+    "relevant_constraint_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+      }
+    },
+    "skipped_constraints": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/skipped_constraint" }
+    },
+    "derivations": {
+      "type": "array",
+      "items": {
+        "$ref": "Llmrecog.Common.v1.schema.json#/$defs/reason"
+      }
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "$ref": "Llmrecog.Common.v1.schema.json#/$defs/diagnostic"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "truncated": { "const": true } },
+        "required": ["truncated"]
+      },
+      "then": {
+        "properties": { "complete": { "const": false } }
+      }
+    },
+    {
+      "if": {
+        "properties": { "complete": { "const": true } },
+        "required": ["complete"]
+      },
+      "then": {
+        "properties": { "truncated": { "const": false } }
+      }
+    }
+  ],
+  "$defs": {
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "declaration_kind"],
+      "properties": {
+        "id": {
+          "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+        },
+        "declaration_kind": {
+          "enum": ["entity", "record", "variable", "candidate", "constraint"]
+        }
+      }
+    },
+    "support_projection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "records"],
+      "properties": {
+        "state": { "enum": ["supported", "unsupported", "conflicted"] },
+        "records": {
+          "type": "array",
+          "items": {
+            "$ref": "Llmrecog.Common.v1.schema.json#/$defs/support_record"
+          }
+        }
+      }
+    },
+    "variable_resolution": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["state", "unknown_reasons"],
+          "properties": {
+            "state": { "enum": ["resolved", "ambiguous", "inconsistent"] },
+            "unknown_reasons": { "type": "array", "maxItems": 0 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["state", "unknown_reasons"],
+          "properties": {
+            "state": { "const": "unknown" },
+            "unknown_reasons": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "enum": [
+                  "RCG-RSN-001",
+                  "RCG-RSN-002",
+                  "RCG-RSN-003",
+                  "RCG-RSN-004",
+                  "RCG-RSN-005",
+                  "RCG-RSN-006",
+                  "RCG-RSN-007",
+                  "RCG-RSN-008"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "assignment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["variable_id", "candidate_id", "value"],
+      "properties": {
+        "variable_id": {
+          "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+        },
+        "candidate_id": {
+          "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+        },
+        "value": {
+          "$ref": "Llmrecog.SemanticDocument.v1.schema.json#/$defs/semantic_value"
+        }
+      }
+    },
+    "witness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["assignments", "open_variable_ids"],
+      "properties": {
+        "assignments": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/assignment" }
+        },
+        "open_variable_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+          }
+        }
+      }
+    },
+    "allowed": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "witness", "reason_chain", "unknown_reasons"],
+      "properties": {
+        "state": { "const": "allowed" },
+        "witness": { "$ref": "#/$defs/witness" },
+        "reason_chain": {
+          "type": "array",
+          "minItems": 1,
+          "contains": {
+            "type": "object",
+            "properties": { "code": { "const": "RCG-RSN-101" } },
+            "required": ["code"]
+          },
+          "items": {
+            "$ref": "Llmrecog.Common.v1.schema.json#/$defs/reason"
+          }
+        },
+        "unknown_reasons": { "type": "array", "maxItems": 0 }
+      }
+    },
+    "excluded": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "witness", "reason_chain", "unknown_reasons"],
+      "properties": {
+        "state": { "const": "excluded" },
+        "witness": { "type": "null" },
+        "reason_chain": {
+          "type": "array",
+          "minItems": 1,
+          "contains": {
+            "type": "object",
+            "properties": { "code": { "const": "RCG-RSN-206" } },
+            "required": ["code"]
+          },
+          "items": {
+            "$ref": "Llmrecog.Common.v1.schema.json#/$defs/reason"
+          }
+        },
+        "unknown_reasons": { "type": "array", "maxItems": 0 }
+      }
+    },
+    "unknown": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "witness", "reason_chain", "unknown_reasons"],
+      "properties": {
+        "state": { "const": "unknown" },
+        "witness": { "type": "null" },
+        "reason_chain": { "type": "array", "maxItems": 0 },
+        "unknown_reasons": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "enum": [
+              "RCG-RSN-001",
+              "RCG-RSN-002",
+              "RCG-RSN-003",
+              "RCG-RSN-004",
+              "RCG-RSN-005",
+              "RCG-RSN-006",
+              "RCG-RSN-007",
+              "RCG-RSN-008"
+            ]
+          }
+        }
+      }
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requested_variable_ids", "effective_variable_ids", "limit"],
+      "properties": {
+        "requested_variable_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+          }
+        },
+        "effective_variable_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+          }
+        },
+        "limit": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "source_verification_entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_id", "verification"],
+      "properties": {
+        "source_id": {
+          "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+        },
+        "verification": {
+          "$ref": "Llmrecog.Common.v1.schema.json#/$defs/source_verification"
+        }
+      }
+    },
+    "skipped_constraint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["constraint_id", "reason_code"],
+      "properties": {
+        "constraint_id": {
+          "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+        },
+        "reason_code": {
+          "enum": ["RCG-RSN-003", "RCG-RSN-004", "RCG-RSN-005", "RCG-RSN-006"]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "schema": "Llmrecog.ValidationResult.v1",
+  "semantic_version": "0.1",
+  "tool_version": "contract-fixture",
+  "input": {
+    "path": "test/fixtures/contracts/v0.1/invalid/missing-header.recog",
+    "document_id": null,
+    "digest": "sha256:3bec97b42865af9758b31dc3929e0017783da5135b77d16884d2d8d0c058fb20"
+  },
+  "complete": true,
+  "truncated": false,
+  "valid": false,
+  "structural_valid": false,
+  "semantic_valid": false,
+  "source_verification": {
+    "mode": "none",
+    "state": "not_requested"
+  },
+  "ast": null,
+  "document": null,
+  "diagnostics": [
+    {
+      "code": "RCG-SYNTAX-003",
+      "severity": "error",
+      "message": "The required llmrecog version header is missing.",
+      "entity_id": null,
+      "span": null,
+      "reason_data": {
+        "expected_version": "0.1"
+      },
+      "related": []
+    }
+  ]
+}

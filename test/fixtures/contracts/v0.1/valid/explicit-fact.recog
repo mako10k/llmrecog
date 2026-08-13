@@ -1,0 +1,27 @@
+llmrecog 0.1
+
+document EXPLICIT_FACT:
+  title "Explicit status"
+
+source SRC:
+  kind text
+  locator "status.log"
+
+span S1:
+  source SRC
+  range 1:1..1:25
+  quote "deployment status=failed"
+
+entity E_DEPLOYMENT:
+  type occurrence
+  label "deployment"
+  grounded_in [S1]
+  support explicit
+
+record R_STATUS:
+  kind property
+  subject E_DEPLOYMENT
+  predicate status
+  value failed
+  grounded_in [S1]
+  support explicit

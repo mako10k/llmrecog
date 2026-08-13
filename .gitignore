@@ -1,0 +1,19 @@
+# Node.js / TypeScript artifacts
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# llmrecog derived/runtime state
+.llmrecog/
+
+# Local environment and generated reports
+.env
+.env.*
+!.env.example
+report/
+.tmp/
+
+# OS/editor files
+.DS_Store
+Thumbs.db

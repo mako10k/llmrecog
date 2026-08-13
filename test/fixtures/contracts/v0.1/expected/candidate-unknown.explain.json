@@ -1,0 +1,42 @@
+{
+  "schema": "Llmrecog.ExplainResult.v1",
+  "semantic_version": "0.1",
+  "tool_version": "contract-fixture",
+  "input": {
+    "path": "test/fixtures/contracts/v0.1/valid/open-unknown.recog",
+    "document_id": "OPEN_UNKNOWN",
+    "digest": "sha256:dd37a67efd1e5e9b4a7dbc9913d1ee879eb0ff411e7604f46d68f919965152cc"
+  },
+  "complete": true,
+  "truncated": false,
+  "target": {
+    "id": "V_ACTOR",
+    "declaration_kind": "variable"
+  },
+  "support": {
+    "state": "unsupported",
+    "records": []
+  },
+  "viability": null,
+  "variable_resolution": {
+    "state": "unknown",
+    "unknown_reasons": ["RCG-RSN-001", "RCG-RSN-002"]
+  },
+  "scope": {
+    "requested_variable_ids": ["V_ACTOR"],
+    "effective_variable_ids": ["V_ACTOR"],
+    "limit": 100
+  },
+  "provenance": [{ "kind": "grounded_in", "from": "V_ACTOR", "to": "S1" }],
+  "normalization": null,
+  "source_verification": [
+    {
+      "source_id": "SRC",
+      "verification": { "mode": "none", "state": "not_requested" }
+    }
+  ],
+  "relevant_constraint_ids": [],
+  "skipped_constraints": [],
+  "derivations": [],
+  "diagnostics": []
+}

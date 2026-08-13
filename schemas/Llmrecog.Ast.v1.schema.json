@@ -1,0 +1,184 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mako10k.github.io/llmrecog/schemas/Llmrecog.Ast.v1.schema.json",
+  "title": "Llmrecog.Ast.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "syntax_version",
+    "recovered",
+    "header",
+    "document",
+    "declarations"
+  ],
+  "properties": {
+    "schema": { "const": "Llmrecog.Ast.v1" },
+    "syntax_version": { "const": "0.1" },
+    "recovered": { "type": "boolean" },
+    "header": { "$ref": "#/$defs/header" },
+    "document": { "$ref": "#/$defs/declaration" },
+    "declarations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/declaration" }
+    }
+  },
+  "$defs": {
+    "header": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "version", "span"],
+      "properties": {
+        "kind": { "const": "version_header" },
+        "version": { "const": "0.1" },
+        "span": {
+          "$ref": "Llmrecog.Common.v1.schema.json#/$defs/syntax_span"
+        }
+      }
+    },
+    "declaration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "id",
+        "header_arguments",
+        "fields",
+        "span",
+        "recovered"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "document",
+            "source",
+            "span",
+            "observation",
+            "entity",
+            "record",
+            "variable",
+            "candidate",
+            "constraint"
+          ]
+        },
+        "id": {
+          "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+        },
+        "header_arguments": {
+          "type": "array",
+          "items": {
+            "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+          }
+        },
+        "fields": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/field" }
+        },
+        "span": {
+          "$ref": "Llmrecog.Common.v1.schema.json#/$defs/syntax_span"
+        },
+        "recovered": { "type": "boolean" }
+      }
+    },
+    "field": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "value", "span", "recovered"],
+      "properties": {
+        "name": {
+          "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+        },
+        "value": { "$ref": "#/$defs/value" },
+        "span": {
+          "$ref": "Llmrecog.Common.v1.schema.json#/$defs/syntax_span"
+        },
+        "recovered": { "type": "boolean" }
+      }
+    },
+    "value": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "value"],
+          "properties": {
+            "kind": { "const": "identifier" },
+            "value": {
+              "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "value"],
+          "properties": {
+            "kind": { "const": "string" },
+            "value": { "type": "string" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "value"],
+          "properties": {
+            "kind": { "const": "confidence" },
+            "value": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "start", "end"],
+          "properties": {
+            "kind": { "const": "text_range" },
+            "start": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["line", "column"],
+              "properties": {
+                "line": { "type": "integer", "minimum": 1 },
+                "column": { "type": "integer", "minimum": 1 }
+              }
+            },
+            "end": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["line", "column"],
+              "properties": {
+                "line": { "type": "integer", "minimum": 1 },
+                "column": { "type": "integer", "minimum": 1 }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "items"],
+          "properties": {
+            "kind": { "const": "identifier_list" },
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "fields"],
+          "properties": {
+            "kind": { "const": "block" },
+            "fields": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/field" }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,197 @@
+llmrecog 0.1
+
+# This fixture exercises every grammar production.
+document ALL_DECLARATIONS:
+  title "All declaration forms"
+
+source SRC:
+  kind text
+  locator "all.txt"
+  media_type "text/plain"
+  digest "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+  observed_at "2026-08-13T09:00:00+09:00"
+
+span S1:
+  source SRC
+  range 1:1..1:20
+  quote "Alpha says next week"
+
+observation O_ALPHA:
+  surface "Alpha"
+  grounded_in [S1]
+
+entity E_ALPHA:
+  type person
+  label "Alpha \"quoted\""
+  grounded_in [O_ALPHA]
+  support explicit
+  confidence 0.75
+
+entity E_BETA:
+  type person
+  label "Beta"
+  grounded_in [S1]
+  support explicit
+
+entity E_EVENT:
+  type action
+  label "respond"
+  grounded_in [S1]
+  support linguistic
+
+record R_RELATION:
+  kind relation
+  subject E_EVENT
+  predicate actor
+  object V_ACTOR
+  grounded_in [S1]
+  support linguistic
+
+record R_PROPERTY:
+  kind property
+  subject E_EVENT
+  predicate deadline
+  value next_week
+  grounded_in [S1]
+  support normalized
+  normalization:
+    surface "next week"
+    rule temporal.relative-week.symbolic.v1
+    grounded_in [S1]
+    anchors [S1]
+
+record R_INTENT:
+  kind intent
+  subject E_EVENT
+  value V_MODE
+  grounded_in [S1]
+  support linguistic
+
+record R_MODALITY:
+  kind modality
+  subject E_EVENT
+  value planned
+  grounded_in [S1]
+  support explicit
+
+record R_POLARITY:
+  kind polarity
+  subject E_EVENT
+  value positive
+  grounded_in [S1]
+  support linguistic
+
+record R_ALIAS:
+  kind alias
+  subject E_ALPHA
+  object E_BETA
+  grounded_in [S1]
+  support ambiguous
+
+record R_NORMALIZED:
+  kind normalized_value
+  value canonical_value
+  grounded_in [S1]
+  support normalized
+  normalization:
+    surface "Canonical Value"
+    rule symbol.lower-snake.v1
+    grounded_in [S1]
+
+variable V_ACTOR:
+  value_type entity_ref
+  candidates [C_ACTOR_ALPHA, C_ACTOR_BETA]
+  grounded_in [S1]
+
+candidate C_ACTOR_ALPHA in V_ACTOR:
+  value E_ALPHA
+  grounded_in [S1]
+  support ambiguous
+  confidence 1
+
+candidate C_ACTOR_BETA in V_ACTOR:
+  value E_BETA
+  grounded_in [S1]
+  support ambiguous
+
+variable V_ALIAS:
+  value_type entity_ref
+  candidates [C_ALIAS_ALPHA, C_ALIAS_BETA]
+  grounded_in [S1]
+
+candidate C_ALIAS_ALPHA in V_ALIAS:
+  value E_ALPHA
+  grounded_in [S1]
+
+candidate C_ALIAS_BETA in V_ALIAS:
+  value E_BETA
+  grounded_in [S1]
+
+variable V_DISTINCT:
+  value_type entity_ref
+  candidates [C_DISTINCT_ALPHA, C_DISTINCT_BETA]
+  grounded_in [S1]
+
+candidate C_DISTINCT_ALPHA in V_DISTINCT:
+  value E_ALPHA
+  grounded_in [S1]
+
+candidate C_DISTINCT_BETA in V_DISTINCT:
+  value E_BETA
+  grounded_in [S1]
+
+variable V_MODE:
+  value_type symbol
+  candidates [C_MODE_DESIRE, C_MODE_WEAK]
+  grounded_in [S1]
+
+candidate C_MODE_DESIRE in V_MODE:
+  value desire
+  grounded_in [S1]
+  support ambiguous
+
+candidate C_MODE_WEAK in V_MODE:
+  value weak_commitment
+  grounded_in [S1]
+  support ambiguous
+
+variable V_EMPTY:
+  value_type string
+  candidates []
+  grounded_in [S1]
+
+constraint K_ACTOR:
+  kind one_of
+  variable V_ACTOR
+  members [C_ACTOR_ALPHA, C_ACTOR_BETA]
+  grounded_in [S1]
+  support explicit
+
+constraint K_REQUIRES:
+  kind requires
+  antecedent C_ACTOR_ALPHA
+  consequent C_MODE_DESIRE
+  grounded_in [S1]
+  support linguistic
+
+constraint K_EXCLUDES:
+  kind excludes
+  left C_ACTOR_BETA
+  right C_MODE_WEAK
+  grounded_in [S1]
+  support explicit
+  confidence 0.5
+
+constraint K_SAME:
+  kind same_as
+  left V_ACTOR
+  right V_ALIAS
+  grounded_in [S1]
+  support linguistic
+
+constraint K_DISTINCT:
+  kind distinct_from
+  left V_ACTOR
+  right V_DISTINCT
+  grounded_in [S1]
+  support linguistic

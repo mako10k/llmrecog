@@ -1,0 +1,26 @@
+llmrecog 0.1
+
+document PREFERENCE_NOT_DECISION:
+  title "Preference remains an intent"
+
+source SRC:
+  kind text
+  locator "request.txt"
+
+span S1:
+  source SRC
+  range 1:1..1:36
+  quote "The requester prefers PostgreSQL."
+
+entity E_REQUESTER:
+  type person
+  label "requester"
+  grounded_in [S1]
+  support explicit
+
+record R_PREFERENCE:
+  kind intent
+  subject E_REQUESTER
+  value PostgreSQL
+  grounded_in [S1]
+  support explicit

@@ -1,0 +1,41 @@
+llmrecog 0.1
+
+document INFERENCE_FOR_LLMTHINK:
+  title "Recognitions stop before schedule-risk inference"
+
+source SRC:
+  kind text
+  locator "requirements.txt"
+
+span S1:
+  source SRC
+  range 1:1..2:40
+  quote "Desired deadline: next week. Reviewer unavailable until following week."
+
+entity E_WORK:
+  type action
+  label "work"
+  grounded_in [S1]
+  support explicit
+
+entity E_REVIEWER:
+  type person
+  label "reviewer"
+  grounded_in [S1]
+  support explicit
+
+record R_DEADLINE:
+  kind property
+  subject E_WORK
+  predicate desired_deadline
+  value next_week
+  grounded_in [S1]
+  support explicit
+
+record R_REVIEWER_AVAILABLE:
+  kind property
+  subject E_REVIEWER
+  predicate available_from
+  value following_week
+  grounded_in [S1]
+  support explicit

@@ -1,0 +1,20 @@
+llmrecog 0.1
+
+document INVALID_NORMALIZATION:
+  title "Normalization needs rule and input"
+
+source SRC:
+  kind text
+  locator "input.txt"
+
+span S1:
+  source SRC
+  range 1:1..1:10
+
+record R_VALUE:
+  kind normalized_value
+  value next_week
+  grounded_in [S1]
+  support normalized
+  normalization:
+    surface "next week"

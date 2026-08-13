@@ -1,0 +1,461 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mako10k.github.io/llmrecog/schemas/Llmrecog.SemanticDocument.v1.schema.json",
+  "title": "Llmrecog.SemanticDocument.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "semantic_version",
+    "document_id",
+    "title",
+    "sources",
+    "spans",
+    "observations",
+    "recognitions"
+  ],
+  "properties": {
+    "schema": { "const": "Llmrecog.SemanticDocument.v1" },
+    "semantic_version": { "const": "0.1" },
+    "document_id": {
+      "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+    },
+    "title": { "type": "string" },
+    "sources": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/source" }
+    },
+    "spans": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/span" }
+    },
+    "observations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/observation" }
+    },
+    "recognitions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/recognition" }
+    }
+  },
+  "$defs": {
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "locator"],
+      "properties": {
+        "id": {
+          "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+        },
+        "kind": { "const": "text" },
+        "locator": { "type": "string", "minLength": 1 },
+        "media_type": { "type": "string", "minLength": 1 },
+        "digest": {
+          "$ref": "Llmrecog.Common.v1.schema.json#/$defs/sha256"
+        },
+        "observed_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "text_position": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["line", "column"],
+      "properties": {
+        "line": { "type": "integer", "minimum": 1 },
+        "column": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "text_range": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start", "end"],
+      "properties": {
+        "start": { "$ref": "#/$defs/text_position" },
+        "end": { "$ref": "#/$defs/text_position" }
+      }
+    },
+    "span": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "source_id", "range"],
+      "properties": {
+        "id": {
+          "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+        },
+        "source_id": {
+          "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+        },
+        "range": { "$ref": "#/$defs/text_range" },
+        "quote": { "type": "string" }
+      }
+    },
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "surface", "grounded_in"],
+      "properties": {
+        "id": {
+          "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+        },
+        "surface": { "type": "string" },
+        "grounded_in": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "Llmrecog.Common.v1.schema.json#/$defs/grounding_reference"
+          }
+        }
+      }
+    },
+    "semantic_value": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "id"],
+          "properties": {
+            "kind": { "const": "reference" },
+            "id": {
+              "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "value"],
+          "properties": {
+            "kind": { "const": "symbol" },
+            "value": {
+              "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "value"],
+          "properties": {
+            "kind": { "const": "string" },
+            "value": { "type": "string" }
+          }
+        }
+      ]
+    },
+    "normalization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["surface", "rule", "grounded_in", "anchors"],
+      "properties": {
+        "surface": { "type": "string" },
+        "rule": {
+          "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+        },
+        "grounded_in": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "Llmrecog.Common.v1.schema.json#/$defs/grounding_reference"
+          }
+        },
+        "anchors": {
+          "type": "array",
+          "items": {
+            "$ref": "Llmrecog.Common.v1.schema.json#/$defs/grounding_reference"
+          }
+        }
+      }
+    },
+    "recognition_base": {
+      "type": "object",
+      "required": ["declaration_kind", "id", "grounded_in"],
+      "properties": {
+        "declaration_kind": {
+          "enum": ["entity", "record", "variable", "candidate", "constraint"]
+        },
+        "id": {
+          "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+        },
+        "grounded_in": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "Llmrecog.Common.v1.schema.json#/$defs/grounding_reference"
+          }
+        },
+        "support": {
+          "$ref": "Llmrecog.Common.v1.schema.json#/$defs/support_record"
+        }
+      }
+    },
+    "entity": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/recognition_base" },
+        {
+          "type": "object",
+          "required": ["type", "label"],
+          "properties": {
+            "declaration_kind": { "const": "entity" },
+            "type": {
+              "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+            },
+            "label": { "type": "string" }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "record_base": {
+      "allOf": [
+        { "$ref": "#/$defs/recognition_base" },
+        {
+          "type": "object",
+          "properties": {
+            "declaration_kind": { "const": "record" },
+            "normalization": { "$ref": "#/$defs/normalization" }
+          }
+        }
+      ]
+    },
+    "relation_record": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/record_base" },
+        {
+          "type": "object",
+          "required": ["record_kind", "subject_id", "predicate", "object"],
+          "properties": {
+            "record_kind": { "const": "relation" },
+            "subject_id": {
+              "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+            },
+            "predicate": {
+              "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+            },
+            "object": { "$ref": "#/$defs/semantic_value" }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "property_record": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/record_base" },
+        {
+          "type": "object",
+          "required": ["record_kind", "subject_id", "predicate", "value"],
+          "properties": {
+            "record_kind": { "const": "property" },
+            "subject_id": {
+              "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+            },
+            "predicate": {
+              "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+            },
+            "value": { "$ref": "#/$defs/semantic_value" }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "subject_value_record": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/record_base" },
+        {
+          "type": "object",
+          "required": ["record_kind", "subject_id", "value"],
+          "properties": {
+            "record_kind": { "enum": ["intent", "modality", "polarity"] },
+            "subject_id": {
+              "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+            },
+            "value": { "$ref": "#/$defs/semantic_value" }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "alias_record": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/record_base" },
+        {
+          "type": "object",
+          "required": ["record_kind", "subject_id", "object"],
+          "properties": {
+            "record_kind": { "const": "alias" },
+            "subject_id": {
+              "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+            },
+            "object": { "$ref": "#/$defs/semantic_value" }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "normalized_value_record": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/record_base" },
+        {
+          "type": "object",
+          "required": ["record_kind", "value", "normalization"],
+          "properties": {
+            "record_kind": { "const": "normalized_value" },
+            "value": { "$ref": "#/$defs/semantic_value" },
+            "normalization": { "$ref": "#/$defs/normalization" }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "record": {
+      "oneOf": [
+        { "$ref": "#/$defs/relation_record" },
+        { "$ref": "#/$defs/property_record" },
+        { "$ref": "#/$defs/subject_value_record" },
+        { "$ref": "#/$defs/alias_record" },
+        { "$ref": "#/$defs/normalized_value_record" }
+      ]
+    },
+    "variable": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/recognition_base" },
+        {
+          "type": "object",
+          "required": ["value_type", "candidate_ids"],
+          "properties": {
+            "declaration_kind": { "const": "variable" },
+            "value_type": { "enum": ["entity_ref", "symbol", "string"] },
+            "candidate_ids": {
+              "type": "array",
+              "items": {
+                "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "candidate": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/recognition_base" },
+        {
+          "type": "object",
+          "required": ["variable_id", "value"],
+          "properties": {
+            "declaration_kind": { "const": "candidate" },
+            "variable_id": {
+              "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+            },
+            "value": { "$ref": "#/$defs/semantic_value" }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "constraint_base": {
+      "allOf": [
+        { "$ref": "#/$defs/recognition_base" },
+        {
+          "type": "object",
+          "required": ["support"],
+          "properties": {
+            "declaration_kind": { "const": "constraint" },
+            "support": {
+              "$ref": "Llmrecog.Common.v1.schema.json#/$defs/support_record"
+            }
+          }
+        }
+      ]
+    },
+    "one_of_constraint": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/constraint_base" },
+        {
+          "type": "object",
+          "required": ["constraint_kind", "variable_id", "member_ids"],
+          "properties": {
+            "constraint_kind": { "const": "one_of" },
+            "variable_id": {
+              "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+            },
+            "member_ids": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "requires_constraint": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/constraint_base" },
+        {
+          "type": "object",
+          "required": ["constraint_kind", "antecedent_id", "consequent_id"],
+          "properties": {
+            "constraint_kind": { "const": "requires" },
+            "antecedent_id": {
+              "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+            },
+            "consequent_id": {
+              "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "binary_constraint": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/constraint_base" },
+        {
+          "type": "object",
+          "required": ["constraint_kind", "left_id", "right_id"],
+          "properties": {
+            "constraint_kind": {
+              "enum": ["excludes", "same_as", "distinct_from"]
+            },
+            "left_id": {
+              "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+            },
+            "right_id": {
+              "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "constraint": {
+      "oneOf": [
+        { "$ref": "#/$defs/one_of_constraint" },
+        { "$ref": "#/$defs/requires_constraint" },
+        { "$ref": "#/$defs/binary_constraint" }
+      ]
+    },
+    "recognition": {
+      "oneOf": [
+        { "$ref": "#/$defs/entity" },
+        { "$ref": "#/$defs/record" },
+        { "$ref": "#/$defs/variable" },
+        { "$ref": "#/$defs/candidate" },
+        { "$ref": "#/$defs/constraint" }
+      ]
+    }
+  }
+}

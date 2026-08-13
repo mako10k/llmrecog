@@ -1,0 +1,31 @@
+llmrecog 0.1
+
+document NORMALIZED_SYMBOLIC:
+  title "Symbolic relative date"
+
+source SRC:
+  kind text
+  locator "request.txt"
+
+span S1:
+  source SRC
+  range 1:1..1:13
+  quote "来週までには対応したい"
+
+entity E_RESPONSE:
+  type action
+  label "対応"
+  grounded_in [S1]
+  support explicit
+
+record R_DEADLINE:
+  kind property
+  subject E_RESPONSE
+  predicate deadline
+  value next_week
+  grounded_in [S1]
+  support normalized
+  normalization:
+    surface "来週まで"
+    rule temporal.relative-week.symbolic.v1
+    grounded_in [S1]

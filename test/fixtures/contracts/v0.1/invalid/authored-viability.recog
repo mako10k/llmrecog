@@ -1,0 +1,22 @@
+llmrecog 0.1
+
+document AUTHORED_VIABILITY:
+  title "Viability is derived only"
+
+source SRC:
+  kind text
+  locator "input.txt"
+
+span S1:
+  source SRC
+  range 1:1..1:5
+
+variable V_VALUE:
+  value_type symbol
+  candidates [C_A]
+  grounded_in [S1]
+
+candidate C_A in V_VALUE:
+  value a
+  grounded_in [S1]
+  allowed true

@@ -1,0 +1,129 @@
+project LLMRECOG_INITIAL_ROADMAP:
+  version 5
+  title "llmrecog initial source-grounded recognition roadmap"
+  description |
+    Deliver the first deterministic llmrecog core and an optional recognition-aware llmthink audit prototype through contract-first vertical slices.
+    Durations are coarse relative-day estimates, not delivery dates or calendar commitments; no velocity is declared until measured work exists.
+    Provider-backed recognition generation, editor integrations, package publication, and production rollout remain outside this roadmap.
+  duration_unit day
+  finish INITIAL_ROADMAP_ACCEPTED
+
+resource DEVELOPERS:
+  title "Core and integration implementation capacity"
+  capacity 1
+
+resource REVIEWERS:
+  title "Semantic boundary and contract review capacity"
+  description "Only one grammar, semantic, provenance, or cross-repository contract review runs at a time"
+  capacity 1
+
+milestone DESIGN_BASELINE:
+  title "Design baseline and repository scaffold complete"
+  state reached
+
+milestone EXECUTABLE_CONTRACT_ACCEPTED:
+  title "Grammar, schemas, diagnostics, and fixtures accepted"
+
+milestone VALIDATION_SLICE_ACCEPTED:
+  title "Deterministic parse and validation slice accepted"
+
+milestone EXPLAINABLE_CSP_ACCEPTED:
+  title "First explainable ambiguity and constraint slice accepted"
+
+milestone INITIAL_SEMANTICS_ACCEPTED:
+  title "Initial constraint set and bounded semantic views accepted"
+
+milestone LOCAL_SOURCE_VERIFICATION_ACCEPTED:
+  title "Fail-closed local source verification accepted"
+
+milestone LLMTHINK_AUDIT_CONTRACT_ACCEPTED:
+  title "Optional llmthink grounding-audit contract accepted"
+
+milestone LLMTHINK_AUDIT_PROTOTYPE_ACCEPTED:
+  title "Recognition-aware llmthink audit prototype accepted"
+
+milestone INITIAL_ROADMAP_ACCEPTED:
+  title "Initial deterministic recognition and reasoning handoff roadmap accepted"
+
+task FREEZE_EXECUTABLE_CONTRACT DESIGN_BASELINE -> EXECUTABLE_CONTRACT_ACCEPTED:
+  title "Freeze the first executable DSL and result contracts"
+  description "Complete EBNF, AST and JSON Schemas, stable diagnostics, canonical formatting expectations, and success/failure fixtures without implementing the parser"
+  duration 8d
+  status done
+  priority 100
+  requires:
+    DEVELOPERS 1
+    REVIEWERS 1
+
+task IMPLEMENT_PARSE_VALIDATE EXECUTABLE_CONTRACT_ACCEPTED -> VALIDATION_SLICE_ACCEPTED:
+  title "Implement the parse and validate vertical slice"
+  description "Add the typed parser, reference resolution, five-shape semantic validation, and deterministic validate/show projections without provider or source I/O"
+  duration 13d
+  priority 90
+  requires:
+    DEVELOPERS 1
+    REVIEWERS 1
+
+task IMPLEMENT_EXPLAINABLE_CSP VALIDATION_SLICE_ACCEPTED -> EXPLAINABLE_CSP_ACCEPTED:
+  title "Implement one explainable ambiguity and CSP slice"
+  description "Implement finite one_of and excludes behavior, joint witnesses, exclusion chains, unknown reasons, candidate explain, and focused audit rules"
+  duration 13d
+  priority 80
+  requires:
+    DEVELOPERS 1
+    REVIEWERS 1
+
+task COMPLETE_INITIAL_SEMANTICS EXPLAINABLE_CSP_ACCEPTED -> INITIAL_SEMANTICS_ACCEPTED:
+  title "Complete the initial bounded semantic core"
+  description "Add requires, same_as, distinct_from, query-scoped materialization, truncation contracts, and deterministic reason composition without ranking or general inference"
+  duration 8d
+  priority 70
+  requires:
+    DEVELOPERS 1
+    REVIEWERS 1
+
+task VERIFY_LOCAL_SOURCES INITIAL_SEMANTICS_ACCEPTED -> LOCAL_SOURCE_VERIFICATION_ACCEPTED:
+  title "Add fail-closed local source verification"
+  description "Verify relative locators, digests, text ranges, and quotes through a separately bounded filesystem adapter with no network or automatic repair"
+  duration 5d
+  priority 60
+  requires:
+    DEVELOPERS 1
+    REVIEWERS 1
+
+task FREEZE_LLMTHINK_AUDIT_CONTRACT INITIAL_SEMANTICS_ACCEPTED -> LLMTHINK_AUDIT_CONTRACT_ACCEPTED:
+  title "Freeze the optional llmthink grounding-audit contract"
+  description "Conduct a separate cross-repository design review for typed recognition references, source support, joint variable compatibility, open-state evidence limits, ambiguity propagation, and no-writeback provenance"
+  duration 5d
+  priority 50
+  requires:
+    DEVELOPERS 1
+    REVIEWERS 1
+
+task PROTOTYPE_LLMTHINK_AUDIT LLMTHINK_AUDIT_CONTRACT_ACCEPTED -> LLMTHINK_AUDIT_PROTOTYPE_ACCEPTED:
+  title "Prototype recognition-aware llmthink audit"
+  description "Resolve typed recognition references read-only and audit unsupported premises, jointly impossible bindings, open or incomplete grounding, stale sources, and ambiguity narrowing while keeping plain llmthink evidence valid"
+  duration 8d
+  priority 40
+  requires:
+    DEVELOPERS 1
+    REVIEWERS 1
+
+gate LOCAL_SOURCE_ACCEPTANCE_GATE LOCAL_SOURCE_VERIFICATION_ACCEPTED -> INITIAL_ROADMAP_ACCEPTED:
+  reason "The initial roadmap requires deterministic fail-closed verification of local source provenance"
+
+gate LLMTHINK_AUDIT_ACCEPTANCE_GATE LLMTHINK_AUDIT_PROTOTYPE_ACCEPTED -> INITIAL_ROADMAP_ACCEPTED:
+  reason "The initial roadmap requires an optional audited handoff without making llmthink depend on llmrecog"
+
+work_event START_FREEZE_CONTRACT_20260813:
+  model 1
+  task FREEZE_EXECUTABLE_CONTRACT
+  kind start
+  occurred_at 2026-08-13T19:13:46+09:00
+  planned_value 8d
+
+work_event FINISH_FREEZE_CONTRACT_20260813:
+  model 1
+  task FREEZE_EXECUTABLE_CONTRACT
+  kind finish
+  occurred_at 2026-08-13T19:38:58+09:00

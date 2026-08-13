@@ -1,0 +1,82 @@
+{
+  "schema": "Llmrecog.ExplainResult.v1",
+  "semantic_version": "0.1",
+  "tool_version": "contract-fixture",
+  "input": {
+    "path": "test/fixtures/contracts/v0.1/valid/propagated-exclusion.recog",
+    "document_id": "PROPAGATED_EXCLUSION",
+    "digest": "sha256:ecb935b0a4ce831e79cc5af655a34a6e6977c85729995ad4389f5b6e8befcecc"
+  },
+  "complete": true,
+  "truncated": false,
+  "target": {
+    "id": "C_DESIRE",
+    "declaration_kind": "candidate"
+  },
+  "support": {
+    "state": "supported",
+    "records": [
+      {
+        "kind": "ambiguous",
+        "grounded_in": [{ "id": "S1", "kind": "span" }]
+      }
+    ]
+  },
+  "viability": {
+    "state": "allowed",
+    "witness": {
+      "assignments": [
+        {
+          "variable_id": "V_ACTOR",
+          "candidate_id": "C_TANAKA",
+          "value": { "kind": "reference", "id": "E_TANAKA" }
+        },
+        {
+          "variable_id": "V_COMMITMENT",
+          "candidate_id": "C_DESIRE",
+          "value": { "kind": "symbol", "value": "desire" }
+        }
+      ],
+      "open_variable_ids": []
+    },
+    "reason_chain": [
+      {
+        "code": "RCG-RSN-101",
+        "name": "candidate_witness_found",
+        "subject_id": "C_DESIRE",
+        "constraint_id": null,
+        "inputs": ["C_TANAKA", "C_DESIRE"]
+      }
+    ],
+    "unknown_reasons": []
+  },
+  "variable_resolution": {
+    "state": "resolved",
+    "unknown_reasons": []
+  },
+  "scope": {
+    "requested_variable_ids": ["V_COMMITMENT"],
+    "effective_variable_ids": ["V_ACTOR", "V_COMMITMENT"],
+    "limit": 100
+  },
+  "provenance": [{ "kind": "grounded_in", "from": "C_DESIRE", "to": "S1" }],
+  "normalization": null,
+  "source_verification": [
+    {
+      "source_id": "SRC",
+      "verification": { "mode": "none", "state": "not_requested" }
+    }
+  ],
+  "relevant_constraint_ids": ["K_ACTOR", "K_COMMITMENT", "K_NOT_WEAK"],
+  "skipped_constraints": [],
+  "derivations": [
+    {
+      "code": "RCG-RSN-101",
+      "name": "candidate_witness_found",
+      "subject_id": "C_DESIRE",
+      "constraint_id": null,
+      "inputs": ["C_TANAKA", "C_DESIRE"]
+    }
+  ],
+  "diagnostics": []
+}

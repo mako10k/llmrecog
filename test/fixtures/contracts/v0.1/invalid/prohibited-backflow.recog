@@ -1,0 +1,26 @@
+llmrecog 0.1
+
+document PROHIBITED_BACKFLOW:
+  title "Inference cannot become original recognition"
+
+source THINK_OUTPUT:
+  kind text
+  locator "llmthink://decision/C1"
+
+span S1:
+  source THINK_OUTPUT
+  range 1:1..1:20
+  quote "Select PostgreSQL."
+
+entity E_DATABASE:
+  type component
+  label "database"
+  grounded_in [S1]
+  support explicit
+
+record R_DATABASE:
+  kind decision
+  subject E_DATABASE
+  value PostgreSQL
+  grounded_in [S1]
+  support explicit

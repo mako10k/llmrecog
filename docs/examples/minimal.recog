@@ -1,0 +1,125 @@
+llmrecog 0.1
+
+document MEETING_RECOG:
+  title "Ambiguous meeting statement"
+
+source SRC_MEETING:
+  kind text
+  locator "meeting.txt"
+  media_type "text/plain"
+
+span S1:
+  source SRC_MEETING
+  range 1:1..1:26
+  quote "田中は佐藤に、彼が来週までには対応したいと伝えた。"
+
+span S2:
+  source SRC_MEETING
+  range 2:1..2:24
+  quote "ここで「彼」は田中か佐藤のいずれか一人を指す。"
+
+span S3:
+  source SRC_MEETING
+  range 3:1..3:32
+  quote "この表現は「希望」または「弱い約束」のいずれか一方として扱う。"
+
+span S4:
+  source SRC_MEETING
+  range 4:1..4:27
+  quote "ただし、田中が対応する場合、それは弱い約束ではない。"
+
+entity E_TANAKA:
+  type person
+  label "田中"
+  grounded_in [S1]
+  support explicit
+
+entity E_SATO:
+  type person
+  label "佐藤"
+  grounded_in [S1]
+  support explicit
+
+entity E_RESPONSE:
+  type action
+  label "対応"
+  grounded_in [S1]
+  support explicit
+
+variable V_ACTOR:
+  value_type entity_ref
+  candidates [C_ACTOR_TANAKA, C_ACTOR_SATO]
+  grounded_in [S1, S2]
+
+candidate C_ACTOR_TANAKA in V_ACTOR:
+  value E_TANAKA
+  grounded_in [S1, S2]
+  support ambiguous
+
+candidate C_ACTOR_SATO in V_ACTOR:
+  value E_SATO
+  grounded_in [S1, S2]
+  support ambiguous
+
+record R_ACTOR:
+  kind relation
+  subject E_RESPONSE
+  predicate actor
+  object V_ACTOR
+  grounded_in [S1]
+  support linguistic
+
+variable V_COMMITMENT:
+  value_type symbol
+  candidates [C_DESIRE, C_WEAK_COMMITMENT]
+  grounded_in [S1, S3]
+
+candidate C_DESIRE in V_COMMITMENT:
+  value desire
+  grounded_in [S1, S3]
+  support ambiguous
+
+candidate C_WEAK_COMMITMENT in V_COMMITMENT:
+  value weak_commitment
+  grounded_in [S1, S3]
+  support ambiguous
+
+record R_INTENT:
+  kind intent
+  subject E_RESPONSE
+  value V_COMMITMENT
+  grounded_in [S1]
+  support linguistic
+
+record R_DEADLINE:
+  kind property
+  subject E_RESPONSE
+  predicate deadline
+  value next_week
+  grounded_in [S1]
+  support normalized
+  normalization:
+    surface "来週まで"
+    rule temporal.relative-week.symbolic.v1
+    grounded_in [S1]
+
+constraint K_ACTOR_ONE_OF:
+  kind one_of
+  variable V_ACTOR
+  members [C_ACTOR_TANAKA, C_ACTOR_SATO]
+  grounded_in [S2]
+  support explicit
+
+constraint K_COMMITMENT_ONE_OF:
+  kind one_of
+  variable V_COMMITMENT
+  members [C_DESIRE, C_WEAK_COMMITMENT]
+  grounded_in [S3]
+  support explicit
+
+constraint K_TANAKA_NOT_WEAK:
+  kind excludes
+  left C_ACTOR_TANAKA
+  right C_WEAK_COMMITMENT
+  grounded_in [S4]
+  support explicit
