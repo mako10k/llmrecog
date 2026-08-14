@@ -1,0 +1,24 @@
+Llmrecog.ExplainResult.v1 semantic=0.1 tool=contract-fixture
+input: test/fixtures/contracts/v0.1/valid/limit-unknown.recog
+document: LIMIT_UNKNOWN
+digest: sha256:f67a6b1c2b214b907cee9611d9fce48440b77aa4c35c3cf94dc26963695e79c9
+target: C_B1 kind=candidate
+support: supported
+support_records: ambiguous grounded_in=S1
+viability: unknown
+witness: -
+reason_chain: -
+unknown_reasons: RCG-RSN-007
+variable_resolution: unknown
+variable_unknown_reasons: RCG-RSN-007
+scope: requested=V_B effective=V_A,V_B limit=1
+provenance: grounded_in(C_B1,S1), applies(C_B1,K_A1_NOT_B1)
+normalization: -
+source_verification: SRC none/not_requested
+constraints: K_A, K_B, K_A1_NOT_B1
+skipped_constraints: -
+derivations:
+  RCG-RSN-202 excludes_pair_forbidden subject=C_B1 constraint=K_A1_NOT_B1 inputs=C_A1,C_B1
+complete: false
+truncated: true
+diagnostics: 0

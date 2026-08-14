@@ -1,0 +1,69 @@
+{
+  "schema": "Llmrecog.ExplainResult.v1",
+  "semantic_version": "0.1",
+  "tool_version": "contract-fixture",
+  "input": {
+    "path": "test/fixtures/contracts/v0.1/valid/unsupported-allowed.recog",
+    "document_id": "UNSUPPORTED_ALLOWED",
+    "digest": "sha256:1860a1504d7ac16ae2538472022c4d8fe104be34b1db8a9d60bb1551bb550ae4"
+  },
+  "complete": true,
+  "truncated": false,
+  "target": {
+    "id": "C_SECONDARY",
+    "declaration_kind": "candidate"
+  },
+  "support": { "state": "unsupported", "records": [] },
+  "viability": {
+    "state": "allowed",
+    "witness": {
+      "assignments": [
+        {
+          "variable_id": "V_MODE",
+          "candidate_id": "C_SECONDARY",
+          "value": { "kind": "symbol", "value": "secondary" }
+        }
+      ],
+      "open_variable_ids": []
+    },
+    "reason_chain": [
+      {
+        "code": "RCG-RSN-101",
+        "name": "candidate_witness_found",
+        "subject_id": "C_SECONDARY",
+        "constraint_id": null,
+        "inputs": ["C_SECONDARY"]
+      }
+    ],
+    "unknown_reasons": []
+  },
+  "variable_resolution": {
+    "state": "ambiguous",
+    "unknown_reasons": []
+  },
+  "scope": {
+    "requested_variable_ids": ["V_MODE"],
+    "effective_variable_ids": ["V_MODE"],
+    "limit": 100
+  },
+  "provenance": [{ "kind": "grounded_in", "from": "C_SECONDARY", "to": "S1" }],
+  "normalization": null,
+  "source_verification": [
+    {
+      "source_id": "SRC",
+      "verification": { "mode": "none", "state": "not_requested" }
+    }
+  ],
+  "relevant_constraint_ids": ["K_MODE"],
+  "skipped_constraints": [],
+  "derivations": [
+    {
+      "code": "RCG-RSN-101",
+      "name": "candidate_witness_found",
+      "subject_id": "C_SECONDARY",
+      "constraint_id": null,
+      "inputs": ["C_SECONDARY"]
+    }
+  ],
+  "diagnostics": []
+}

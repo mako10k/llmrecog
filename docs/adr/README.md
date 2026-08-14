@@ -16,6 +16,7 @@ Current decisions:
 - [0005: Node.js 22, TypeScript, and ESM development baseline](0005-node-22-typescript-esm-development-baseline.md)
 - [0006: Executable text and result contract v0.1](0006-executable-contract-v0-1.md)
 - [0007: Phase 2 read-only parse, validate, and show contract](0007-phase-2-read-only-command-contract.md)
+- [0008: Phase 3 explainable CSP and focused audit contract](0008-phase-3-explainable-csp-contract.md)
 
 Future ADRs are required for changes to:
 

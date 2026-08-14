@@ -1,0 +1,34 @@
+llmrecog 0.1
+
+document UNSUPPORTED_ALLOWED:
+  title "Unsupported but viable candidate"
+
+source SRC:
+  kind text
+  locator "choice.txt"
+
+span S1:
+  source SRC
+  range 1:1..1:20
+  quote "Either mode is allowed"
+
+variable V_MODE:
+  value_type symbol
+  candidates [C_PRIMARY, C_SECONDARY]
+  grounded_in [S1]
+
+candidate C_PRIMARY in V_MODE:
+  value primary
+  grounded_in [S1]
+  support explicit
+
+candidate C_SECONDARY in V_MODE:
+  value secondary
+  grounded_in [S1]
+
+constraint K_MODE:
+  kind one_of
+  variable V_MODE
+  members [C_PRIMARY, C_SECONDARY]
+  grounded_in [S1]
+  support explicit

@@ -246,6 +246,7 @@ test("all result goldens validate against the frozen JSON Schemas", () => {
     "schemas/Llmrecog.DocumentResult.v1.schema.json",
     "schemas/Llmrecog.RecognitionResult.v1.schema.json",
     "schemas/Llmrecog.ExplainResult.v1.schema.json",
+    "schemas/Llmrecog.AuditResult.v1.schema.json",
   ];
   const schemas = schemaPaths.map((schemaPath) =>
     readJson<Record<string, unknown>>(schemaPath),
@@ -270,6 +271,10 @@ test("all result goldens validate against the frozen JSON Schemas", () => {
     [
       "Llmrecog.RecognitionResult.v1",
       "https://mako10k.github.io/llmrecog/schemas/Llmrecog.RecognitionResult.v1.schema.json",
+    ],
+    [
+      "Llmrecog.AuditResult.v1",
+      "https://mako10k.github.io/llmrecog/schemas/Llmrecog.AuditResult.v1.schema.json",
     ],
   ]);
 
@@ -362,8 +367,8 @@ test("invalid fixture diagnostics freeze exact codes, typed data, and byte spans
   }
 });
 
-test("Phase 2 text result goldens use deterministic bytes", () => {
-  assert.equal(manifest.expected_text_results.length, 3);
+test("accepted text result goldens use deterministic bytes", () => {
+  assert.equal(manifest.expected_text_results.length, 7);
   for (const resultPath of manifest.expected_text_results) {
     const bytes = fs.readFileSync(path.join(repositoryRoot, resultPath));
     const text = bytes.toString("utf8");
@@ -396,6 +401,92 @@ test("explain goldens keep support and viability orthogonal", () => {
   }
 
   assert.deepEqual([...states].sort(), ["allowed", "excluded", "unknown"]);
+});
+
+test("Phase 3 goldens freeze joint witnesses, bounds, and focused audit", () => {
+  const weak = readJson<Record<string, unknown>>(
+    "test/fixtures/contracts/v0.1/expected/minimal-weak.explain.json",
+  );
+  const weakViability = weak["viability"] as {
+    readonly state: string;
+    readonly witness: {
+      readonly assignments: readonly {
+        readonly variable_id: string;
+        readonly candidate_id: string;
+      }[];
+    };
+  };
+  assert.equal(weakViability.state, "allowed");
+  assert.deepEqual(
+    weakViability.witness.assignments.map((assignment) => ({
+      variable_id: assignment.variable_id,
+      candidate_id: assignment.candidate_id,
+    })),
+    [
+      { variable_id: "V_ACTOR", candidate_id: "C_ACTOR_SATO" },
+      {
+        variable_id: "V_COMMITMENT",
+        candidate_id: "C_WEAK_COMMITMENT",
+      },
+    ],
+  );
+
+  const constraint = readJson<Record<string, unknown>>(
+    "test/fixtures/contracts/v0.1/expected/minimal-excludes.constraint-explain.json",
+  );
+  const derivations = constraint["derivations"] as readonly {
+    readonly code: string;
+    readonly constraint_id: string | null;
+    readonly inputs: readonly string[];
+  }[];
+  assert.deepEqual(derivations, [
+    {
+      code: "RCG-RSN-202",
+      name: "excludes_pair_forbidden",
+      subject_id: "C_WEAK_COMMITMENT",
+      constraint_id: "K_TANAKA_NOT_WEAK",
+      inputs: ["C_ACTOR_TANAKA", "C_WEAK_COMMITMENT"],
+    },
+  ]);
+
+  const unsupported = readJson<Record<string, unknown>>(
+    "test/fixtures/contracts/v0.1/expected/unsupported-allowed.explain.json",
+  );
+  assert.equal(
+    (unsupported["support"] as { readonly state: string }).state,
+    "unsupported",
+  );
+  assert.equal(
+    (unsupported["viability"] as { readonly state: string }).state,
+    "allowed",
+  );
+
+  const limited = readJson<Record<string, unknown>>(
+    "test/fixtures/contracts/v0.1/expected/limit-unknown.explain.json",
+  );
+  assert.equal(limited["complete"], false);
+  assert.equal(limited["truncated"], true);
+  assert.deepEqual(
+    (limited["viability"] as { readonly unknown_reasons: readonly string[] })
+      .unknown_reasons,
+    ["RCG-RSN-007"],
+  );
+
+  const audit = readJson<Record<string, unknown>>(
+    "test/fixtures/contracts/v0.1/expected/closed-conflict.audit.json",
+  );
+  assert.equal(audit["passed"], false);
+  assert.deepEqual(audit["evaluated_rule_codes"], [
+    "RCG-GROUND-003",
+    "RCG-SUPPORT-001",
+    "RCG-CSP-001",
+    "RCG-CSP-002",
+  ]);
+  assert.deepEqual(audit["summary"], {
+    errors: 2,
+    warnings: 3,
+    info: 0,
+  });
 });
 
 test("machine semantic registries do not admit reasoning or realization roles", () => {

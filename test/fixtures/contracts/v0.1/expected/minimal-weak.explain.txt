@@ -1,0 +1,28 @@
+Llmrecog.ExplainResult.v1 semantic=0.1 tool=contract-fixture
+input: docs/examples/minimal.recog
+document: MEETING_RECOG
+digest: sha256:87575b777def738ce3e69345d64053770d1e2fec5bd1e000162ca4b63a2afba2
+target: C_WEAK_COMMITMENT kind=candidate
+support: supported
+support_records: ambiguous grounded_in=S1,S3
+viability: allowed
+witness:
+  V_ACTOR = C_ACTOR_SATO (reference E_SATO)
+  V_COMMITMENT = C_WEAK_COMMITMENT (symbol weak_commitment)
+open_variables: -
+reason_chain:
+  RCG-RSN-101 candidate_witness_found subject=C_WEAK_COMMITMENT constraint=- inputs=C_ACTOR_SATO,C_WEAK_COMMITMENT
+unknown_reasons: -
+variable_resolution: ambiguous
+variable_unknown_reasons: -
+scope: requested=V_COMMITMENT effective=V_ACTOR,V_COMMITMENT limit=100
+provenance: grounded_in(C_WEAK_COMMITMENT,S1), grounded_in(C_WEAK_COMMITMENT,S3)
+normalization: -
+source_verification: SRC_MEETING none/not_requested
+constraints: K_ACTOR_ONE_OF, K_COMMITMENT_ONE_OF, K_TANAKA_NOT_WEAK
+skipped_constraints: -
+derivations:
+  RCG-RSN-101 candidate_witness_found subject=C_WEAK_COMMITMENT constraint=- inputs=C_ACTOR_SATO,C_WEAK_COMMITMENT
+complete: true
+truncated: false
+diagnostics: 0

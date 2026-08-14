@@ -1,10 +1,11 @@
 # CLI contract
 
 ADR 0007 accepts the Phase 2 `document validate`, `document show`, and
-`recognition show` routes and their linked machine shapes. They are implemented
-only through an unreleased private dogfood adapter while Phase 2 acceptance
-remains separately gated. All later routes in this document are provisional
-and separately gated.
+`recognition show` routes and their linked machine shapes. ADR 0008 accepts the
+Phase 3 `recognition explain` and focused `document audit` contracts but does
+not claim their implementation exists. Accepted routes are limited to an
+unreleased private dogfood adapter when implemented. All later routes in this
+document are provisional and separately gated.
 
 ## 1. Design rules
 
@@ -93,11 +94,13 @@ llmrecog recognition explain <id> <file.recog>
 ```
 
 For a semantic record, explain follows grounding and normalization. For a
-variable, candidate, or constraint, it additionally performs bounded
-viability analysis. The default scope is the smallest transitive constraint
-closure containing the target. The default limit is implementation-defined
-only until the CLI contract is frozen; JSON always reports the effective
-limit.
+variable, candidate, or constraint, it additionally performs bounded analysis
+as accepted by ADR 0008. The default scope is the smallest transitive
+constraint closure containing the target. The default limit is 100 complete
+represented assignments inspected; JSON always reports the effective limit.
+Phase 3 evaluates only `one_of` and `excludes`. Relevant `requires`, `same_as`,
+and `distinct_from` declarations remain visible as skipped and prevent an
+unsound witness claim.
 
 Required result facts:
 
@@ -138,17 +141,20 @@ JSON schema: `Llmrecog.QueryResult.v1`.
 
 ```text
 llmrecog document audit <file.recog>
-  [--profile base|strict-grounding]
+  [--profile base]
   [--fail-on warning|error]
+  [--max-diagnostics <positive-integer>]
   [--format text|json]
 ```
 
-Audit applies boundary, provenance, open-world, normalization, support, and CSP
-safety checks after validation. It never calls an LLM or proposes a corrected
-interpretation. `base` accepts unsealed but locatable sources with warnings;
-`strict-grounding` may require digests and quotes.
+The Phase 3 base profile applies the focused unsealed-source, unsupported
+candidate/record, empty-closed-domain, and supported-but-excluded rules after
+validation. It never calls an LLM or proposes a corrected interpretation. The
+defaults are `base`, `fail-on error`, and 100 diagnostics. The broader audit
+catalog and `strict-grounding` remain provisional.
 
-JSON schema: `Llmrecog.AuditResult.v1`.
+JSON schema:
+[`Llmrecog.AuditResult.v1`](../schemas/Llmrecog.AuditResult.v1.schema.json).
 
 ### 2.6 Materialize
 
@@ -241,6 +247,7 @@ The initial contract does not include `extract`, `generate`, `edit`, `set`,
 add a write, producer, or compatibility boundary and requires its own design
 and acceptance examples.
 
-Phase 2 additionally defers `document audit`, `recognition explain`, all
-`space` routes, and `--verify-sources local`, even though their provisional
-future contracts are documented above.
+Phase 3 still defers all `space` routes, `--verify-sources local`, the
+`strict-grounding` audit profile, and CSP evaluation for `requires`, `same_as`,
+and `distinct_from`, even though provisional future contracts are documented
+above.

@@ -1,0 +1,15 @@
+Llmrecog.AuditResult.v1 semantic=0.1 tool=contract-fixture
+input: test/fixtures/contracts/v0.1/valid/propagated-exclusion.recog
+document: PROPAGATED_EXCLUSION
+digest: sha256:ecb935b0a4ce831e79cc5af655a34a6e6977c85729995ad4389f5b6e8befcecc
+profile: base
+fail_on: error
+passed: true
+source_verification: none/not_requested
+evaluated_rules: RCG-GROUND-003, RCG-SUPPORT-001, RCG-CSP-001, RCG-CSP-002
+summary: errors=0 warnings=2 info=0
+complete: true
+truncated: false
+diagnostics:
+  RCG-CSP-002 warning entity=C_WEAK A source-supported candidate is excluded by grounded constraints. constraint_ids=K_ACTOR,K_NOT_WEAK
+  RCG-GROUND-003 warning entity=SRC A locatable source is not sealed by a digest. source_id=SRC locator=assignment.txt

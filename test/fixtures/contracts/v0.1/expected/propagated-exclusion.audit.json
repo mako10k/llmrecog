@@ -1,0 +1,43 @@
+{
+  "schema": "Llmrecog.AuditResult.v1",
+  "semantic_version": "0.1",
+  "tool_version": "contract-fixture",
+  "input": {
+    "path": "test/fixtures/contracts/v0.1/valid/propagated-exclusion.recog",
+    "document_id": "PROPAGATED_EXCLUSION",
+    "digest": "sha256:ecb935b0a4ce831e79cc5af655a34a6e6977c85729995ad4389f5b6e8befcecc"
+  },
+  "complete": true,
+  "truncated": false,
+  "profile": "base",
+  "fail_on": "error",
+  "passed": true,
+  "source_verification": { "mode": "none", "state": "not_requested" },
+  "evaluated_rule_codes": [
+    "RCG-GROUND-003",
+    "RCG-SUPPORT-001",
+    "RCG-CSP-001",
+    "RCG-CSP-002"
+  ],
+  "summary": { "errors": 0, "warnings": 2, "info": 0 },
+  "diagnostics": [
+    {
+      "code": "RCG-CSP-002",
+      "severity": "warning",
+      "message": "A source-supported candidate is excluded by grounded constraints.",
+      "entity_id": "C_WEAK",
+      "span": null,
+      "reason_data": { "constraint_ids": ["K_ACTOR", "K_NOT_WEAK"] },
+      "related": []
+    },
+    {
+      "code": "RCG-GROUND-003",
+      "severity": "warning",
+      "message": "A locatable source is not sealed by a digest.",
+      "entity_id": "SRC",
+      "span": null,
+      "reason_data": { "source_id": "SRC", "locator": "assignment.txt" },
+      "related": []
+    }
+  ]
+}

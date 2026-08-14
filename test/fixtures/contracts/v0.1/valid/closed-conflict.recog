@@ -1,0 +1,54 @@
+llmrecog 0.1
+
+document CLOSED_CONFLICT:
+  title "Closed variables with no joint witness"
+
+source SRC:
+  kind text
+  locator "conflict.txt"
+
+span S1:
+  source SRC
+  range 1:1..1:28
+  quote "Only A and B, but not together"
+
+variable V_A:
+  value_type symbol
+  candidates [C_A]
+  grounded_in [S1]
+
+candidate C_A in V_A:
+  value a
+  grounded_in [S1]
+  support explicit
+
+variable V_B:
+  value_type symbol
+  candidates [C_B]
+  grounded_in [S1]
+
+candidate C_B in V_B:
+  value b
+  grounded_in [S1]
+  support explicit
+
+constraint K_A:
+  kind one_of
+  variable V_A
+  members [C_A]
+  grounded_in [S1]
+  support explicit
+
+constraint K_B:
+  kind one_of
+  variable V_B
+  members [C_B]
+  grounded_in [S1]
+  support explicit
+
+constraint K_PAIR:
+  kind excludes
+  left C_A
+  right C_B
+  grounded_in [S1]
+  support explicit

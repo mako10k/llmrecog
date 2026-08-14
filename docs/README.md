@@ -14,7 +14,7 @@ This directory is the design and implementation-contract authority.
 | [grammar.md](grammar.md) | Normative scanner, EBNF, semantic-shape, and recovery contract |
 | [canonical-formatting.md](canonical-formatting.md) | Deterministic semantic rendering contract |
 | [diagnostics.md](diagnostics.md) | Stable diagnostic and derivation reason-code contract |
-| [cli-contract.md](cli-contract.md) | Accepted Phase 2 routes and provisional later command contracts |
+| [cli-contract.md](cli-contract.md) | Accepted Phase 2/3 private routes and provisional later command contracts |
 | [integration-llmthink.md](integration-llmthink.md) | Optional one-way reasoning integration |
 | [llmthink-grounding-audit.md](llmthink-grounding-audit.md) | Optional recognition-aware premise/evidence audit |
 | [examples/boundary-cases.md](examples/boundary-cases.md) | Required boundary examples |
@@ -32,7 +32,7 @@ This directory is the design and implementation-contract authority.
 | [../dogfood/README.md](../dogfood/README.md) | Internal versioned dogfood protocol and evidence layout |
 | [adr/](adr/) | Accepted design decisions |
 | [../contracts/](../contracts/) | Versioned EBNF and diagnostic/reason registry |
-| [../schemas/](../schemas/) | Versioned AST, semantic, validation, and explain JSON Schemas |
+| [../schemas/](../schemas/) | Versioned AST, semantic, validation, show, explain, and audit JSON Schemas |
 
 Normative priority, if two documents disagree:
 
@@ -44,5 +44,6 @@ Normative priority, if two documents disagree:
 The text DSL, Phase 1 schemas, diagnostics, and fixtures are frozen by ADR
 0006. ADR 0007 additionally freezes the Phase 2 validate/show routes,
 DocumentResult and RecognitionResult schemas, and exact Phase 2 fixture
-expectations. Later CLI routes remain provisional. Examples clarify intent but
+expectations. ADR 0008 freezes the private Phase 3 explain and focused base
+audit routes. Later CLI routes remain provisional. Examples clarify intent but
 do not silently extend the grammar.

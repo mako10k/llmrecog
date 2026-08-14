@@ -1,0 +1,76 @@
+{
+  "schema": "Llmrecog.AuditResult.v1",
+  "semantic_version": "0.1",
+  "tool_version": "contract-fixture",
+  "input": {
+    "path": "test/fixtures/contracts/v0.1/valid/closed-conflict.recog",
+    "document_id": "CLOSED_CONFLICT",
+    "digest": "sha256:58f354c17169a125f3053bbe17cff9415780ac98e7866466c4319854c1243257"
+  },
+  "complete": true,
+  "truncated": false,
+  "profile": "base",
+  "fail_on": "error",
+  "passed": false,
+  "source_verification": { "mode": "none", "state": "not_requested" },
+  "evaluated_rule_codes": [
+    "RCG-GROUND-003",
+    "RCG-SUPPORT-001",
+    "RCG-CSP-001",
+    "RCG-CSP-002"
+  ],
+  "summary": { "errors": 2, "warnings": 3, "info": 0 },
+  "diagnostics": [
+    {
+      "code": "RCG-CSP-001",
+      "severity": "error",
+      "message": "A closed variable has no satisfying assignment.",
+      "entity_id": "V_A",
+      "span": null,
+      "reason_data": {
+        "variable_id": "V_A",
+        "constraint_ids": ["K_A", "K_B", "K_PAIR"]
+      },
+      "related": []
+    },
+    {
+      "code": "RCG-CSP-001",
+      "severity": "error",
+      "message": "A closed variable has no satisfying assignment.",
+      "entity_id": "V_B",
+      "span": null,
+      "reason_data": {
+        "variable_id": "V_B",
+        "constraint_ids": ["K_A", "K_B", "K_PAIR"]
+      },
+      "related": []
+    },
+    {
+      "code": "RCG-CSP-002",
+      "severity": "warning",
+      "message": "A source-supported candidate is excluded by grounded constraints.",
+      "entity_id": "C_A",
+      "span": null,
+      "reason_data": { "constraint_ids": ["K_A", "K_B", "K_PAIR"] },
+      "related": []
+    },
+    {
+      "code": "RCG-CSP-002",
+      "severity": "warning",
+      "message": "A source-supported candidate is excluded by grounded constraints.",
+      "entity_id": "C_B",
+      "span": null,
+      "reason_data": { "constraint_ids": ["K_A", "K_B", "K_PAIR"] },
+      "related": []
+    },
+    {
+      "code": "RCG-GROUND-003",
+      "severity": "warning",
+      "message": "A locatable source is not sealed by a digest.",
+      "entity_id": "SRC",
+      "span": null,
+      "reason_data": { "source_id": "SRC", "locator": "conflict.txt" },
+      "related": []
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "schema": "Llmrecog.ExplainResult.v1",
+  "semantic_version": "0.1",
+  "tool_version": "contract-fixture",
+  "input": {
+    "path": "docs/examples/minimal.recog",
+    "document_id": "MEETING_RECOG",
+    "digest": "sha256:87575b777def738ce3e69345d64053770d1e2fec5bd1e000162ca4b63a2afba2"
+  },
+  "complete": true,
+  "truncated": false,
+  "target": {
+    "id": "C_WEAK_COMMITMENT",
+    "declaration_kind": "candidate"
+  },
+  "support": {
+    "state": "supported",
+    "records": [
+      {
+        "kind": "ambiguous",
+        "grounded_in": [
+          { "id": "S1", "kind": "span" },
+          { "id": "S3", "kind": "span" }
+        ]
+      }
+    ]
+  },
+  "viability": {
+    "state": "allowed",
+    "witness": {
+      "assignments": [
+        {
+          "variable_id": "V_ACTOR",
+          "candidate_id": "C_ACTOR_SATO",
+          "value": { "kind": "reference", "id": "E_SATO" }
+        },
+        {
+          "variable_id": "V_COMMITMENT",
+          "candidate_id": "C_WEAK_COMMITMENT",
+          "value": { "kind": "symbol", "value": "weak_commitment" }
+        }
+      ],
+      "open_variable_ids": []
+    },
+    "reason_chain": [
+      {
+        "code": "RCG-RSN-101",
+        "name": "candidate_witness_found",
+        "subject_id": "C_WEAK_COMMITMENT",
+        "constraint_id": null,
+        "inputs": ["C_ACTOR_SATO", "C_WEAK_COMMITMENT"]
+      }
+    ],
+    "unknown_reasons": []
+  },
+  "variable_resolution": {
+    "state": "ambiguous",
+    "unknown_reasons": []
+  },
+  "scope": {
+    "requested_variable_ids": ["V_COMMITMENT"],
+    "effective_variable_ids": ["V_ACTOR", "V_COMMITMENT"],
+    "limit": 100
+  },
+  "provenance": [
+    { "kind": "grounded_in", "from": "C_WEAK_COMMITMENT", "to": "S1" },
+    { "kind": "grounded_in", "from": "C_WEAK_COMMITMENT", "to": "S3" }
+  ],
+  "normalization": null,
+  "source_verification": [
+    {
+      "source_id": "SRC_MEETING",
+      "verification": { "mode": "none", "state": "not_requested" }
+    }
+  ],
+  "relevant_constraint_ids": [
+    "K_ACTOR_ONE_OF",
+    "K_COMMITMENT_ONE_OF",
+    "K_TANAKA_NOT_WEAK"
+  ],
+  "skipped_constraints": [],
+  "derivations": [
+    {
+      "code": "RCG-RSN-101",
+      "name": "candidate_witness_found",
+      "subject_id": "C_WEAK_COMMITMENT",
+      "constraint_id": null,
+      "inputs": ["C_ACTOR_SATO", "C_WEAK_COMMITMENT"]
+    }
+  ],
+  "diagnostics": []
+}

@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mako10k.github.io/llmrecog/schemas/Llmrecog.AuditResult.v1.schema.json",
+  "title": "Llmrecog.AuditResult.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "semantic_version",
+    "tool_version",
+    "input",
+    "complete",
+    "truncated",
+    "profile",
+    "fail_on",
+    "passed",
+    "source_verification",
+    "evaluated_rule_codes",
+    "summary",
+    "diagnostics"
+  ],
+  "properties": {
+    "schema": { "const": "Llmrecog.AuditResult.v1" },
+    "semantic_version": { "const": "0.1" },
+    "tool_version": { "type": "string", "minLength": 1 },
+    "input": {
+      "$ref": "Llmrecog.Common.v1.schema.json#/$defs/input"
+    },
+    "complete": { "type": "boolean" },
+    "truncated": { "type": "boolean" },
+    "profile": { "const": "base" },
+    "fail_on": { "enum": ["warning", "error"] },
+    "passed": { "type": "boolean" },
+    "source_verification": {
+      "$ref": "Llmrecog.Common.v1.schema.json#/$defs/source_verification"
+    },
+    "evaluated_rule_codes": {
+      "type": "array",
+      "prefixItems": [
+        { "const": "RCG-GROUND-003" },
+        { "const": "RCG-SUPPORT-001" },
+        { "const": "RCG-CSP-001" },
+        { "const": "RCG-CSP-002" }
+      ],
+      "items": false,
+      "minItems": 4,
+      "maxItems": 4
+    },
+    "summary": { "$ref": "#/$defs/summary" },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "$ref": "Llmrecog.Common.v1.schema.json#/$defs/diagnostic"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "truncated": { "const": true } },
+        "required": ["truncated"]
+      },
+      "then": {
+        "properties": {
+          "complete": { "const": false },
+          "passed": { "const": false }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "complete": { "const": true } },
+        "required": ["complete"]
+      },
+      "then": {
+        "properties": { "truncated": { "const": false } }
+      }
+    }
+  ],
+  "$defs": {
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["errors", "warnings", "info"],
+      "properties": {
+        "errors": { "type": "integer", "minimum": 0 },
+        "warnings": { "type": "integer", "minimum": 0 },
+        "info": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}

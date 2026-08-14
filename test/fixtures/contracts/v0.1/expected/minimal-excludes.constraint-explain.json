@@ -1,0 +1,58 @@
+{
+  "schema": "Llmrecog.ExplainResult.v1",
+  "semantic_version": "0.1",
+  "tool_version": "contract-fixture",
+  "input": {
+    "path": "docs/examples/minimal.recog",
+    "document_id": "MEETING_RECOG",
+    "digest": "sha256:87575b777def738ce3e69345d64053770d1e2fec5bd1e000162ca4b63a2afba2"
+  },
+  "complete": true,
+  "truncated": false,
+  "target": {
+    "id": "K_TANAKA_NOT_WEAK",
+    "declaration_kind": "constraint"
+  },
+  "support": {
+    "state": "supported",
+    "records": [
+      {
+        "kind": "explicit",
+        "grounded_in": [{ "id": "S4", "kind": "span" }]
+      }
+    ]
+  },
+  "viability": null,
+  "variable_resolution": null,
+  "scope": {
+    "requested_variable_ids": ["V_ACTOR", "V_COMMITMENT"],
+    "effective_variable_ids": ["V_ACTOR", "V_COMMITMENT"],
+    "limit": 100
+  },
+  "provenance": [
+    { "kind": "grounded_in", "from": "K_TANAKA_NOT_WEAK", "to": "S4" }
+  ],
+  "normalization": null,
+  "source_verification": [
+    {
+      "source_id": "SRC_MEETING",
+      "verification": { "mode": "none", "state": "not_requested" }
+    }
+  ],
+  "relevant_constraint_ids": [
+    "K_ACTOR_ONE_OF",
+    "K_COMMITMENT_ONE_OF",
+    "K_TANAKA_NOT_WEAK"
+  ],
+  "skipped_constraints": [],
+  "derivations": [
+    {
+      "code": "RCG-RSN-202",
+      "name": "excludes_pair_forbidden",
+      "subject_id": "C_WEAK_COMMITMENT",
+      "constraint_id": "K_TANAKA_NOT_WEAK",
+      "inputs": ["C_ACTOR_TANAKA", "C_WEAK_COMMITMENT"]
+    }
+  ],
+  "diagnostics": []
+}

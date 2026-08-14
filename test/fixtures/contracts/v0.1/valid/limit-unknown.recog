@@ -1,0 +1,64 @@
+llmrecog 0.1
+
+document LIMIT_UNKNOWN:
+  title "Bounded candidate explanation"
+
+source SRC:
+  kind text
+  locator "bounded.txt"
+
+span S1:
+  source SRC
+  range 1:1..1:24
+  quote "A1 with B1 is excluded"
+
+variable V_A:
+  value_type symbol
+  candidates [C_A1, C_A2]
+  grounded_in [S1]
+
+candidate C_A1 in V_A:
+  value a1
+  grounded_in [S1]
+  support ambiguous
+
+candidate C_A2 in V_A:
+  value a2
+  grounded_in [S1]
+  support ambiguous
+
+variable V_B:
+  value_type symbol
+  candidates [C_B1, C_B2]
+  grounded_in [S1]
+
+candidate C_B1 in V_B:
+  value b1
+  grounded_in [S1]
+  support ambiguous
+
+candidate C_B2 in V_B:
+  value b2
+  grounded_in [S1]
+  support ambiguous
+
+constraint K_A:
+  kind one_of
+  variable V_A
+  members [C_A1, C_A2]
+  grounded_in [S1]
+  support explicit
+
+constraint K_B:
+  kind one_of
+  variable V_B
+  members [C_B1, C_B2]
+  grounded_in [S1]
+  support explicit
+
+constraint K_A1_NOT_B1:
+  kind excludes
+  left C_A1
+  right C_B1
+  grounded_in [S1]
+  support explicit

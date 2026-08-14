@@ -121,6 +121,27 @@
       "covers_grammar": []
     },
     {
+      "id": "unsupported_allowed",
+      "path": "test/fixtures/contracts/v0.1/valid/unsupported-allowed.recog",
+      "expectation": "valid",
+      "expected_diagnostics": [],
+      "covers_grammar": []
+    },
+    {
+      "id": "limit_unknown",
+      "path": "test/fixtures/contracts/v0.1/valid/limit-unknown.recog",
+      "expectation": "valid",
+      "expected_diagnostics": [],
+      "covers_grammar": []
+    },
+    {
+      "id": "closed_conflict",
+      "path": "test/fixtures/contracts/v0.1/valid/closed-conflict.recog",
+      "expectation": "valid",
+      "expected_diagnostics": [],
+      "covers_grammar": []
+    },
+    {
       "id": "external_knowledge_open",
       "path": "test/fixtures/contracts/v0.1/valid/external-knowledge-open.recog",
       "expectation": "valid",
@@ -221,7 +242,13 @@
     "test/fixtures/contracts/v0.1/expected/minimal-missing.recognition-show.json",
     "test/fixtures/contracts/v0.1/expected/candidate-allowed.explain.json",
     "test/fixtures/contracts/v0.1/expected/candidate-excluded.explain.json",
-    "test/fixtures/contracts/v0.1/expected/candidate-unknown.explain.json"
+    "test/fixtures/contracts/v0.1/expected/candidate-unknown.explain.json",
+    "test/fixtures/contracts/v0.1/expected/minimal-weak.explain.json",
+    "test/fixtures/contracts/v0.1/expected/minimal-excludes.constraint-explain.json",
+    "test/fixtures/contracts/v0.1/expected/unsupported-allowed.explain.json",
+    "test/fixtures/contracts/v0.1/expected/limit-unknown.explain.json",
+    "test/fixtures/contracts/v0.1/expected/propagated-exclusion.audit.json",
+    "test/fixtures/contracts/v0.1/expected/closed-conflict.audit.json"
   ],
   "expected_asts": [
     {
@@ -233,6 +260,10 @@
   "expected_text_results": [
     "test/fixtures/contracts/v0.1/expected/minimal.document-show.txt",
     "test/fixtures/contracts/v0.1/expected/minimal-deadline.recognition-show.txt",
-    "test/fixtures/contracts/v0.1/expected/minimal-missing.recognition-show.txt"
+    "test/fixtures/contracts/v0.1/expected/minimal-missing.recognition-show.txt",
+    "test/fixtures/contracts/v0.1/expected/minimal-weak.explain.txt",
+    "test/fixtures/contracts/v0.1/expected/minimal-excludes.constraint-explain.txt",
+    "test/fixtures/contracts/v0.1/expected/limit-unknown.explain.txt",
+    "test/fixtures/contracts/v0.1/expected/propagated-exclusion.audit.txt"
   ]
 }

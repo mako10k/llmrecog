@@ -1,0 +1,20 @@
+Llmrecog.ExplainResult.v1 semantic=0.1 tool=contract-fixture
+input: docs/examples/minimal.recog
+document: MEETING_RECOG
+digest: sha256:87575b777def738ce3e69345d64053770d1e2fec5bd1e000162ca4b63a2afba2
+target: K_TANAKA_NOT_WEAK kind=constraint
+support: supported
+support_records: explicit grounded_in=S4
+viability: -
+variable_resolution: -
+scope: requested=V_ACTOR,V_COMMITMENT effective=V_ACTOR,V_COMMITMENT limit=100
+provenance: grounded_in(K_TANAKA_NOT_WEAK,S4)
+normalization: -
+source_verification: SRC_MEETING none/not_requested
+constraints: K_ACTOR_ONE_OF, K_COMMITMENT_ONE_OF, K_TANAKA_NOT_WEAK
+skipped_constraints: -
+derivations:
+  RCG-RSN-202 excludes_pair_forbidden subject=C_WEAK_COMMITMENT constraint=K_TANAKA_NOT_WEAK inputs=C_ACTOR_TANAKA,C_WEAK_COMMITMENT
+complete: true
+truncated: false
+diagnostics: 0

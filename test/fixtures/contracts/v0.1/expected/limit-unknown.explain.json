@@ -1,0 +1,63 @@
+{
+  "schema": "Llmrecog.ExplainResult.v1",
+  "semantic_version": "0.1",
+  "tool_version": "contract-fixture",
+  "input": {
+    "path": "test/fixtures/contracts/v0.1/valid/limit-unknown.recog",
+    "document_id": "LIMIT_UNKNOWN",
+    "digest": "sha256:f67a6b1c2b214b907cee9611d9fce48440b77aa4c35c3cf94dc26963695e79c9"
+  },
+  "complete": false,
+  "truncated": true,
+  "target": {
+    "id": "C_B1",
+    "declaration_kind": "candidate"
+  },
+  "support": {
+    "state": "supported",
+    "records": [
+      {
+        "kind": "ambiguous",
+        "grounded_in": [{ "id": "S1", "kind": "span" }]
+      }
+    ]
+  },
+  "viability": {
+    "state": "unknown",
+    "witness": null,
+    "reason_chain": [],
+    "unknown_reasons": ["RCG-RSN-007"]
+  },
+  "variable_resolution": {
+    "state": "unknown",
+    "unknown_reasons": ["RCG-RSN-007"]
+  },
+  "scope": {
+    "requested_variable_ids": ["V_B"],
+    "effective_variable_ids": ["V_A", "V_B"],
+    "limit": 1
+  },
+  "provenance": [
+    { "kind": "grounded_in", "from": "C_B1", "to": "S1" },
+    { "kind": "applies", "from": "C_B1", "to": "K_A1_NOT_B1" }
+  ],
+  "normalization": null,
+  "source_verification": [
+    {
+      "source_id": "SRC",
+      "verification": { "mode": "none", "state": "not_requested" }
+    }
+  ],
+  "relevant_constraint_ids": ["K_A", "K_B", "K_A1_NOT_B1"],
+  "skipped_constraints": [],
+  "derivations": [
+    {
+      "code": "RCG-RSN-202",
+      "name": "excludes_pair_forbidden",
+      "subject_id": "C_B1",
+      "constraint_id": "K_A1_NOT_B1",
+      "inputs": ["C_A1", "C_B1"]
+    }
+  ],
+  "diagnostics": []
+}

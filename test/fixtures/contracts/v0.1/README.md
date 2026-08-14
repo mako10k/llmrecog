@@ -22,5 +22,5 @@ backflow.
 
 These fixtures are contract authority, not evidence that a parser or solver
 exists. Phase 2 and Phase 3 must make their outputs match these artifacts
-through real implementation seams. Phase 2 text goldens use UTF-8, LF, and one
-final newline and are projections of their adjacent JSON result goldens.
+through real implementation seams. Accepted text goldens use UTF-8, LF, and
+one final newline and are projections of their adjacent JSON result goldens.
