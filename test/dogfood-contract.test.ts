@@ -63,6 +63,8 @@ const boundedSpaceReplayFeedbackPath =
   "dogfood/runs/BOUNDED_SPACE_VIEWS_20260814_02/feedback.json";
 const localPathDigestFeedbackPath =
   "dogfood/runs/LOCAL_PATH_DIGEST_20260814_01/feedback.json";
+const localSourceVerificationFeedbackPath =
+  "dogfood/runs/LOCAL_SOURCE_VERIFICATION_20260814_01/feedback.json";
 
 interface ProtocolDocument {
   readonly id: string;
@@ -583,6 +585,9 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   const localPathDigestFeedback = readJson<FeedbackExample>(
     localPathDigestFeedbackPath,
   );
+  const localSourceVerificationFeedback = readJson<FeedbackExample>(
+    localSourceVerificationFeedbackPath,
+  );
   const ajv = new Ajv2020({ allErrors: true, strict: true });
   addFormats(ajv);
 
@@ -703,6 +708,11 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   );
   assert.equal(
     validateFeedback(localPathDigestFeedback),
+    true,
+    JSON.stringify(validateFeedback.errors, null, 2),
+  );
+  assert.equal(
+    validateFeedback(localSourceVerificationFeedback),
     true,
     JSON.stringify(validateFeedback.errors, null, 2),
   );
@@ -856,6 +866,29 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
     localSourceVerificationRun,
     activeProtocol,
     activeProtocolPath,
+  );
+  assert.deepEqual(localSourceVerificationFeedback.point_adjustments, [
+    {
+      plan_path: "plans/dogfooding-roadmap.pert",
+      task_id: "FREEZE_PRODUCER_CONTRACT",
+      previous_points: 8,
+      revised_points: 8,
+      rationale:
+        "Complete local-verifier use confirmed the existing provider-neutral design frontier: source identity, exact bytes, selectors, typed failures, and mandatory deterministic validation remain explicit inputs to the future producer contract, with no newly discovered contract branch.",
+    },
+    {
+      plan_path: "plans/dogfooding-roadmap.pert",
+      task_id: "IMPLEMENT_ONE_PRODUCER_ADAPTER",
+      previous_points: 21,
+      revised_points: 21,
+      rationale:
+        "The local adapter proved the inward-owned port and fail-closed verification seam without exposing provider behavior, credentials, network access, or automatic repair; retain the separately gated adapter estimate until its own contract is frozen.",
+    },
+  ]);
+  assertFeedbackBindings(
+    localSourceVerificationFeedback,
+    localSourceVerificationReceiptPath,
+    localSourceVerificationRun,
   );
 
   assert(feedbackExample.feedback_id.startsWith("EXAMPLE_"));

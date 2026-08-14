@@ -1,0 +1,38 @@
+{
+  "schema": "Llmrecog.Internal.DogfoodFeedback.v1",
+  "feedback_id": "LOCAL_SOURCE_VERIFICATION_20260814_01_FEEDBACK_01",
+  "receipt": {
+    "path": "dogfood/runs/LOCAL_SOURCE_VERIFICATION_20260814_01/receipt.json",
+    "digest": "sha256:066b0f9d67b3ae59d365249170f768e2f41c47fad4718b16f3b6d3efefb012d6"
+  },
+  "reviewed_at": "2026-08-14T19:53:52+09:00",
+  "reviewer": "codex",
+  "supersedes": null,
+  "entries": [
+    {
+      "observation_id": "OBS-SOURCE-002",
+      "disposition": "accepted",
+      "rationale": "The incorrect quote digest was confined to one normative fixture expectation and was corrected to the independently reproducible SHA-256 before protocol v14 execution. The accepted selector semantics, result schemas, diagnostics, producer boundary, and runtime behavior do not change.",
+      "contract_change": "not_required",
+      "action_task_ids": ["APPLY_LOCAL_SOURCE_DOGFOOD_FEEDBACK"]
+    }
+  ],
+  "point_adjustments": [
+    {
+      "plan_path": "plans/dogfooding-roadmap.pert",
+      "task_id": "FREEZE_PRODUCER_CONTRACT",
+      "previous_points": 8,
+      "revised_points": 8,
+      "rationale": "Complete local-verifier use confirmed the existing provider-neutral design frontier: source identity, exact bytes, selectors, typed failures, and mandatory deterministic validation remain explicit inputs to the future producer contract, with no newly discovered contract branch."
+    },
+    {
+      "plan_path": "plans/dogfooding-roadmap.pert",
+      "task_id": "IMPLEMENT_ONE_PRODUCER_ADAPTER",
+      "previous_points": 21,
+      "revised_points": 21,
+      "rationale": "The local adapter proved the inward-owned port and fail-closed verification seam without exposing provider behavior, credentials, network access, or automatic repair; retain the separately gated adapter estimate until its own contract is frozen."
+    }
+  ],
+  "round_complete": true,
+  "unresolved_observation_ids": []
+}

@@ -93,6 +93,7 @@ task APPLY_LOCAL_SOURCE_DOGFOOD_FEEDBACK LOCAL_SOURCE_DOGFOOD_OBSERVED -> LOCAL_
   title "Disposition provenance feedback and re-estimate producer work"
   description "Bind feedback to exact receipts, disposition every complete-verifier observation, apply accepted contract changes ADR-first, and revise the separately gated producer-contract and adapter estimates in points. Do not start provider work, credentials, network access, llmthink integration, release, or publication."
   duration 1p
+  status done
   priority 20
   requires:
     IMPLEMENTER 1
@@ -176,3 +177,17 @@ work_event WE-cc399f67f571cb380fceff1b9e0435df09d1123d920a0a1c2375291b29b351ba:
   kind finish
   occurred_at 2026-08-14T19:52:27+09:00
   effort 0.0941666667ph
+
+work_event WE-a47fe676b672f67204d2bce5a4774c984475b2e67cb5b75df5ec66875a6b6bcd:
+  model 1
+  task APPLY_LOCAL_SOURCE_DOGFOOD_FEEDBACK
+  kind start
+  occurred_at 2026-08-14T19:53:14+09:00
+  planned_value 1p
+
+work_event WE-2531d8db44674fe4619cab96ddf56c3c38ddd1b0f0c8295598661cf463d0b1ff:
+  model 1
+  task APPLY_LOCAL_SOURCE_DOGFOOD_FEEDBACK
+  kind finish
+  occurred_at 2026-08-14T19:54:31+09:00
+  effort 0.0213888889ph
