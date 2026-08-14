@@ -19,7 +19,8 @@ const phase4ProtocolV8Path = "dogfood/protocol-v8/protocol.json";
 const phase4ProtocolV9Path = "dogfood/protocol-v9/protocol.json";
 const phase4ProtocolV10Path = "dogfood/protocol-v10/protocol.json";
 const phase5ProtocolV11Path = "dogfood/protocol-v11/protocol.json";
-const activeProtocolPath = "dogfood/protocol-v12/protocol.json";
+const phase5ProtocolV12Path = "dogfood/protocol-v12/protocol.json";
+const activeProtocolPath = "dogfood/protocol-v13/protocol.json";
 const runExamplePath = "dogfood/protocol-v1/examples/run-receipt.example.json";
 const grammarRunReceiptPath =
   "dogfood/runs/GRAMMAR_AUTHORING_20260814_01/receipt.json";
@@ -37,6 +38,8 @@ const boundedSpaceRunReceiptPath =
   "dogfood/runs/BOUNDED_SPACE_VIEWS_20260814_01/receipt.json";
 const boundedSpaceReplayReceiptPath =
   "dogfood/runs/BOUNDED_SPACE_VIEWS_20260814_02/receipt.json";
+const localPathDigestReceiptPath =
+  "dogfood/runs/LOCAL_PATH_DIGEST_20260814_01/receipt.json";
 const feedbackExamplePath =
   "dogfood/protocol-v1/examples/feedback.example.json";
 const grammarFeedbackPath =
@@ -442,11 +445,15 @@ test("the active dogfood protocol freezes corpus, questions, commands, and gates
     "sha256:ad2d82912eccff4dc82b2091a5395dcabebd5ebc7b3ace325fce408d6bdbba42",
   );
   assert.equal(
-    sha256(activeProtocolPath),
+    sha256(phase5ProtocolV12Path),
     "sha256:a80e22379daeebf2c59e7fe41a518e75c669f89254c9a17e60b3e0e242f05b04",
   );
+  assert.equal(
+    sha256(activeProtocolPath),
+    "sha256:dbfb20b9eeaa060d0e2cc202d3b9e58a150b304cc498c090cd6d86c9b2dfcfb4",
+  );
   assert.equal(activeProtocol.schema, "Llmrecog.Internal.DogfoodProtocol.v1");
-  assert.equal(activeProtocol.protocol_version, 12);
+  assert.equal(activeProtocol.protocol_version, 13);
   assert.equal(activeProtocol.semantic_version, "0.1");
   assert.equal(activeProtocol.status, "active");
   assert.equal(activeProtocol.run_path_pattern, "dogfood/runs/<run-id>");
@@ -540,6 +547,7 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   const boundedSpaceReplay = readJson<RunExample>(
     boundedSpaceReplayReceiptPath,
   );
+  const localPathDigestRun = readJson<RunExample>(localPathDigestReceiptPath);
   const feedbackExample = readJson<FeedbackExample>(feedbackExamplePath);
   const grammarFeedback = readJson<FeedbackExample>(grammarFeedbackPath);
   const specificationFeedback = readJson<FeedbackExample>(
@@ -604,6 +612,11 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   );
   assert.equal(
     validateRun(boundedSpaceReplay),
+    true,
+    JSON.stringify(validateRun.errors, null, 2),
+  );
+  assert.equal(
+    validateRun(localPathDigestRun),
     true,
     JSON.stringify(validateRun.errors, null, 2),
   );
@@ -757,6 +770,16 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
     boundedSpaceReplayProtocol,
     phase4ProtocolV10Path,
   );
+  assert.equal(localPathDigestRun.run_id, "LOCAL_PATH_DIGEST_20260814_01");
+  assert(
+    localPathDigestRun.question_results.every(
+      (result) => result.status === "answered",
+    ),
+  );
+  assert.equal(localPathDigestRun.outcome, "completed");
+  assert.equal(localPathDigestRun.complete, true);
+  assert.equal(localPathDigestRun.truncated, false);
+  assertRunBindings(localPathDigestRun, activeProtocol, activeProtocolPath);
 
   assert(feedbackExample.feedback_id.startsWith("EXAMPLE_"));
   assertFeedbackBindings(feedbackExample, runExamplePath, runExample);

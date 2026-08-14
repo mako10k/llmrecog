@@ -1,0 +1,430 @@
+{
+  "schema": "Llmrecog.Internal.DogfoodRunReceipt.v1",
+  "run_id": "LOCAL_PATH_DIGEST_20260814_01",
+  "round_id": "local_path_digest_v13",
+  "started_at": "2026-08-14T10:32:42Z",
+  "finished_at": "2026-08-14T10:32:48Z",
+  "tool": {
+    "repository_revision": "c46b40644f9c36690597ff1df87782a0a021ba08",
+    "semantic_version": "0.1",
+    "node_version": "v25.1.0",
+    "platform": "linux-x64",
+    "working_directory": "."
+  },
+  "protocol": {
+    "path": "dogfood/protocol-v13/protocol.json",
+    "digest": "sha256:dbfb20b9eeaa060d0e2cc202d3b9e58a150b304cc498c090cd6d86c9b2dfcfb4"
+  },
+  "question_results": [
+    {
+      "question_id": "DGF-SOURCE-001",
+      "status": "answered",
+      "summary": "Local locators resolved from each artifact directory inside the explicit root, independently of the repository working directory.",
+      "evidence": [
+        "The verified artifact is under dogfood/runs/LOCAL_PATH_DIGEST_20260814_01 while tool.working_directory is repository root '.', and both JSON repeats report resolved_path source.txt.",
+        "LOCAL_ROOT_ESCAPE_JSON uses the narrower escape directory as its root, reports RCG-VERIFY-002 with resolved_path null, and does not hash the outside sentinel."
+      ]
+    },
+    {
+      "question_id": "DGF-SOURCE-002",
+      "status": "answered",
+      "summary": "Unchanged exact bytes verified with status 0, while changed exact bytes failed at digest with status 4 before any selector was claimed.",
+      "evidence": [
+        "LOCAL_DIGEST_VERIFIED_JSON reports expected and actual sha256:a7198b769d5ab02b693471bc4884128910132afd6e3ea48bfa058472f8a69b4b, source verified, no spans, complete true, and status 0.",
+        "LOCAL_STALE_DIGEST_JSON reports expected a7198b... and actual sha256:ba972c035a242457d7ac60c9ee1480fb44445bb90d40889559b2e4f1c6976541, RCG-VERIFY-008, source mismatch, no spans, and status 4."
+      ]
+    },
+    {
+      "question_id": "DGF-SOURCE-003",
+      "status": "answered",
+      "summary": "Missing, escaping, symbolic-link, and directory sources all failed closed without an actual digest.",
+      "evidence": [
+        "LOCAL_MISSING_JSON, LOCAL_ROOT_ESCAPE_JSON, LOCAL_SYMLINK_JSON, and LOCAL_NONREGULAR_JSON returned RCG-VERIFY-004, 002, 003, and 005 respectively with status 4.",
+        "Every failure retained source state unavailable and digest actual null; the outside sentinel digest remained sha256:5be8fa7f269ed3e31f583ee51ca0563c2459d6bc455acf097d1c18adbb07acc3."
+      ]
+    },
+    {
+      "question_id": "DGF-SOURCE-004",
+      "status": "answered",
+      "summary": "All seven command cases were byte-identical across two repetitions and neither projection disclosed source content.",
+      "evidence": [
+        "Each repeat pair has the same exit status, stdout digest, and empty-stderr digest; JSON and text success projections have distinct stable digests.",
+        "Inspection of every captured stdout found neither exact source text 'Alpha 😀 beta' nor stale text 'Alpha 😀 changed'; source order is the single declared SRC entry."
+      ]
+    },
+    {
+      "question_id": "DGF-SOURCE-005",
+      "status": "answered",
+      "summary": "The only observed pre-selector friction was an omitted process-schema enum for the active receipt; protocol v13 corrected it before execution with no change to the remaining 3p selector estimate.",
+      "evidence": [
+        "A protocol-v12 candidate receipt failed the process schema at /round_id and /protocol/path with enum errors, while the equivalent v13 candidate validated.",
+        "No rooted-path, digest, diagnostic, determinism, or disclosure behavior required a product-contract change; APPLY_DIGEST_FEEDBACK_AND_COMPLETE_VERIFIER remains 3p pending formal disposition."
+      ]
+    }
+  ],
+  "artifact": {
+    "path": "dogfood/runs/LOCAL_PATH_DIGEST_20260814_01/input.recog",
+    "digest": "sha256:ca568896e03c8fb93753043d2f50fac844336d814118e86e619ddbd428322533"
+  },
+  "executions": [
+    {
+      "case_id": "LOCAL_DIGEST_VERIFIED_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "src/adapters/internal-cli.ts",
+        "document",
+        "validate",
+        "dogfood/runs/LOCAL_PATH_DIGEST_20260814_01/input.recog",
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        "dogfood/runs/LOCAL_PATH_DIGEST_20260814_01",
+        "--max-source-bytes",
+        "1048576",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:11f6d9ae3a397aa5968df75e8cfb01325631828e9d9e936ed093854aa5e27f4d",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "LOCAL_DIGEST_VERIFIED_TEXT",
+      "repeat_index": 1,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "src/adapters/internal-cli.ts",
+        "document",
+        "validate",
+        "dogfood/runs/LOCAL_PATH_DIGEST_20260814_01/input.recog",
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        "dogfood/runs/LOCAL_PATH_DIGEST_20260814_01",
+        "--max-source-bytes",
+        "1048576",
+        "--format",
+        "text"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:b188e766c2c34f7501d736acd0b115226c391b752de2c640b2b0ebe0d1e76a11",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "LOCAL_STALE_DIGEST_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "src/adapters/internal-cli.ts",
+        "document",
+        "validate",
+        "dogfood/runs/LOCAL_PATH_DIGEST_20260814_01/stale/input.recog",
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        "dogfood/runs/LOCAL_PATH_DIGEST_20260814_01/stale",
+        "--max-source-bytes",
+        "1048576",
+        "--format",
+        "json"
+      ],
+      "exit_status": 4,
+      "stdout_digest": "sha256:efcaedc00e831832bad2d61a649cb79b05ad4379eae519374cc7118b0ef5c248",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "LOCAL_MISSING_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "src/adapters/internal-cli.ts",
+        "document",
+        "validate",
+        "dogfood/runs/LOCAL_PATH_DIGEST_20260814_01/missing/input.recog",
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        "dogfood/runs/LOCAL_PATH_DIGEST_20260814_01/missing",
+        "--max-source-bytes",
+        "1048576",
+        "--format",
+        "json"
+      ],
+      "exit_status": 4,
+      "stdout_digest": "sha256:93a24f597246abdc6000b8fdf8a2007b5ce5ee8bbf9eb5a50614f2c4543eb40c",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "LOCAL_ROOT_ESCAPE_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "src/adapters/internal-cli.ts",
+        "document",
+        "validate",
+        "dogfood/runs/LOCAL_PATH_DIGEST_20260814_01/escape/input.recog",
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        "dogfood/runs/LOCAL_PATH_DIGEST_20260814_01/escape",
+        "--max-source-bytes",
+        "1048576",
+        "--format",
+        "json"
+      ],
+      "exit_status": 4,
+      "stdout_digest": "sha256:e1a5d8b4c0a8dddc92f1564a6ff841b12a007c5a0d04eff2042a5c4ebc57ed71",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "LOCAL_SYMLINK_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "src/adapters/internal-cli.ts",
+        "document",
+        "validate",
+        "/tmp/llmrecog-local-path-digest-v13.5M8mzL/symlink/document.recog",
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        "/tmp/llmrecog-local-path-digest-v13.5M8mzL/symlink",
+        "--max-source-bytes",
+        "1048576",
+        "--format",
+        "json"
+      ],
+      "exit_status": 4,
+      "stdout_digest": "sha256:d06198c59eea50357049e70c947d3187fb44b0df435c532d9dba665522f586e5",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "LOCAL_NONREGULAR_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "src/adapters/internal-cli.ts",
+        "document",
+        "validate",
+        "/tmp/llmrecog-local-path-digest-v13.5M8mzL/nonregular/document.recog",
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        "/tmp/llmrecog-local-path-digest-v13.5M8mzL/nonregular",
+        "--max-source-bytes",
+        "1048576",
+        "--format",
+        "json"
+      ],
+      "exit_status": 4,
+      "stdout_digest": "sha256:0f76dbd60ffb67b50eceb073f9ae54cf2fb96f84c6cef3254ed50c69c085749a",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "LOCAL_DIGEST_VERIFIED_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "src/adapters/internal-cli.ts",
+        "document",
+        "validate",
+        "dogfood/runs/LOCAL_PATH_DIGEST_20260814_01/input.recog",
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        "dogfood/runs/LOCAL_PATH_DIGEST_20260814_01",
+        "--max-source-bytes",
+        "1048576",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:11f6d9ae3a397aa5968df75e8cfb01325631828e9d9e936ed093854aa5e27f4d",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "LOCAL_DIGEST_VERIFIED_TEXT",
+      "repeat_index": 2,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "src/adapters/internal-cli.ts",
+        "document",
+        "validate",
+        "dogfood/runs/LOCAL_PATH_DIGEST_20260814_01/input.recog",
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        "dogfood/runs/LOCAL_PATH_DIGEST_20260814_01",
+        "--max-source-bytes",
+        "1048576",
+        "--format",
+        "text"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:b188e766c2c34f7501d736acd0b115226c391b752de2c640b2b0ebe0d1e76a11",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "LOCAL_STALE_DIGEST_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "src/adapters/internal-cli.ts",
+        "document",
+        "validate",
+        "dogfood/runs/LOCAL_PATH_DIGEST_20260814_01/stale/input.recog",
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        "dogfood/runs/LOCAL_PATH_DIGEST_20260814_01/stale",
+        "--max-source-bytes",
+        "1048576",
+        "--format",
+        "json"
+      ],
+      "exit_status": 4,
+      "stdout_digest": "sha256:efcaedc00e831832bad2d61a649cb79b05ad4379eae519374cc7118b0ef5c248",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "LOCAL_MISSING_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "src/adapters/internal-cli.ts",
+        "document",
+        "validate",
+        "dogfood/runs/LOCAL_PATH_DIGEST_20260814_01/missing/input.recog",
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        "dogfood/runs/LOCAL_PATH_DIGEST_20260814_01/missing",
+        "--max-source-bytes",
+        "1048576",
+        "--format",
+        "json"
+      ],
+      "exit_status": 4,
+      "stdout_digest": "sha256:93a24f597246abdc6000b8fdf8a2007b5ce5ee8bbf9eb5a50614f2c4543eb40c",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "LOCAL_ROOT_ESCAPE_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "src/adapters/internal-cli.ts",
+        "document",
+        "validate",
+        "dogfood/runs/LOCAL_PATH_DIGEST_20260814_01/escape/input.recog",
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        "dogfood/runs/LOCAL_PATH_DIGEST_20260814_01/escape",
+        "--max-source-bytes",
+        "1048576",
+        "--format",
+        "json"
+      ],
+      "exit_status": 4,
+      "stdout_digest": "sha256:e1a5d8b4c0a8dddc92f1564a6ff841b12a007c5a0d04eff2042a5c4ebc57ed71",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "LOCAL_SYMLINK_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "src/adapters/internal-cli.ts",
+        "document",
+        "validate",
+        "/tmp/llmrecog-local-path-digest-v13.5M8mzL/symlink/document.recog",
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        "/tmp/llmrecog-local-path-digest-v13.5M8mzL/symlink",
+        "--max-source-bytes",
+        "1048576",
+        "--format",
+        "json"
+      ],
+      "exit_status": 4,
+      "stdout_digest": "sha256:d06198c59eea50357049e70c947d3187fb44b0df435c532d9dba665522f586e5",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "LOCAL_NONREGULAR_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "src/adapters/internal-cli.ts",
+        "document",
+        "validate",
+        "/tmp/llmrecog-local-path-digest-v13.5M8mzL/nonregular/document.recog",
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        "/tmp/llmrecog-local-path-digest-v13.5M8mzL/nonregular",
+        "--max-source-bytes",
+        "1048576",
+        "--format",
+        "json"
+      ],
+      "exit_status": 4,
+      "stdout_digest": "sha256:0f76dbd60ffb67b50eceb073f9ae54cf2fb96f84c6cef3254ed50c69c085749a",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "outcome": "completed",
+  "complete": true,
+  "truncated": false,
+  "observations": [
+    {
+      "id": "OBS-SOURCE-001",
+      "category": "documentation",
+      "summary": "Protocol v12 could not bind a schema-valid run receipt because the shared process schema stopped at protocol v10 values.",
+      "evidence": "The v12 candidate failed enum validation at /round_id and /protocol/path; protocol v13 plus the additive process-schema values validated before the first recorded run.",
+      "reproduction_steps": [
+        "Load dogfood/schemas/Llmrecog.Internal.DogfoodRunReceipt.v1.schema.json with Ajv 2020 strict mode.",
+        "Replace the example receipt round_id and protocol.path with local_path_digest_v12 and dogfood/protocol-v12/protocol.json and observe both enum failures.",
+        "Use local_path_digest_v13 and dogfood/protocol-v13/protocol.json and observe schema acceptance."
+      ],
+      "proposed_action": "Retain protocols v11 and v12 as immutable pre-run correction evidence, bind this run to v13, and add a receipt-schema readiness assertion before each future protocol run.",
+      "affected_contracts": [
+        "dogfood/schemas/Llmrecog.Internal.DogfoodRunReceipt.v1.schema.json",
+        "dogfood/protocol-v12/protocol.json",
+        "dogfood/protocol-v13/protocol.json"
+      ],
+      "point_impact": 0
+    }
+  ]
+}

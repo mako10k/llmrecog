@@ -1,0 +1,9 @@
+llmrecog 0.1
+
+document LOCAL_DIGEST_ONLY_STALE:
+  title "Stale digest-only local source fixture"
+
+source SRC:
+  kind text
+  locator "source.txt"
+  digest "sha256:a7198b769d5ab02b693471bc4884128910132afd6e3ea48bfa058472f8a69b4b"

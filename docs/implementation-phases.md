@@ -162,7 +162,7 @@ an input to the Phase 5 source-verification design.
 ## Phase 5: local source verification
 
 ADR 0012, `Llmrecog.SourceVerification.v1`,
-`Llmrecog.ValidationResult.v2`, exact fixtures, and protocol v12 accept this
+`Llmrecog.ValidationResult.v2`, exact fixtures, and protocol v13 accept this
 phase's contract. Implement the separately bounded `--verify-sources local`
 path in two feedback-separated slices:
 
@@ -236,8 +236,8 @@ authorized by accepting llmrecog core implementation.
 ## Current implementation frontier
 
 Phase 4 is accepted locally. Phase 5 contract and fixture work is accepted by
-ADR 0012, while runtime implementation remains at the minimal path-and-digest
-slice. Protocol v12 is the active pre-implementation baseline and requires the
+ADR 0012, and runtime implementation has reached the minimal path-and-digest
+slice. Protocol v13 is the active pre-dogfood baseline and requires the
 first local-source dogfood before range and quote implementation. Protocol v11
 is immutable evidence of the pre-run fixture-boundary correction. Producer
 dogfood remains gated on accepted complete local verification, reviewed

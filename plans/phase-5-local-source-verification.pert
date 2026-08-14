@@ -63,6 +63,7 @@ task RUN_DIGEST_PATH_DOGFOOD MINIMAL_LOCAL_VERIFIER_ACCEPTED -> DIGEST_DOGFOOD_O
   title "Dogfood path and digest verification before selectors"
   description "Verify actual repository-derived dogfood sources through the minimal private route, then use copied inputs and sources to exercise unchanged bytes, stale digest, missing file, root escape, symlink, non-regular file, and repeated deterministic output cases. Capture immutable receipts and observations before implementing text ranges and quotes."
   duration 1p
+  status done
   priority 50
   requires:
     IMPLEMENTER 1
@@ -131,3 +132,17 @@ work_event WE-b07d43724639a1c2795ab2bdb64e56efbdb2f705470f7ab4f1ef43387401a370:
   kind finish
   occurred_at 2026-08-14T19:26:42+09:00
   effort 0.3238083333ph
+
+work_event WE-ba004cb5cc76f079aef9222bef05c67573dec15d12cfe46c415fd0e19ecfa648:
+  model 1
+  task RUN_DIGEST_PATH_DOGFOOD
+  kind start
+  occurred_at 2026-08-14T19:28:01+09:00
+  planned_value 1p
+
+work_event WE-f7cbc0a8553376334f5c7f1265a2f582a55e9c5967d44da6e6064b9191fdc91b:
+  model 1
+  task RUN_DIGEST_PATH_DOGFOOD
+  kind finish
+  occurred_at 2026-08-14T19:35:33+09:00
+  effort 0.1256430556ph

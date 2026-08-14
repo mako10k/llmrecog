@@ -1,0 +1,246 @@
+{
+  "schema": "Llmrecog.Internal.DogfoodProtocol.v1",
+  "protocol_version": 13,
+  "semantic_version": "0.1",
+  "status": "active",
+  "supersedes": {
+    "path": "dogfood/protocol-v12/protocol.json",
+    "digest": "sha256:a80e22379daeebf2c59e7fe41a518e75c669f89254c9a17e60b3e0e242f05b04",
+    "reason": "Enable a schema-valid Phase 5 run receipt before any minimal-verifier dogfood execution."
+  },
+  "receipt_schema": "dogfood/schemas/Llmrecog.Internal.DogfoodRunReceipt.v1.schema.json",
+  "feedback_schema": "dogfood/schemas/Llmrecog.Internal.DogfoodFeedback.v1.schema.json",
+  "run_path_pattern": "dogfood/runs/<run-id>",
+  "rounds": [
+    {
+      "id": "local_path_digest_v13",
+      "sequence": 7,
+      "earliest_gate": "MINIMAL_LOCAL_VERIFIER_ACCEPTED",
+      "documents": [
+        {
+          "id": "r7v13_local_verification_adr",
+          "path": "docs/adr/0012-phase-5-fail-closed-local-source-verification.md",
+          "digest": "sha256:6b3a51cb2647ecd6a78a872b8dd005e3409b48185c7cb3bcac32df97b4ad17bc",
+          "authority": "accepted_local_verification_decision"
+        },
+        {
+          "id": "r7v13_cli_contract",
+          "path": "docs/cli-contract.md",
+          "digest": "sha256:853579d25c5fce15e1e354ef0f8f292d7bc0d0eb677fc9dfdd97ed1cfd74e440",
+          "authority": "accepted_private_local_validation_contract"
+        },
+        {
+          "id": "r7v13_implementation_sequence",
+          "path": "docs/implementation-phases.md",
+          "digest": "sha256:ece2f998c1b3d0f4253c9abb2ffbb053110f93f0be38fa5c78e1093845b47f54",
+          "authority": "implementation_sequence"
+        },
+        {
+          "id": "r7v13_dogfood_process",
+          "path": "docs/process/dogfooding.md",
+          "digest": "sha256:d9977c0b2c0f3831dbac6ac314c54653e81404a3404161271f9cda5a4ffa5479",
+          "authority": "dogfood_sequence_and_feedback_gates"
+        },
+        {
+          "id": "r7v13_source_verification_schema",
+          "path": "schemas/Llmrecog.SourceVerification.v1.schema.json",
+          "digest": "sha256:ad7fb3db10cf5789bf12612a0877b13f9f5b09d28d6116a71c21e75d0d1419a8",
+          "authority": "normative_source_verification_projection"
+        },
+        {
+          "id": "r7v13_validation_schema",
+          "path": "schemas/Llmrecog.ValidationResult.v2.schema.json",
+          "digest": "sha256:563cd290c730a1c8f2d772c3f22a68ec7c0efe3bda201c1306a8a20069d24b61",
+          "authority": "normative_local_validation_result"
+        },
+        {
+          "id": "r7v13_contract_cases",
+          "path": "test/fixtures/contracts/v0.1/source-verification/cases.json",
+          "digest": "sha256:62bebc9694f387a116aa9650090db46dedcc58bd7a2c06f7bc1a325de6eef0ff",
+          "authority": "normative_local_verification_cases"
+        }
+      ],
+      "question_ids": [
+        "DGF-SOURCE-001",
+        "DGF-SOURCE-002",
+        "DGF-SOURCE-003",
+        "DGF-SOURCE-004",
+        "DGF-SOURCE-005"
+      ],
+      "required_declarations": ["document", "source"],
+      "command_case_ids": [
+        "LOCAL_DIGEST_VERIFIED_JSON",
+        "LOCAL_DIGEST_VERIFIED_TEXT",
+        "LOCAL_STALE_DIGEST_JSON",
+        "LOCAL_MISSING_JSON",
+        "LOCAL_ROOT_ESCAPE_JSON",
+        "LOCAL_SYMLINK_JSON",
+        "LOCAL_NONREGULAR_JSON"
+      ],
+      "next_gate": "DIGEST_DOGFOOD_OBSERVED"
+    }
+  ],
+  "questions": [
+    {
+      "id": "DGF-SOURCE-001",
+      "round_id": "local_path_digest_v13",
+      "prompt": "Does every local locator resolve from the artifact directory while remaining inside the explicit verification root?",
+      "required_evidence": "Artifact path, explicit root, locator, root-relative resolved path or root-escape diagnostic, and proof that process cwd is not the base",
+      "non_goal": "Accepting ambient working-directory resolution, absolute paths, remote locators, or automatic fallback roots"
+    },
+    {
+      "id": "DGF-SOURCE-002",
+      "round_id": "local_path_digest_v13",
+      "prompt": "Do unchanged exact bytes verify while a one-byte change fails before any selector is presented as checked?",
+      "required_evidence": "Expected and actual SHA-256, source state, status 0 versus 4, and repeated byte-identical output",
+      "non_goal": "Normalizing bytes, accepting a stale digest, checking an unimplemented selector, or searching for a quote"
+    },
+    {
+      "id": "DGF-SOURCE-003",
+      "round_id": "local_path_digest_v13",
+      "prompt": "Do missing, escaping, symlink, and non-regular sources fail closed without reading outside the accepted local profile?",
+      "required_evidence": "Stable RCG-VERIFY code, unavailable source state, no actual digest, status 4, and read-only filesystem observation",
+      "non_goal": "Following symlinks, opening devices, creating files, fetching a network locator, or weakening containment"
+    },
+    {
+      "id": "DGF-SOURCE-004",
+      "round_id": "local_path_digest_v13",
+      "prompt": "Are JSON and text projections deterministic, source-ordered, and free of source-content disclosure?",
+      "required_evidence": "Two identical executions per case, ordered source IDs, typed states and digests, stdout and stderr digests, and inspection for absent source contents",
+      "non_goal": "Treating English messages or raw source excerpts as the only machine contract"
+    },
+    {
+      "id": "DGF-SOURCE-005",
+      "round_id": "local_path_digest_v13",
+      "prompt": "What path or digest friction must change the remaining range-and-quote design or point estimate before selector implementation?",
+      "required_evidence": "Reproducible observations bound to this protocol and revision, disposition targets, and explicit point impact for unfinished Phase 5 tasks",
+      "non_goal": "Starting selector implementation before observations are dispositioned or expanding into provider work"
+    }
+  ],
+  "command_cases": [
+    {
+      "id": "LOCAL_DIGEST_VERIFIED_JSON",
+      "route": ["document", "validate"],
+      "format": "json",
+      "repeat_count": 2,
+      "fixture_case_id": "local_digest_only",
+      "required_options": [
+        "--verify-sources",
+        "local",
+        "--max-source-bytes",
+        "1048576"
+      ],
+      "required_option_names": ["--verification-root"]
+    },
+    {
+      "id": "LOCAL_DIGEST_VERIFIED_TEXT",
+      "route": ["document", "validate"],
+      "format": "text",
+      "repeat_count": 2,
+      "fixture_case_id": "local_digest_only",
+      "required_options": [
+        "--verify-sources",
+        "local",
+        "--max-source-bytes",
+        "1048576"
+      ],
+      "required_option_names": ["--verification-root"]
+    },
+    {
+      "id": "LOCAL_STALE_DIGEST_JSON",
+      "route": ["document", "validate"],
+      "format": "json",
+      "repeat_count": 2,
+      "fixture_case_id": "local_digest_only_stale",
+      "required_options": [
+        "--verify-sources",
+        "local",
+        "--max-source-bytes",
+        "1048576"
+      ],
+      "required_option_names": ["--verification-root"]
+    },
+    {
+      "id": "LOCAL_MISSING_JSON",
+      "route": ["document", "validate"],
+      "format": "json",
+      "repeat_count": 2,
+      "fixture_case_id": "local_missing",
+      "required_options": [
+        "--verify-sources",
+        "local",
+        "--max-source-bytes",
+        "1048576"
+      ],
+      "required_option_names": ["--verification-root"]
+    },
+    {
+      "id": "LOCAL_ROOT_ESCAPE_JSON",
+      "route": ["document", "validate"],
+      "format": "json",
+      "repeat_count": 2,
+      "fixture_case_id": "local_root_escape",
+      "required_options": [
+        "--verify-sources",
+        "local",
+        "--max-source-bytes",
+        "1048576"
+      ],
+      "required_option_names": ["--verification-root"]
+    },
+    {
+      "id": "LOCAL_SYMLINK_JSON",
+      "route": ["document", "validate"],
+      "format": "json",
+      "repeat_count": 2,
+      "fixture_setup": "copy_digest_only_and_replace_source_with_symlink",
+      "required_options": [
+        "--verify-sources",
+        "local",
+        "--max-source-bytes",
+        "1048576"
+      ],
+      "required_option_names": ["--verification-root"]
+    },
+    {
+      "id": "LOCAL_NONREGULAR_JSON",
+      "route": ["document", "validate"],
+      "format": "json",
+      "repeat_count": 2,
+      "fixture_setup": "copy_digest_only_and_replace_source_with_directory",
+      "required_options": [
+        "--verify-sources",
+        "local",
+        "--max-source-bytes",
+        "1048576"
+      ],
+      "required_option_names": ["--verification-root"]
+    }
+  ],
+  "observation_categories": [
+    "contract_semantic",
+    "implementation",
+    "diagnostics_presentation",
+    "documentation",
+    "product_boundary"
+  ],
+  "feedback_dispositions": ["accepted", "rejected", "deferred"],
+  "acceptance": {
+    "receipt_immutable": true,
+    "feedback_binds_receipt_digest": true,
+    "all_questions_answered_or_blocked": true,
+    "all_observations_dispositioned_before_next_implementation": true,
+    "contract_change_requires_adr": true,
+    "unfinished_work_reestimated_in_points": true,
+    "elapsed_time_forecast_requires_stable_velocity": true,
+    "verification_root_is_explicit": true,
+    "document_relative_resolution_is_preserved": true,
+    "symlinks_and_nonregular_files_fail_closed": true,
+    "digest_uses_exact_source_bytes": true,
+    "selector_checks_are_not_claimed_by_minimal_slice": true,
+    "source_contents_are_not_emitted": true,
+    "semantic_validity_remains_separate": true,
+    "no_network_or_writes": true,
+    "range_and_quote_implementation_waits_for_feedback": true
+  }
+}
