@@ -744,6 +744,13 @@ test("focused audit matches frozen diagnostics, thresholds, and truncation", () 
       "utf8",
     ),
   );
+  assert.equal(
+    renderBootstrapText(conflict),
+    fs.readFileSync(
+      absolutePath(`${fixtureRoot}/expected/closed-conflict.audit.txt`),
+      "utf8",
+    ),
+  );
 
   const warningsFail = auditBootstrapDocument(
     contractInput(propagatedExclusionPath),

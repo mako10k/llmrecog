@@ -1,0 +1,18 @@
+Llmrecog.AuditResult.v1 semantic=0.1 tool=contract-fixture
+input: test/fixtures/contracts/v0.1/valid/closed-conflict.recog
+document: CLOSED_CONFLICT
+digest: sha256:58f354c17169a125f3053bbe17cff9415780ac98e7866466c4319854c1243257
+profile: base
+fail_on: error
+passed: false
+source_verification: none/not_requested
+evaluated_rules: RCG-GROUND-003, RCG-SUPPORT-001, RCG-CSP-001, RCG-CSP-002
+summary: errors=2 warnings=3 info=0
+complete: true
+truncated: false
+diagnostics:
+  RCG-CSP-001 error entity=V_A span=15:1..19:1 A closed variable has no satisfying assignment. variable_id=V_A constraint_ids=K_A,K_B,K_PAIR
+  RCG-CSP-002 warning entity=C_A span=20:1..24:1 A source-supported candidate is excluded by grounded constraints. constraint_ids=K_A,K_B,K_PAIR
+  RCG-CSP-001 error entity=V_B span=25:1..29:1 A closed variable has no satisfying assignment. variable_id=V_B constraint_ids=K_A,K_B,K_PAIR
+  RCG-CSP-002 warning entity=C_B span=30:1..34:1 A source-supported candidate is excluded by grounded constraints. constraint_ids=K_A,K_B,K_PAIR
+  RCG-GROUND-003 warning entity=SRC span=- A locatable source is not sealed by a digest. source_id=SRC locator=conflict.txt

@@ -18,6 +18,7 @@ import type {
   Recognition,
   SemanticDocument,
   SupportRecord,
+  SyntaxSpan,
 } from "../core/types.js";
 
 export const phase2ToolVersion = "0.0.0-phase2";
@@ -423,6 +424,7 @@ function uniqueStrings(values: readonly string[]): readonly string[] {
 function supportedExcludedDiagnostic(
   candidateId: string,
   constraintIds: readonly string[],
+  span: SyntaxSpan | null = null,
 ): Diagnostic {
   return {
     code: "RCG-CSP-002",
@@ -430,7 +432,7 @@ function supportedExcludedDiagnostic(
     message:
       "A source-supported candidate is excluded by grounded constraints.",
     entity_id: candidateId,
-    span: null,
+    span,
     reason_data: { constraint_ids: constraintIds },
     related: [],
   };
@@ -616,13 +618,14 @@ function unsupportedRecognitionDiagnostic(
 function inconsistentVariableDiagnostic(
   variableId: string,
   constraintIds: readonly string[],
+  span: SyntaxSpan | null,
 ): Diagnostic {
   return {
     code: "RCG-CSP-001",
     severity: "error",
     message: "A closed variable has no satisfying assignment.",
     entity_id: variableId,
-    span: null,
+    span,
     reason_data: { variable_id: variableId, constraint_ids: constraintIds },
     related: [],
   };
@@ -639,6 +642,7 @@ function diagnosticOrder(left: Diagnostic, right: Diagnostic): number {
 
 function inconsistentVariableDiagnostics(
   variableAnalyses: ReadonlyMap<string, OneOfExplainAnalysis>,
+  declarationSpans: ReadonlyMap<string, SyntaxSpan>,
 ): readonly Diagnostic[] {
   return [...variableAnalyses.entries()].flatMap(([variableId, analysis]) =>
     analysis.variable_resolution?.state === "inconsistent"
@@ -646,6 +650,7 @@ function inconsistentVariableDiagnostics(
           inconsistentVariableDiagnostic(
             variableId,
             analysis.relevant_constraints.map((constraint) => constraint.id),
+            declarationSpans.get(variableId) ?? null,
           ),
         ]
       : [],
@@ -664,6 +669,7 @@ function excludedCandidateAuditDiagnostic(
   document: SemanticDocument,
   recognition: Recognition,
   variableAnalyses: ReadonlyMap<string, OneOfExplainAnalysis>,
+  declarationSpans: ReadonlyMap<string, SyntaxSpan>,
 ): Diagnostic | null {
   if (
     recognition.declaration_kind !== "candidate" ||
@@ -679,17 +685,27 @@ function excludedCandidateAuditDiagnostic(
   const constraintIds = parentInconsistent
     ? analysis.relevant_constraints.map((constraint) => constraint.id)
     : exclusionConstraintIds(analysis);
-  return supportedExcludedDiagnostic(recognition.id, constraintIds);
+  return supportedExcludedDiagnostic(
+    recognition.id,
+    constraintIds,
+    declarationSpans.get(recognition.id) ?? null,
+  );
 }
 
 function recognitionAuditDiagnostics(
   document: SemanticDocument,
   variableAnalyses: ReadonlyMap<string, OneOfExplainAnalysis>,
+  declarationSpans: ReadonlyMap<string, SyntaxSpan>,
 ): readonly Diagnostic[] {
   return document.recognitions.flatMap((recognition) => {
     const diagnostics = [
       supportAuditDiagnostic(recognition),
-      excludedCandidateAuditDiagnostic(document, recognition, variableAnalyses),
+      excludedCandidateAuditDiagnostic(
+        document,
+        recognition,
+        variableAnalyses,
+        declarationSpans,
+      ),
     ];
     return diagnostics.filter(
       (diagnostic): diagnostic is Diagnostic => diagnostic !== null,
@@ -697,7 +713,13 @@ function recognitionAuditDiagnostics(
   });
 }
 
-function focusedAuditDiagnostics(document: SemanticDocument): Diagnostic[] {
+function focusedAuditDiagnostics(
+  document: SemanticDocument,
+  ast: AstDocument,
+): Diagnostic[] {
+  const declarationSpans = new Map(
+    ast.declarations.map((declaration) => [declaration.id, declaration.span]),
+  );
   const variables = document.recognitions.filter(
     (recognition) => recognition.declaration_kind === "variable",
   );
@@ -709,8 +731,12 @@ function focusedAuditDiagnostics(document: SemanticDocument): Diagnostic[] {
   );
 
   const diagnostics = [
-    ...inconsistentVariableDiagnostics(variableAnalyses),
-    ...recognitionAuditDiagnostics(document, variableAnalyses),
+    ...inconsistentVariableDiagnostics(variableAnalyses, declarationSpans),
+    ...recognitionAuditDiagnostics(
+      document,
+      variableAnalyses,
+      declarationSpans,
+    ),
     ...document.sources
       .filter((source) => source.digest === undefined)
       .map(unsealedSourceDiagnostic),
@@ -747,11 +773,17 @@ export function auditBootstrapDocument(
     toolVersion: input.toolVersion ?? phase3ToolVersion,
   };
   const validation = validateBootstrapInput(phase3Input);
-  if (!validation.valid || validation.document === null) return validation;
+  if (
+    !validation.valid ||
+    validation.document === null ||
+    validation.ast === null
+  ) {
+    return validation;
+  }
   const failOn = options.failOn ?? "error";
   const allDiagnostics = [
     ...validation.diagnostics,
-    ...focusedAuditDiagnostics(validation.document),
+    ...focusedAuditDiagnostics(validation.document, validation.ast),
   ].sort(diagnosticOrder);
   const maximumDiagnostics = input.maximumDiagnostics ?? 100;
   const truncated = allDiagnostics.length > maximumDiagnostics;

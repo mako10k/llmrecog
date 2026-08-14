@@ -154,6 +154,7 @@ task IMPLEMENT_AUDIT_DECLARATION_SPANS EXPLAIN_DOGFOOD_REVIEWED -> AUDIT_DECLARA
   title "Bind focused audit diagnostics to authored declarations"
   description "Add exact fixtures first, then map validated semantic entity IDs back to parsed declaration spans at the application boundary and populate the RCG-CSP-001 variable and RCG-CSP-002 candidate audit diagnostics. Preserve the existing optional diagnostic shape, stable ordering, support and viability semantics, pure core boundary, and equivalent JSON and text projections; do not add a public CLI, new audit rules, source locator I/O, or Phase 4 constraint kinds."
   duration 3p
+  status done
   priority 25
   requires:
     IMPLEMENTER 1
@@ -290,3 +291,17 @@ work_event FINISH_APPLY_EXPLAIN_DOGFOOD_FEEDBACK_20260814:
   kind finish
   occurred_at 2026-08-14T15:21:23+09:00
   effort 0.0994444444ph
+
+work_event START_IMPLEMENT_AUDIT_DECLARATION_SPANS_20260814:
+  model 1
+  task IMPLEMENT_AUDIT_DECLARATION_SPANS
+  kind start
+  occurred_at 2026-08-14T15:22:59+09:00
+  planned_value 3p
+
+work_event FINISH_IMPLEMENT_AUDIT_DECLARATION_SPANS_20260814:
+  model 1
+  task IMPLEMENT_AUDIT_DECLARATION_SPANS
+  kind finish
+  occurred_at 2026-08-14T15:27:47+09:00
+  effort 0.08ph

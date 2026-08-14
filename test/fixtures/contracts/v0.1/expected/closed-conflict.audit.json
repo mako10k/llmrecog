@@ -26,7 +26,10 @@
       "severity": "error",
       "message": "A closed variable has no satisfying assignment.",
       "entity_id": "V_A",
-      "span": null,
+      "span": {
+        "start": { "line": 15, "column": 1, "offset": 222 },
+        "end": { "line": 19, "column": 1, "offset": 294 }
+      },
       "reason_data": {
         "variable_id": "V_A",
         "constraint_ids": ["K_A", "K_B", "K_PAIR"]
@@ -34,11 +37,26 @@
       "related": []
     },
     {
+      "code": "RCG-CSP-002",
+      "severity": "warning",
+      "message": "A source-supported candidate is excluded by grounded constraints.",
+      "entity_id": "C_A",
+      "span": {
+        "start": { "line": 20, "column": 1, "offset": 295 },
+        "end": { "line": 24, "column": 1, "offset": 365 }
+      },
+      "reason_data": { "constraint_ids": ["K_A", "K_B", "K_PAIR"] },
+      "related": []
+    },
+    {
       "code": "RCG-CSP-001",
       "severity": "error",
       "message": "A closed variable has no satisfying assignment.",
       "entity_id": "V_B",
-      "span": null,
+      "span": {
+        "start": { "line": 25, "column": 1, "offset": 366 },
+        "end": { "line": 29, "column": 1, "offset": 438 }
+      },
       "reason_data": {
         "variable_id": "V_B",
         "constraint_ids": ["K_A", "K_B", "K_PAIR"]
@@ -49,17 +67,11 @@
       "code": "RCG-CSP-002",
       "severity": "warning",
       "message": "A source-supported candidate is excluded by grounded constraints.",
-      "entity_id": "C_A",
-      "span": null,
-      "reason_data": { "constraint_ids": ["K_A", "K_B", "K_PAIR"] },
-      "related": []
-    },
-    {
-      "code": "RCG-CSP-002",
-      "severity": "warning",
-      "message": "A source-supported candidate is excluded by grounded constraints.",
       "entity_id": "C_B",
-      "span": null,
+      "span": {
+        "start": { "line": 30, "column": 1, "offset": 439 },
+        "end": { "line": 34, "column": 1, "offset": 509 }
+      },
       "reason_data": { "constraint_ids": ["K_A", "K_B", "K_PAIR"] },
       "related": []
     },

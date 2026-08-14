@@ -373,7 +373,7 @@ test("invalid fixture diagnostics freeze exact codes, typed data, and byte spans
 });
 
 test("accepted text result goldens use deterministic bytes", () => {
-  assert.equal(manifest.expected_text_results.length, 11);
+  assert.equal(manifest.expected_text_results.length, 12);
   for (const resultPath of manifest.expected_text_results) {
     const bytes = fs.readFileSync(path.join(repositoryRoot, resultPath));
     const text = bytes.toString("utf8");

@@ -11,5 +11,5 @@ summary: errors=0 warnings=2 info=0
 complete: true
 truncated: false
 diagnostics:
-  RCG-CSP-002 warning entity=C_WEAK A source-supported candidate is excluded by grounded constraints. constraint_ids=K_ACTOR,K_NOT_WEAK
-  RCG-GROUND-003 warning entity=SRC A locatable source is not sealed by a digest. source_id=SRC locator=assignment.txt
+  RCG-CSP-002 warning entity=C_WEAK span=41:1..45:1 A source-supported candidate is excluded by grounded constraints. constraint_ids=K_ACTOR,K_NOT_WEAK
+  RCG-GROUND-003 warning entity=SRC span=- A locatable source is not sealed by a digest. source_id=SRC locator=assignment.txt

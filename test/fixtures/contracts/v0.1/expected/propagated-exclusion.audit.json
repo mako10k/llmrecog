@@ -26,7 +26,10 @@
       "severity": "warning",
       "message": "A source-supported candidate is excluded by grounded constraints.",
       "entity_id": "C_WEAK",
-      "span": null,
+      "span": {
+        "start": { "line": 41, "column": 1, "offset": 669 },
+        "end": { "line": 45, "column": 1, "offset": 766 }
+      },
       "reason_data": { "constraint_ids": ["K_ACTOR", "K_NOT_WEAK"] },
       "related": []
     },

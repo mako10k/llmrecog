@@ -286,6 +286,7 @@
     "test/fixtures/contracts/v0.1/expected/minimal-excludes.constraint-explain.txt",
     "test/fixtures/contracts/v0.1/expected/unsupported-allowed.explain.txt",
     "test/fixtures/contracts/v0.1/expected/limit-unknown.explain.txt",
-    "test/fixtures/contracts/v0.1/expected/propagated-exclusion.audit.txt"
+    "test/fixtures/contracts/v0.1/expected/propagated-exclusion.audit.txt",
+    "test/fixtures/contracts/v0.1/expected/closed-conflict.audit.txt"
   ]
 }

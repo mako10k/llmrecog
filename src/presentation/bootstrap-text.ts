@@ -341,6 +341,12 @@ function renderAuditReasonData(
     .join(" ");
 }
 
+function renderAuditDiagnosticSpan(diagnostic: Diagnostic): string {
+  if (diagnostic.span === null) return "-";
+  const { start, end } = diagnostic.span;
+  return `${start.line}:${start.column}..${end.line}:${end.column}`;
+}
+
 function renderAudit(result: AuditResult): string {
   return [
     ...renderBase(result),
@@ -360,7 +366,8 @@ function renderAudit(result: AuditResult): string {
             const reasonData = renderAuditReasonData(diagnostic.reason_data);
             const reasonSuffix =
               reasonData.length === 0 ? "" : ` ${reasonData}`;
-            return `  ${diagnostic.code} ${diagnostic.severity} entity=${diagnostic.entity_id ?? "-"} ${diagnostic.message}${reasonSuffix}`;
+            const span = renderAuditDiagnosticSpan(diagnostic);
+            return `  ${diagnostic.code} ${diagnostic.severity} entity=${diagnostic.entity_id ?? "-"} span=${span} ${diagnostic.message}${reasonSuffix}`;
           }),
         ]),
   ].join("\n");
