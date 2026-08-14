@@ -14,7 +14,8 @@ const phase3ProtocolV3Path = "dogfood/protocol-v3/protocol.json";
 const phase4ProtocolV4Path = "dogfood/protocol-v4/protocol.json";
 const phase4ProtocolV5Path = "dogfood/protocol-v5/protocol.json";
 const phase4ProtocolV6Path = "dogfood/protocol-v6/protocol.json";
-const activeProtocolPath = "dogfood/protocol-v7/protocol.json";
+const phase4ProtocolV7Path = "dogfood/protocol-v7/protocol.json";
+const activeProtocolPath = "dogfood/protocol-v8/protocol.json";
 const runExamplePath = "dogfood/protocol-v1/examples/run-receipt.example.json";
 const grammarRunReceiptPath =
   "dogfood/runs/GRAMMAR_AUTHORING_20260814_01/receipt.json";
@@ -327,11 +328,15 @@ test("the active dogfood protocol freezes corpus, questions, commands, and gates
     "sha256:c61ff3ea091d9d22b7064523eaf26146123e65e2b470a9b0046b04374fce458d",
   );
   assert.equal(
-    sha256(activeProtocolPath),
+    sha256(phase4ProtocolV7Path),
     "sha256:ed06b9ea40e1595d52981333309b1a456ca600f58a8f4d02961f6a6e19c32fd7",
   );
+  assert.equal(
+    sha256(activeProtocolPath),
+    "sha256:6caba5472a1df4fdbc463c9463c6af50a7bb6a3b973de67e0280aea2d2a2248a",
+  );
   assert.equal(activeProtocol.schema, "Llmrecog.Internal.DogfoodProtocol.v1");
-  assert.equal(activeProtocol.protocol_version, 7);
+  assert.equal(activeProtocol.protocol_version, 8);
   assert.equal(activeProtocol.semantic_version, "0.1");
   assert.equal(activeProtocol.status, "active");
   assert.equal(activeProtocol.run_path_pattern, "dogfood/runs/<run-id>");

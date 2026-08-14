@@ -4,8 +4,10 @@ This directory contains the versioned, process-only dogfood protocol and later
 run evidence. It is not part of the public llmrecog semantic or CLI contract.
 
 The active Phase 4 protocol is
-[`protocol-v7/protocol.json`](protocol-v7/protocol.json). It retains only the
-not-yet-run bounded-space round after relational feedback review. Immutable
+[`protocol-v8/protocol.json`](protocol-v8/protocol.json). It rebinds the
+not-yet-run bounded-space round after bounded-query implementation. Immutable
+[`protocol-v7/protocol.json`](protocol-v7/protocol.json) retains the exact
+pre-query bounded-space baseline,
 [`protocol-v6/protocol.json`](protocol-v6/protocol.json) remains bound by the
 completed relational replay with the added known-mismatch and
 compound-constraint explain cases,

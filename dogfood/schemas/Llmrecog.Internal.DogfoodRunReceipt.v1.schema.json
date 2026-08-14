@@ -37,7 +37,8 @@
         "bounded_space_views_v5",
         "relational_constraints_v6",
         "bounded_space_views_v6",
-        "bounded_space_views_v7"
+        "bounded_space_views_v7",
+        "bounded_space_views_v8"
       ]
     },
     "started_at": { "type": "string", "format": "date-time" },
@@ -76,7 +77,8 @@
             "dogfood/protocol-v4/protocol.json",
             "dogfood/protocol-v5/protocol.json",
             "dogfood/protocol-v6/protocol.json",
-            "dogfood/protocol-v7/protocol.json"
+            "dogfood/protocol-v7/protocol.json",
+            "dogfood/protocol-v8/protocol.json"
           ]
         },
         "digest": { "$ref": "#/$defs/sha256" }

@@ -24,6 +24,7 @@ import type {
 export const phase2ToolVersion = "0.0.0-phase2";
 export const phase3ToolVersion = "0.0.0-phase3";
 export const phase4RelationalToolVersion = "0.0.0-phase4-relational";
+export const phase4QueryToolVersion = "0.0.0-phase4-query";
 
 interface ResultInput {
   readonly path: string;
@@ -157,11 +158,39 @@ export interface AuditResult extends ResultBase {
   };
 }
 
+export type QueryKind = Recognition["declaration_kind"];
+export type QuerySupportState = "supported" | "unsupported" | "conflicted";
+export type QueryViabilityState = CandidateViability["state"];
+
+interface QueryItem {
+  readonly recognition: Recognition;
+  readonly support: OneOfExplainAnalysis["support"] | null;
+  readonly viability: CandidateViability | null;
+  readonly scope: ExplainScope | null;
+  readonly matching_span_ids: readonly string[];
+}
+
+export interface QueryResult extends ResultBase {
+  readonly schema: "Llmrecog.QueryResult.v1";
+  readonly filters: {
+    readonly kind: QueryKind | null;
+    readonly variable_id: string | null;
+    readonly support: QuerySupportState | null;
+    readonly viability: QueryViabilityState | null;
+    readonly grounded_in_span_id: string | null;
+  };
+  readonly result_limit: number;
+  readonly assignment_limit: number;
+  readonly matched_count: number;
+  readonly items: readonly QueryItem[];
+}
+
 export type BootstrapReadResult =
   | ValidationResult
   | DocumentResult
   | RecognitionResult
   | ExplainResult
+  | QueryResult
   | AuditResult;
 
 export interface BootstrapReadInput {
@@ -180,10 +209,26 @@ export interface AuditOptions {
   readonly failOn?: "warning" | "error";
 }
 
+export interface QueryOptions {
+  readonly kind?: QueryKind;
+  readonly variableId?: string;
+  readonly support?: QuerySupportState;
+  readonly viability?: QueryViabilityState;
+  readonly groundedInSpanId?: string;
+  readonly limit?: number;
+}
+
 export class ExplainInputError extends Error {
   constructor(message: string) {
     super(message);
     this.name = "ExplainInputError";
+  }
+}
+
+export class QueryInputError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "QueryInputError";
   }
 }
 
@@ -466,30 +511,26 @@ function exclusionConstraintIds(
     .filter((id) => usedIds.has(id));
 }
 
-function sourceIdsForGrounding(
+function spanIdsForGrounding(
   document: SemanticDocument,
-  roots: readonly Recognition[],
+  references: readonly GroundingReference[],
 ): readonly string[] {
-  const spans = new Map(document.spans.map((span) => [span.id, span]));
   const observations = new Map(
     document.observations.map((observation) => [observation.id, observation]),
   );
   const recognitions = new Map(
     document.recognitions.map((recognition) => [recognition.id, recognition]),
   );
-  const pending: GroundingReference[] = roots.flatMap(
-    (recognition) => recognition.grounded_in,
-  );
+  const pending = [...references];
   const visited = new Set<string>();
-  const sourceIds = new Set<string>();
+  const spanIds = new Set<string>();
   while (pending.length > 0) {
     const reference = pending.shift()!;
     const key = `${reference.kind}:${reference.id}`;
     if (visited.has(key)) continue;
     visited.add(key);
     if (reference.kind === "span") {
-      const sourceId = spans.get(reference.id)?.source_id;
-      if (sourceId !== undefined) sourceIds.add(sourceId);
+      spanIds.add(reference.id);
       continue;
     }
     const grounded =
@@ -498,6 +539,26 @@ function sourceIdsForGrounding(
         : recognitions.get(reference.id)?.grounded_in;
     if (grounded !== undefined) pending.push(...grounded);
   }
+  return document.spans
+    .map((span) => span.id)
+    .filter((spanId) => spanIds.has(spanId));
+}
+
+function sourceIdsForGrounding(
+  document: SemanticDocument,
+  roots: readonly Recognition[],
+): readonly string[] {
+  const spanIds = new Set(
+    spanIdsForGrounding(
+      document,
+      roots.flatMap((recognition) => recognition.grounded_in),
+    ),
+  );
+  const sourceIds = new Set(
+    document.spans
+      .filter((span) => spanIds.has(span.id))
+      .map((span) => span.source_id),
+  );
   return document.sources
     .map((source) => source.id)
     .filter((sourceId) => sourceIds.has(sourceId));
@@ -581,6 +642,229 @@ export function explainBootstrapRecognition(
     skipped_constraints: result.skipped_constraints,
     derivations: result.derivations,
     diagnostics: [...validation.diagnostics, ...explainDiagnostics],
+  };
+}
+
+function validatedQueryLimit(value: number | undefined): number {
+  const limit = value ?? 100;
+  if (!Number.isSafeInteger(limit) || limit < 1) {
+    throw new QueryInputError("--limit must be a positive integer.");
+  }
+  return limit;
+}
+
+function querySupportProjection(
+  recognition: Recognition,
+): OneOfExplainAnalysis["support"] | null {
+  if (recognition.declaration_kind === "variable") return null;
+  return recognition.support === undefined
+    ? { state: "unsupported", records: [] }
+    : { state: "supported", records: [recognition.support] };
+}
+
+function groundedSpanIds(
+  document: SemanticDocument,
+  recognition: Recognition,
+): readonly string[] {
+  return spanIdsForGrounding(document, [
+    ...recognition.grounded_in,
+    ...(recognition.support?.grounded_in ?? []),
+  ]);
+}
+
+function validateQueryOptions(
+  document: SemanticDocument,
+  options: QueryOptions,
+): void {
+  const variableId = options.variableId;
+  if (variableId !== undefined) {
+    const variable = document.recognitions.find(
+      (recognition) =>
+        recognition.id === variableId &&
+        recognition.declaration_kind === "variable",
+    );
+    if (variable === undefined) {
+      throw new QueryInputError("--variable must name an existing variable.");
+    }
+    if (options.kind !== undefined && options.kind !== "candidate") {
+      throw new QueryInputError(
+        "--variable can be combined only with --kind candidate.",
+      );
+    }
+  }
+  if (options.viability !== undefined && variableId === undefined) {
+    throw new QueryInputError("--viability requires --variable.");
+  }
+  if (options.support !== undefined && options.kind === "variable") {
+    throw new QueryInputError(
+      "--support does not apply to variable recognitions.",
+    );
+  }
+  if (
+    options.groundedInSpanId !== undefined &&
+    !document.spans.some((span) => span.id === options.groundedInSpanId)
+  ) {
+    throw new QueryInputError("--grounded-in must name an existing span.");
+  }
+}
+
+function queryRecognitionMatches(
+  recognition: Recognition,
+  options: QueryOptions,
+  support: OneOfExplainAnalysis["support"] | null,
+  spanIds: readonly string[],
+): boolean {
+  if (
+    options.kind !== undefined &&
+    recognition.declaration_kind !== options.kind
+  ) {
+    return false;
+  }
+  if (
+    options.variableId !== undefined &&
+    (recognition.declaration_kind !== "candidate" ||
+      recognition.variable_id !== options.variableId)
+  ) {
+    return false;
+  }
+  if (options.support !== undefined && support?.state !== options.support) {
+    return false;
+  }
+  return (
+    options.groundedInSpanId === undefined ||
+    spanIds.includes(options.groundedInSpanId)
+  );
+}
+
+interface CandidateQueryProjection {
+  readonly viability: CandidateViability | null;
+  readonly scope: ExplainScope | null;
+  readonly truncated: boolean;
+}
+
+function candidateQueryProjection(
+  document: SemanticDocument,
+  recognition: Recognition,
+  options: QueryOptions,
+  limit: number,
+): CandidateQueryProjection {
+  if (
+    options.variableId === undefined ||
+    recognition.declaration_kind !== "candidate"
+  ) {
+    return { viability: null, scope: null, truncated: false };
+  }
+  const analyzed = analyzeOneOfExplain(
+    document,
+    recognition.id,
+    [options.variableId],
+    limit,
+  );
+  if (!analyzed.ok) {
+    throw new Error(
+      `validated query candidate ${recognition.id} was not analyzable`,
+    );
+  }
+  const viability = analyzed.analysis.viability;
+  return {
+    viability,
+    scope: analyzed.analysis.scope,
+    truncated:
+      viability?.state === "unknown" &&
+      viability.unknown_reasons.includes("RCG-RSN-007"),
+  };
+}
+
+interface EvaluatedQueryItem {
+  readonly item: QueryItem | null;
+  readonly assignment_truncated: boolean;
+}
+
+function evaluateQueryItem(
+  document: SemanticDocument,
+  recognition: Recognition,
+  options: QueryOptions,
+  limit: number,
+): EvaluatedQueryItem {
+  const support = querySupportProjection(recognition);
+  const spanIds = groundedSpanIds(document, recognition);
+  if (!queryRecognitionMatches(recognition, options, support, spanIds)) {
+    return { item: null, assignment_truncated: false };
+  }
+  const projection = candidateQueryProjection(
+    document,
+    recognition,
+    options,
+    limit,
+  );
+  const viabilityMatches =
+    options.viability === undefined ||
+    projection.viability?.state === options.viability;
+  return {
+    item: viabilityMatches
+      ? {
+          recognition,
+          support,
+          viability: projection.viability,
+          scope: projection.scope,
+          matching_span_ids:
+            options.groundedInSpanId === undefined
+              ? []
+              : [options.groundedInSpanId],
+        }
+      : null,
+    assignment_truncated: projection.truncated,
+  };
+}
+
+export function queryBootstrapRecognitions(
+  input: BootstrapReadInput,
+  options: QueryOptions = {},
+): ValidationResult | QueryResult {
+  const limit = validatedQueryLimit(options.limit);
+  const queryInput: BootstrapReadInput = {
+    ...input,
+    toolVersion: input.toolVersion ?? phase4QueryToolVersion,
+  };
+  const validation = validateBootstrapInput(queryInput);
+  if (!validation.valid || validation.document === null) return validation;
+  const document = validation.document;
+  validateQueryOptions(document, options);
+
+  const evaluated = document.recognitions.map((recognition) =>
+    evaluateQueryItem(document, recognition, options, limit),
+  );
+  const matches = evaluated.flatMap(({ item }) =>
+    item === null ? [] : [item],
+  );
+  const assignmentTruncated = evaluated.some(
+    (item) => item.assignment_truncated,
+  );
+
+  const resultTruncated = matches.length > limit;
+  const items = matches.slice(0, limit);
+  const truncated =
+    validation.truncated || assignmentTruncated || resultTruncated;
+  return {
+    schema: "Llmrecog.QueryResult.v1",
+    semantic_version: "0.1",
+    tool_version: validation.tool_version,
+    input: validation.input,
+    complete: !truncated,
+    truncated,
+    filters: {
+      kind: options.kind ?? null,
+      variable_id: options.variableId ?? null,
+      support: options.support ?? null,
+      viability: options.viability ?? null,
+      grounded_in_span_id: options.groundedInSpanId ?? null,
+    },
+    result_limit: limit,
+    assignment_limit: limit,
+    matched_count: items.length,
+    items,
+    source_verification: validation.source_verification,
+    diagnostics: validation.diagnostics,
   };
 }
 

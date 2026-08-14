@@ -109,6 +109,7 @@ task IMPLEMENT_BOUNDED_QUERY RELATIONAL_DOGFOOD_REVIEWED -> BOUNDED_QUERY_ACCEPT
   description |
     Implement only the accepted read-only conjunction filters, effective solver scope, declaration-order plus ID ordering, positive limit, typed completeness and truncation, equivalent JSON and text projections, and any dogfood-accepted navigation behavior. Reuse the shared semantic/application services and do not introduce a general query language, arbitrary predicates, ranking, writes, or materialization. Run focused checks and npm run check including jscpd.
   duration 4p
+  status done
   priority 50
   requires:
     IMPLEMENTER 1
@@ -124,7 +125,7 @@ task IMPLEMENT_BOUNDED_MATERIALIZATION BOUNDED_QUERY_ACCEPTED -> BOUNDED_MATERIA
 
 task RUN_SPACE_VIEW_DOGFOOD BOUNDED_MATERIALIZATION_ACCEPTED -> SPACE_DOGFOOD_OBSERVED:
   title "Dogfood bounded query and materialization"
-  description "Run active protocol v7 grounded-provenance filters, compound target discovery, joint-witness, open-domain, ordering, low-limit, truncation, and require-complete cases through the actual private routes. Capture immutable command, artifact, output, and replay identities; inspect whether the views imply preference, silently close domains, fabricate source support, hide incomplete scopes, or encourage persisted world state."
+  description "Run active protocol v8 grounded-provenance filters, compound target discovery, joint-witness, open-domain, ordering, low-limit, truncation, and require-complete cases through the actual private routes. Capture immutable command, artifact, output, and replay identities; inspect whether the views imply preference, silently close domains, fabricate source support, hide incomplete scopes, or encourage persisted world state."
   duration 2p
   priority 30
   requires:
@@ -220,3 +221,17 @@ work_event FINISH_APPLY_RELATIONAL_DOGFOOD_FEEDBACK_20260814:
   kind finish
   occurred_at 2026-08-14T17:39:39+09:00
   effort 0.1941666667ph
+
+work_event START_IMPLEMENT_BOUNDED_QUERY_20260814:
+  model 1
+  task IMPLEMENT_BOUNDED_QUERY
+  kind start
+  occurred_at 2026-08-14T17:40:32+09:00
+  planned_value 4p
+
+work_event FINISH_IMPLEMENT_BOUNDED_QUERY_20260814:
+  model 1
+  task IMPLEMENT_BOUNDED_QUERY
+  kind finish
+  occurred_at 2026-08-14T17:58:54+09:00
+  effort 0.3061111111ph

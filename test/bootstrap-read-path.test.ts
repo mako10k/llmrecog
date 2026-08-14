@@ -11,14 +11,17 @@ import addFormats from "ajv-formats";
 
 import {
   ExplainInputError,
+  QueryInputError,
   auditBootstrapDocument,
   explainBootstrapRecognition,
+  queryBootstrapRecognitions,
   showBootstrapDocument,
   showBootstrapRecognition,
   validateBootstrapInput,
   type BootstrapReadInput,
   type BootstrapReadResult,
   type ExplainOptions,
+  type QueryOptions,
 } from "../src/application/bootstrap-read-path.js";
 import type { Diagnostic } from "../src/core/types.js";
 import { renderBootstrapText } from "../src/presentation/bootstrap-text.js";
@@ -49,6 +52,7 @@ const schemaPaths = [
   "schemas/Llmrecog.ExplainResult.v1.schema.json",
   "schemas/Llmrecog.ExplainResult.v2.schema.json",
   "schemas/Llmrecog.AuditResult.v1.schema.json",
+  "schemas/Llmrecog.QueryResult.v1.schema.json",
 ];
 
 const resultSchemaIds: Readonly<Record<BootstrapReadResult["schema"], string>> =
@@ -61,6 +65,8 @@ const resultSchemaIds: Readonly<Record<BootstrapReadResult["schema"], string>> =
       "https://mako10k.github.io/llmrecog/schemas/Llmrecog.RecognitionResult.v1.schema.json",
     "Llmrecog.ExplainResult.v2":
       "https://mako10k.github.io/llmrecog/schemas/Llmrecog.ExplainResult.v2.schema.json",
+    "Llmrecog.QueryResult.v1":
+      "https://mako10k.github.io/llmrecog/schemas/Llmrecog.QueryResult.v1.schema.json",
     "Llmrecog.AuditResult.v1":
       "https://mako10k.github.io/llmrecog/schemas/Llmrecog.AuditResult.v1.schema.json",
   };
@@ -121,13 +127,19 @@ interface ExplainGoldenCase {
   readonly options?: ExplainOptions;
 }
 
-function assertExplainGolden(fixture: ExplainGoldenCase): void {
-  const result = explainBootstrapRecognition(
-    contractInput(fixture.input),
-    fixture.id,
-    fixture.options,
-  );
-  assert.equal(result.schema, "Llmrecog.ExplainResult.v2");
+interface QueryGoldenCase {
+  readonly input: string;
+  readonly expected: string;
+  readonly text?: string;
+  readonly options?: QueryOptions;
+}
+
+function assertResultGolden(
+  result: BootstrapReadResult,
+  expectedSchema: BootstrapReadResult["schema"],
+  fixture: Pick<ExplainGoldenCase, "expected" | "text">,
+): void {
+  assert.equal(result.schema, expectedSchema);
   assertResultSchema(result);
   assert.deepEqual(result, readJson(fixture.expected));
   if (fixture.text !== undefined) {
@@ -136,6 +148,23 @@ function assertExplainGolden(fixture: ExplainGoldenCase): void {
       fs.readFileSync(absolutePath(fixture.text), "utf8"),
     );
   }
+}
+
+function assertExplainGolden(fixture: ExplainGoldenCase): void {
+  const result = explainBootstrapRecognition(
+    contractInput(fixture.input),
+    fixture.id,
+    fixture.options,
+  );
+  assertResultGolden(result, "Llmrecog.ExplainResult.v2", fixture);
+}
+
+function assertQueryGolden(fixture: QueryGoldenCase): void {
+  const result = queryBootstrapRecognitions(
+    contractInput(fixture.input),
+    fixture.options,
+  );
+  assertResultGolden(result, "Llmrecog.QueryResult.v1", fixture);
 }
 
 function digest(relativePath: string): string {
@@ -734,6 +763,88 @@ test("relational explanation matches requires, equality, inequality, and open co
   for (const fixture of cases) assertExplainGolden(fixture);
 });
 
+test("bounded query matches filters, ordering, grounding, and limit contracts", () => {
+  assertQueryGolden({
+    input: relationalOpenPath,
+    expected: `${fixtureRoot}/expected/relational-open.query.json`,
+    text: `${fixtureRoot}/expected/relational-open.query.txt`,
+    options: {
+      kind: "candidate",
+      variableId: "V_OPEN_LEFT",
+      viability: "unknown",
+    },
+  });
+  assertQueryGolden({
+    input: relationalOpenPath,
+    expected: `${fixtureRoot}/expected/relational-open-truncated.query.json`,
+    options: { limit: 1 },
+  });
+
+  const grounded = queryBootstrapRecognitions(readInput(relationalOpenPath), {
+    kind: "candidate",
+    support: "supported",
+    groundedInSpanId: "S1",
+  });
+  assert.equal(grounded.schema, "Llmrecog.QueryResult.v1");
+  if (grounded.schema !== "Llmrecog.QueryResult.v1") return;
+  assert(grounded.items.length > 0);
+  assert(
+    grounded.items.every(
+      (item) =>
+        item.recognition.declaration_kind === "candidate" &&
+        item.support?.state === "supported" &&
+        item.viability === null &&
+        item.scope === null &&
+        item.matching_span_ids.includes("S1"),
+    ),
+  );
+
+  const transitivelyGrounded = queryBootstrapRecognitions(
+    readInput(allDeclarationsPath),
+    { kind: "entity", groundedInSpanId: "S1" },
+  );
+  assert.equal(transitivelyGrounded.schema, "Llmrecog.QueryResult.v1");
+  if (transitivelyGrounded.schema !== "Llmrecog.QueryResult.v1") return;
+  assert(
+    transitivelyGrounded.items.some(
+      (item) =>
+        item.recognition.id === "E_ALPHA" &&
+        item.matching_span_ids.includes("S1"),
+    ),
+  );
+
+  assert.throws(
+    () =>
+      queryBootstrapRecognitions(readInput(relationalOpenPath), {
+        viability: "unknown",
+      }),
+    QueryInputError,
+  );
+  assert.throws(
+    () =>
+      queryBootstrapRecognitions(readInput(relationalOpenPath), {
+        variableId: "V_MISSING",
+      }),
+    QueryInputError,
+  );
+  assert.throws(
+    () =>
+      queryBootstrapRecognitions(readInput(relationalOpenPath), {
+        kind: "variable",
+        variableId: "V_OPEN_LEFT",
+      }),
+    QueryInputError,
+  );
+  assert.throws(
+    () =>
+      queryBootstrapRecognitions(readInput(relationalOpenPath), {
+        kind: "variable",
+        support: "supported",
+      }),
+    QueryInputError,
+  );
+});
+
 test("relational identity edge cases use exact typed values and self semantics", () => {
   const input = readInput(relationalIdentitiesPath);
   const explain = (id: string) => {
@@ -871,6 +982,7 @@ test("the private CLI is read-only and byte-deterministic for dogfood routes", (
   const beforeDigest = digest(minimalPath);
   const beforeAuditDigest = digest(propagatedExclusionPath);
   const beforeRelationalDigest = digest(relationalConflictPath);
+  const beforeQueryDigest = digest(relationalOpenPath);
   const cases = [
     ["document", "validate", minimalPath, "--format", "json"],
     ["document", "show", minimalPath, "--format", "json"],
@@ -925,6 +1037,33 @@ test("the private CLI is read-only and byte-deterministic for dogfood routes", (
       "--format",
       "text",
     ],
+    [
+      "space",
+      "query",
+      relationalOpenPath,
+      "--kind",
+      "candidate",
+      "--variable",
+      "V_OPEN_LEFT",
+      "--viability",
+      "unknown",
+      "--format",
+      "json",
+    ],
+    [
+      "space",
+      "query",
+      relationalOpenPath,
+      "--kind",
+      "candidate",
+      "--variable",
+      "V_OPEN_LEFT",
+      "--viability",
+      "unknown",
+      "--format",
+      "text",
+    ],
+    ["space", "query", relationalOpenPath, "--limit", "1", "--format", "json"],
   ] as const;
 
   for (const args of cases) {
@@ -950,6 +1089,7 @@ test("the private CLI is read-only and byte-deterministic for dogfood routes", (
   assert.equal(digest(minimalPath), beforeDigest);
   assert.equal(digest(propagatedExclusionPath), beforeAuditDigest);
   assert.equal(digest(relationalConflictPath), beforeRelationalDigest);
+  assert.equal(digest(relationalOpenPath), beforeQueryDigest);
 
   const missing = runPrivateCli([
     "recognition",
@@ -984,6 +1124,43 @@ test("the private CLI is read-only and byte-deterministic for dogfood routes", (
   assert.equal(invalidScope.status, 2);
   assert.equal(invalidScope.stdout, "");
   assert.match(invalidScope.stderr, /scope/u);
+
+  const viabilityWithoutVariable = runPrivateCli([
+    "space",
+    "query",
+    relationalOpenPath,
+    "--viability",
+    "unknown",
+  ]);
+  assert.equal(viabilityWithoutVariable.status, 2);
+  assert.equal(viabilityWithoutVariable.stdout, "");
+  assert.match(viabilityWithoutVariable.stderr, /requires --variable/u);
+
+  const invalidQueryKind = runPrivateCli([
+    "space",
+    "query",
+    relationalOpenPath,
+    "--kind",
+    "variable",
+    "--variable",
+    "V_OPEN_LEFT",
+  ]);
+  assert.equal(invalidQueryKind.status, 2);
+  assert.equal(invalidQueryKind.stdout, "");
+  assert.match(invalidQueryKind.stderr, /kind candidate/u);
+
+  const repeatedQueryOption = runPrivateCli([
+    "space",
+    "query",
+    relationalOpenPath,
+    "--kind",
+    "candidate",
+    "--kind",
+    "candidate",
+  ]);
+  assert.equal(repeatedQueryOption.status, 2);
+  assert.equal(repeatedQueryOption.stdout, "");
+  assert.match(repeatedQueryOption.stderr, /at most once/u);
 
   const warningThreshold = runPrivateCli([
     "document",

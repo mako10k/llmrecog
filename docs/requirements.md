@@ -1,6 +1,6 @@
 # llmrecog requirements
 
-- Status: Private Phase 4 relational slice implemented; space routes not implemented
+- Status: Private Phase 4 relational and bounded-query slices implemented; materialization not implemented
 - Date: 2026-08-14
 - Provisional document extension: `.recog`
 - Product role: Recognition

@@ -124,7 +124,9 @@ ADR 0010, `Llmrecog.QueryResult.v1`,
 `Llmrecog.MaterializationResult.v1`, exact contract fixtures, and dogfood
 protocol v4 accept this phase's contract. The first implementation slice now
 evaluates `requires`, `same_as`, and `distinct_from` through the private
-bounded explain and focused-audit seam. Neither `space` route is implemented.
+bounded explain and focused-audit seam. The second slice implements the
+accepted deterministic `space query` filters and projections through the same
+application/core seam. `space materialize` is not implemented.
 
 Add:
 
@@ -216,10 +218,10 @@ authorized by accepting llmrecog core implementation.
 
 ## Current implementation frontier
 
-Implement the 4p bounded-query vertical slice against the unchanged accepted
-`Llmrecog.QueryResult.v1` contract. The protocol-v5 findings are dispositioned,
-the corrected protocol-v6 relational replay is complete, and active protocol
-v7 retains the later bounded-space dogfood round. Producer dogfood remains
+Implement the 4p bounded-materialization vertical slice against the unchanged
+accepted `Llmrecog.MaterializationResult.v1` contract. The bounded-query slice
+is implemented, the relational feedback is dispositioned, and active protocol
+v8 retains the later bounded-space dogfood round. Producer dogfood remains
 gated on the accepted complete initial constraint semantics,
 fail-closed local source verification, a producer-contract ADR, and a
 separately approved adapter.

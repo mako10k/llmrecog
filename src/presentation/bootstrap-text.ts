@@ -3,6 +3,7 @@ import type {
   BootstrapReadResult,
   DocumentResult,
   ExplainResult,
+  QueryResult,
   RecognitionResult,
   ValidationResult,
 } from "../application/bootstrap-read-path.js";
@@ -330,6 +331,51 @@ function renderExplain(result: ExplainResult): string {
   ].join("\n");
 }
 
+function renderCompactValue(value: SemanticValue): string {
+  switch (value.kind) {
+    case "reference":
+      return `reference:${value.id}`;
+    case "symbol":
+      return `symbol:${value.value}`;
+    case "string":
+      return `string:${JSON.stringify(value.value)}`;
+  }
+}
+
+function queryReasonCodes(
+  viability: QueryResult["items"][number]["viability"],
+): readonly string[] {
+  if (viability === null) return [];
+  if (viability.state === "unknown") return viability.unknown_reasons;
+  return viability.reason_chain.map((reason) => reason.code);
+}
+
+function renderQueryItem(item: QueryResult["items"][number]): string {
+  const support = item.support?.state ?? "-";
+  const viability = item.viability?.state ?? "-";
+  const reasons = queryReasonCodes(item.viability);
+  const scope = item.scope?.effective_variable_ids.join(",") || "-";
+  const suffix = `support=${support} viability=${viability} reasons=${reasons.join(",") || "-"} scope=${scope}`;
+  if (item.recognition.declaration_kind === "candidate") {
+    return `candidate ${item.recognition.id} variable=${item.recognition.variable_id} value=${renderCompactValue(item.recognition.value)} ${suffix}`;
+  }
+  return `${item.recognition.declaration_kind} ${item.recognition.id} ${suffix}`;
+}
+
+function renderQuery(result: QueryResult): string {
+  const filters = result.filters;
+  return [
+    result.schema,
+    `filters: kind=${filters.kind ?? "-"} variable=${filters.variable_id ?? "-"} support=${filters.support ?? "-"} viability=${filters.viability ?? "-"} grounded_in=${filters.grounded_in_span_id ?? "-"}`,
+    `limits: results=${String(result.result_limit)} assignments=${String(result.assignment_limit)}`,
+    `matched: ${String(result.matched_count)}`,
+    ...result.items.map(renderQueryItem),
+    `source_verification: ${result.source_verification.mode}/${result.source_verification.state}`,
+    `complete: ${String(result.complete)}`,
+    `truncated: ${String(result.truncated)}`,
+  ].join("\n");
+}
+
 function renderAuditReasonData(
   reasonData: Readonly<Record<string, unknown>>,
 ): string {
@@ -383,6 +429,8 @@ export function renderBootstrapText(result: BootstrapReadResult): string {
       return `${renderRecognition(result)}\n`;
     case "Llmrecog.ExplainResult.v2":
       return `${renderExplain(result)}\n`;
+    case "Llmrecog.QueryResult.v1":
+      return `${renderQuery(result)}\n`;
     case "Llmrecog.AuditResult.v1":
       return `${renderAudit(result)}\n`;
   }
