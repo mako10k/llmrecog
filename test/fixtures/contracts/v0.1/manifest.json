@@ -177,6 +177,13 @@
       "covers_grammar": []
     },
     {
+      "id": "relational_identities",
+      "path": "test/fixtures/contracts/v0.1/valid/relational-identities.recog",
+      "expectation": "valid",
+      "expected_diagnostics": [],
+      "covers_grammar": []
+    },
+    {
       "id": "external_knowledge_open",
       "path": "test/fixtures/contracts/v0.1/valid/external-knowledge-open.recog",
       "expectation": "valid",

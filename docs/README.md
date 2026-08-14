@@ -53,5 +53,9 @@ ADR 0009 supersedes only the successful explain result version and typed
 target-content shape, requiring `Llmrecog.ExplainResult.v2` before the
 remaining Phase 3 implementation.
 ADR 0010 accepts all five contract-0.1 constraint semantics plus the private
-bounded query and materialization contracts. Their accepted schemas and
-fixtures do not claim that the Phase 4 runtime exists.
+bounded query and materialization contracts. The relational explain/audit
+slice implements the five constraint meanings; the accepted `space` schemas
+and fixtures do not claim that either route exists.
+ADR 0011 corrects the relational ExplainResult v2 text golden to the existing
+complete deterministic projection without changing its JSON or semantic
+contract.

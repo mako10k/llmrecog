@@ -1,0 +1,167 @@
+llmrecog 0.1
+
+document RELATIONAL_IDENTITIES:
+  title "Relational identity edge cases"
+
+source SRC:
+  kind text
+  locator "relational-identities.txt"
+
+span S1:
+  source SRC
+  range 1:1..1:44
+  quote "Identity relations retain exact typed semantics"
+
+variable V_REQ_SELF:
+  value_type symbol
+  candidates [C_REQ_SELF_ON]
+  grounded_in [S1]
+
+candidate C_REQ_SELF_ON in V_REQ_SELF:
+  value on
+  grounded_in [S1]
+  support explicit
+
+variable V_EQUAL_LEFT:
+  value_type symbol
+  candidates [C_EQUAL_LEFT_RED]
+  grounded_in [S1]
+
+candidate C_EQUAL_LEFT_RED in V_EQUAL_LEFT:
+  value red
+  grounded_in [S1]
+  support explicit
+
+variable V_EQUAL_RIGHT:
+  value_type symbol
+  candidates [C_EQUAL_RIGHT_RED]
+  grounded_in [S1]
+
+candidate C_EQUAL_RIGHT_RED in V_EQUAL_RIGHT:
+  value red
+  grounded_in [S1]
+  support explicit
+
+variable V_SAME_SELF:
+  value_type symbol
+  candidates [C_SAME_SELF_RED]
+  grounded_in [S1]
+
+candidate C_SAME_SELF_RED in V_SAME_SELF:
+  value red
+  grounded_in [S1]
+  support explicit
+
+variable V_DISTINCT_SELF:
+  value_type symbol
+  candidates [C_DISTINCT_SELF_RED]
+  grounded_in [S1]
+
+candidate C_DISTINCT_SELF_RED in V_DISTINCT_SELF:
+  value red
+  grounded_in [S1]
+  support explicit
+
+variable V_STRING_LEFT:
+  value_type string
+  candidates [C_STRING_COMPOSED]
+  grounded_in [S1]
+
+candidate C_STRING_COMPOSED in V_STRING_LEFT:
+  value "\u00e9"
+  grounded_in [S1]
+  support explicit
+
+variable V_STRING_RIGHT:
+  value_type string
+  candidates [C_STRING_DECOMPOSED]
+  grounded_in [S1]
+
+candidate C_STRING_DECOMPOSED in V_STRING_RIGHT:
+  value "e\u0301"
+  grounded_in [S1]
+  support explicit
+
+constraint K_REQ_SELF_ONE_OF:
+  kind one_of
+  variable V_REQ_SELF
+  members [C_REQ_SELF_ON]
+  grounded_in [S1]
+  support explicit
+
+constraint K_REQ_SELF:
+  kind requires
+  antecedent C_REQ_SELF_ON
+  consequent C_REQ_SELF_ON
+  grounded_in [S1]
+  support explicit
+
+constraint K_EQUAL_LEFT_ONE_OF:
+  kind one_of
+  variable V_EQUAL_LEFT
+  members [C_EQUAL_LEFT_RED]
+  grounded_in [S1]
+  support explicit
+
+constraint K_EQUAL_RIGHT_ONE_OF:
+  kind one_of
+  variable V_EQUAL_RIGHT
+  members [C_EQUAL_RIGHT_RED]
+  grounded_in [S1]
+  support explicit
+
+constraint K_EQUAL_VALUES:
+  kind same_as
+  left V_EQUAL_LEFT
+  right V_EQUAL_RIGHT
+  grounded_in [S1]
+  support explicit
+
+constraint K_SAME_SELF_ONE_OF:
+  kind one_of
+  variable V_SAME_SELF
+  members [C_SAME_SELF_RED]
+  grounded_in [S1]
+  support explicit
+
+constraint K_SAME_SELF:
+  kind same_as
+  left V_SAME_SELF
+  right V_SAME_SELF
+  grounded_in [S1]
+  support explicit
+
+constraint K_DISTINCT_SELF_ONE_OF:
+  kind one_of
+  variable V_DISTINCT_SELF
+  members [C_DISTINCT_SELF_RED]
+  grounded_in [S1]
+  support explicit
+
+constraint K_DISTINCT_SELF:
+  kind distinct_from
+  left V_DISTINCT_SELF
+  right V_DISTINCT_SELF
+  grounded_in [S1]
+  support explicit
+
+constraint K_STRING_LEFT_ONE_OF:
+  kind one_of
+  variable V_STRING_LEFT
+  members [C_STRING_COMPOSED]
+  grounded_in [S1]
+  support explicit
+
+constraint K_STRING_RIGHT_ONE_OF:
+  kind one_of
+  variable V_STRING_RIGHT
+  members [C_STRING_DECOMPOSED]
+  grounded_in [S1]
+  support explicit
+
+constraint K_STRING_EXACT_EQUALITY:
+  kind same_as
+  left V_STRING_LEFT
+  right V_STRING_RIGHT
+  grounded_in [S1]
+  support explicit

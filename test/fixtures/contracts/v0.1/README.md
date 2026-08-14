@@ -21,8 +21,13 @@ one source occurrence. The boundary-case map covers every case in
 allowed candidates, propagated exclusion, reasoning handoff, and prohibited
 backflow.
 
-These fixtures are contract authority, not evidence that a parser, solver, or
-space route exists. Implemented Phase 2 and Phase 3 outputs match their
-artifacts through real seams; Phase 4 runtime remains separately gated.
+These fixtures are contract authority, not evidence that an unimplemented
+route exists. Implemented Phase 2, Phase 3, and Phase 4 relational outputs
+match their artifacts through real seams; both `space` routes remain gated.
 Accepted text goldens use UTF-8, LF, and one final newline and are projections
 of their adjacent JSON result goldens.
+
+The Phase 4 relational fixtures cover implication failure, exact typed
+equality and inequality, open-operand indeterminacy, self-relations, and equal
+values carried by different candidate IDs. They do not authorize either space
+route.

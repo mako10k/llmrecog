@@ -1,14 +1,36 @@
-Llmrecog.ExplainResult.v2
-target: candidate C_REQ_ON
-recognition: variable=V_REQ_TRIGGER value=symbol:on
-support: supported (explicit)
+Llmrecog.ExplainResult.v2 semantic=0.1 tool=contract-fixture
+input: test/fixtures/contracts/v0.1/valid/relational-conflict.recog
+document: RELATIONAL_CONFLICT
+digest: sha256:efef4ed2cbff68410b8359f71cf7ae5381ee117324e94ddf755be77b89cfef30
+target: C_REQ_ON kind=candidate
+recognition:
+  declaration_kind: candidate
+  variable: V_REQ_TRIGGER
+  value: symbol on
+  grounded_in: S1
+  support: explicit grounded_in=S1
+support: supported
+support_records: explicit grounded_in=S1
 viability: excluded
-variable_resolution: inconsistent
+witness: -
 reason_chain:
   RCG-RSN-201 one_of_single_remaining subject=C_REQ_SAFE constraint=K_REQ_MODE_ONE_OF inputs=C_REQ_SAFE
   RCG-RSN-203 requires_consequent_unavailable subject=C_REQ_ON constraint=K_REQ_ON_REQUIRES_FAST inputs=C_REQ_ON,C_REQ_FAST
   RCG-RSN-206 no_satisfying_witness subject=C_REQ_ON constraint=- inputs=K_REQ_MODE_ONE_OF,K_REQ_ON_REQUIRES_FAST
+unknown_reasons: -
+variable_resolution: inconsistent
+variable_unknown_reasons: -
 scope: requested=V_REQ_TRIGGER effective=V_REQ_TRIGGER,V_REQ_MODE limit=100
+provenance: grounded_in(C_REQ_ON,S1), applies(C_REQ_ON,K_REQ_ON_REQUIRES_FAST)
+normalization: -
+source_verification: SRC none/not_requested
+constraints: K_REQ_TRIGGER_ONE_OF, K_REQ_MODE_ONE_OF, K_REQ_ON_REQUIRES_FAST
 skipped_constraints: -
+derivations:
+  RCG-RSN-201 one_of_single_remaining subject=C_REQ_SAFE constraint=K_REQ_MODE_ONE_OF inputs=C_REQ_SAFE
+  RCG-RSN-203 requires_consequent_unavailable subject=C_REQ_ON constraint=K_REQ_ON_REQUIRES_FAST inputs=C_REQ_ON,C_REQ_FAST
+  RCG-RSN-206 no_satisfying_witness subject=C_REQ_ON constraint=- inputs=K_REQ_MODE_ONE_OF,K_REQ_ON_REQUIRES_FAST
 complete: true
 truncated: false
+diagnostics:
+  RCG-CSP-002 warning entity=C_REQ_ON A source-supported candidate is excluded by grounded constraints.

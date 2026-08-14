@@ -103,11 +103,17 @@ interface ScopeContext {
 interface EnumerationResult {
   readonly satisfying: readonly Witness[];
   readonly blocker_derivations: readonly PublicReason[];
+  readonly unknown_reasons: readonly string[];
   readonly inspected: number;
   readonly truncated: boolean;
 }
 
 type AssignmentSelection = CandidateRecognition | null;
+
+type ConstraintEvaluation =
+  | { readonly state: "satisfied" }
+  | { readonly state: "violated"; readonly reason: PublicReason }
+  | { readonly state: "indeterminate"; readonly reason_code: "RCG-RSN-001" };
 
 function recognitionsOfKind<K extends Recognition["declaration_kind"]>(
   document: SemanticDocument,
@@ -238,17 +244,7 @@ function buildScope(
     requested: requested.map((id) => variables.get(id)!),
     effective,
     relevant,
-    skipped: relevant.flatMap((constraint) =>
-      constraint.constraint_kind === "one_of" ||
-      constraint.constraint_kind === "excludes"
-        ? []
-        : [
-            {
-              constraint_id: constraint.id,
-              reason_code: "RCG-RSN-006" as const,
-            },
-          ],
-    ),
+    skipped: [],
   };
 }
 
@@ -279,20 +275,6 @@ function oneOfConstraints(
     > =>
       constraint.constraint_kind === "one_of" &&
       constraint.variable_id === variableId,
-  );
-}
-
-function excludesConstraints(
-  scope: ScopeContext,
-): readonly (BinaryConstraintRecognition & {
-  readonly constraint_kind: "excludes";
-})[] {
-  return scope.relevant.filter(
-    (
-      constraint,
-    ): constraint is BinaryConstraintRecognition & {
-      readonly constraint_kind: "excludes";
-    } => constraint.constraint_kind === "excludes",
   );
 }
 
@@ -376,30 +358,185 @@ function witnessFromSelection(
   };
 }
 
-function excludesBlocker(
+function selectedCandidate(
+  scope: ScopeContext,
+  selected: readonly AssignmentSelection[],
+  variableId: string,
+): AssignmentSelection {
+  const index = scope.effective.findIndex(
+    (variable) => variable.id === variableId,
+  );
+  return index === -1 ? null : selected[index]!;
+}
+
+function valuesEqual(left: SemanticValue, right: SemanticValue): boolean {
+  if (left.kind !== right.kind) return false;
+  if (left.kind === "reference" && right.kind === "reference") {
+    return left.id === right.id;
+  }
+  if (left.kind === "symbol" && right.kind === "symbol") {
+    return left.value === right.value;
+  }
+  return (
+    left.kind === "string" &&
+    right.kind === "string" &&
+    left.value === right.value
+  );
+}
+
+type EqualityConstraint = BinaryConstraintRecognition & {
+  readonly constraint_kind: "same_as" | "distinct_from";
+};
+
+function equalityViolationReason(
+  constraint: EqualityConstraint,
+  subjectId: string,
+  inputs: readonly string[],
+): ConstraintEvaluation {
+  const identity =
+    constraint.constraint_kind === "same_as"
+      ? {
+          code: "RCG-RSN-204",
+          name: "same_as_value_mismatch",
+        }
+      : {
+          code: "RCG-RSN-205",
+          name: "distinct_from_value_collision",
+        };
+  return {
+    state: "violated",
+    reason: {
+      ...identity,
+      subject_id: subjectId,
+      constraint_id: constraint.id,
+      inputs,
+    },
+  };
+}
+
+function selfEqualityEvaluation(
+  constraint: EqualityConstraint,
+  selected: AssignmentSelection,
+  fixedTarget: CandidateRecognition | null,
+): ConstraintEvaluation {
+  if (constraint.constraint_kind === "same_as") {
+    return { state: "satisfied" };
+  }
+  const input = selected?.id ?? constraint.left_id;
+  return equalityViolationReason(constraint, fixedTarget?.id ?? input, [
+    input,
+    input,
+  ]);
+}
+
+function knownEqualityEvaluation(
+  constraint: EqualityConstraint,
+  left: CandidateRecognition,
+  right: CandidateRecognition,
+  fixedTarget: CandidateRecognition | null,
+): ConstraintEvaluation {
+  const equal = valuesEqual(left.value, right.value);
+  const satisfied = constraint.constraint_kind === "same_as" ? equal : !equal;
+  return satisfied
+    ? { state: "satisfied" }
+    : equalityViolationReason(constraint, fixedTarget?.id ?? left.id, [
+        left.id,
+        right.id,
+      ]);
+}
+
+function equalityConstraintEvaluation(
+  constraint: EqualityConstraint,
   scope: ScopeContext,
   selected: readonly AssignmentSelection[],
   fixedTarget: CandidateRecognition | null,
-): PublicReason | null {
+): ConstraintEvaluation {
+  const left = selectedCandidate(scope, selected, constraint.left_id);
+  const right = selectedCandidate(scope, selected, constraint.right_id);
+  if (constraint.left_id === constraint.right_id) {
+    return selfEqualityEvaluation(constraint, left, fixedTarget);
+  }
+  if (left === null || right === null) {
+    return { state: "indeterminate", reason_code: "RCG-RSN-001" };
+  }
+  return knownEqualityEvaluation(constraint, left, right, fixedTarget);
+}
+
+function constraintEvaluation(
+  constraint: ConstraintRecognition,
+  scope: ScopeContext,
+  selected: readonly AssignmentSelection[],
+  fixedTarget: CandidateRecognition | null,
+): ConstraintEvaluation {
+  if (constraint.constraint_kind === "one_of") {
+    return { state: "satisfied" };
+  }
   const selectedIds = new Set(
     selected.flatMap((candidate) => (candidate === null ? [] : [candidate.id])),
   );
-  for (const constraint of excludesConstraints(scope)) {
+  if (constraint.constraint_kind === "excludes") {
     if (
       !selectedIds.has(constraint.left_id) ||
       !selectedIds.has(constraint.right_id)
     ) {
-      continue;
+      return { state: "satisfied" };
     }
     return {
-      code: "RCG-RSN-202",
-      name: "excludes_pair_forbidden",
-      subject_id: fixedTarget?.id ?? constraint.right_id,
-      constraint_id: constraint.id,
-      inputs: [constraint.left_id, constraint.right_id],
+      state: "violated",
+      reason: {
+        code: "RCG-RSN-202",
+        name: "excludes_pair_forbidden",
+        subject_id: fixedTarget?.id ?? constraint.right_id,
+        constraint_id: constraint.id,
+        inputs: [constraint.left_id, constraint.right_id],
+      },
     };
   }
-  return null;
+  if (constraint.constraint_kind === "requires") {
+    if (!selectedIds.has(constraint.antecedent_id)) {
+      return { state: "satisfied" };
+    }
+    if (selectedIds.has(constraint.consequent_id)) {
+      return { state: "satisfied" };
+    }
+    return {
+      state: "violated",
+      reason: {
+        code: "RCG-RSN-203",
+        name: "requires_consequent_unavailable",
+        subject_id: fixedTarget?.id ?? constraint.antecedent_id,
+        constraint_id: constraint.id,
+        inputs: [constraint.antecedent_id, constraint.consequent_id],
+      },
+    };
+  }
+  return equalityConstraintEvaluation(
+    constraint as EqualityConstraint,
+    scope,
+    selected,
+    fixedTarget,
+  );
+}
+
+function selectionEvaluation(
+  scope: ScopeContext,
+  selected: readonly AssignmentSelection[],
+  fixedTarget: CandidateRecognition | null,
+): ConstraintEvaluation {
+  let indeterminate = false;
+  for (const constraint of scope.relevant) {
+    const evaluation = constraintEvaluation(
+      constraint,
+      scope,
+      selected,
+      fixedTarget,
+    );
+    if (evaluation.state === "violated") return evaluation;
+    if (evaluation.state === "indeterminate") indeterminate = true;
+  }
+  return indeterminate
+    ? { state: "indeterminate", reason_code: "RCG-RSN-001" }
+    : { state: "satisfied" };
 }
 
 function enumerateAssignments(
@@ -412,23 +549,30 @@ function enumerateAssignments(
   const satisfying: Witness[] = [];
   const blockerDerivations: PublicReason[] = [];
   const blockerKeys = new Set<string>();
+  const unknownReasonCodes = new Set<string>();
   let inspected = 0;
   for (const selected of assignments(scope, candidates, fixedTarget)) {
     if (inspected === limit) {
       return {
         satisfying,
         blocker_derivations: blockerDerivations,
+        unknown_reasons: [...unknownReasonCodes],
         inspected,
         truncated: true,
       };
     }
     inspected += 1;
-    const blocker = excludesBlocker(scope, selected, fixedTarget);
-    if (blocker === null) {
+    const evaluation = selectionEvaluation(scope, selected, fixedTarget);
+    if (evaluation.state === "satisfied") {
       satisfying.push(witnessFromSelection(scope, selected));
       if (stopAtFirstSatisfying) break;
       continue;
     }
+    if (evaluation.state === "indeterminate") {
+      unknownReasonCodes.add(evaluation.reason_code);
+      continue;
+    }
+    const blocker = evaluation.reason;
     const blockerKey = `${blocker.constraint_id}:${blocker.inputs.join(",")}`;
     if (!blockerKeys.has(blockerKey)) {
       blockerKeys.add(blockerKey);
@@ -438,6 +582,7 @@ function enumerateAssignments(
   return {
     satisfying,
     blocker_derivations: blockerDerivations,
+    unknown_reasons: [...unknownReasonCodes],
     inspected,
     truncated: false,
   };
@@ -446,15 +591,16 @@ function enumerateAssignments(
 function unknownReasons(
   variable: VariableRecognition,
   scope: ScopeContext,
-  truncated: boolean,
+  enumeration: EnumerationResult,
 ): readonly string[] {
   const reasons: string[] = [];
   if (!isClosed(variable, scope)) {
     reasons.push("RCG-RSN-001");
     if (variable.candidate_ids.length === 0) reasons.push("RCG-RSN-002");
   }
+  reasons.push(...enumeration.unknown_reasons);
   if (scope.skipped.length > 0) reasons.push("RCG-RSN-006");
-  if (truncated) reasons.push("RCG-RSN-007");
+  if (enumeration.truncated) reasons.push("RCG-RSN-007");
   return unique(reasons);
 }
 
@@ -463,12 +609,12 @@ function variableResolution(
   scope: ScopeContext,
   enumeration: EnumerationResult,
 ): VariableResolution {
-  if (!enumeration.truncated && enumeration.satisfying.length === 0) {
-    return { state: "inconsistent", unknown_reasons: [] };
-  }
-  const reasons = unknownReasons(variable, scope, enumeration.truncated);
+  const reasons = unknownReasons(variable, scope, enumeration);
   if (reasons.length > 0) {
     return { state: "unknown", unknown_reasons: reasons };
+  }
+  if (!enumeration.truncated && enumeration.satisfying.length === 0) {
+    return { state: "inconsistent", unknown_reasons: [] };
   }
   const selectedIds = new Set(
     enumeration.satisfying.flatMap((witness) =>
@@ -512,7 +658,10 @@ function excludedReasonChain(
   const blockers = enumeration.blocker_derivations.map((reason) => ({
     ...reason,
     subject_id: target.id,
-    inputs: reason.inputs.filter((id) => id !== target.id),
+    inputs:
+      reason.code === "RCG-RSN-202"
+        ? reason.inputs.filter((id) => id !== target.id)
+        : reason.inputs,
   }));
   const forced =
     blockers.length === 0 ? [] : forcedCandidateReasons(target, scope);
@@ -580,6 +729,14 @@ function candidateViability(
       unknown_reasons: ["RCG-RSN-007"],
     };
   }
+  if (enumeration.unknown_reasons.length > 0) {
+    return {
+      state: "unknown",
+      witness: null,
+      reason_chain: [],
+      unknown_reasons: enumeration.unknown_reasons,
+    };
+  }
   return {
     state: "excluded",
     witness: null,
@@ -593,17 +750,6 @@ function constraintDerivations(
   scope: ScopeContext,
 ): readonly PublicReason[] {
   if (target.declaration_kind !== "constraint") return [];
-  if (target.constraint_kind === "excludes") {
-    return [
-      {
-        code: "RCG-RSN-202",
-        name: "excludes_pair_forbidden",
-        subject_id: target.right_id,
-        constraint_id: target.id,
-        inputs: [target.left_id, target.right_id],
-      },
-    ];
-  }
   if (target.constraint_kind !== "one_of") return [];
   const variable = scope.effective.find(
     (candidate) => candidate.id === target.variable_id,
@@ -646,6 +792,21 @@ interface AnalysisEnumerations {
   readonly global: EnumerationResult | null;
 }
 
+function targetEnumeration(
+  target: Recognition,
+  scope: ScopeContext,
+  candidates: ReadonlyMap<string, CandidateRecognition>,
+  limit: number,
+): EnumerationResult | null {
+  if (target.declaration_kind === "candidate") {
+    return enumerateAssignments(scope, candidates, target, limit, true);
+  }
+  if (target.declaration_kind === "constraint") {
+    return enumerateAssignments(scope, candidates, null, limit, false);
+  }
+  return null;
+}
+
 function analysisEnumerations(
   target: Recognition,
   scope: ScopeContext,
@@ -653,20 +814,47 @@ function analysisEnumerations(
   limit: number,
 ): AnalysisEnumerations {
   const variable = analysisVariable(target, scope);
-  const targetEnumeration =
-    target.declaration_kind === "candidate"
-      ? enumerateAssignments(scope, candidates, target, limit, true)
-      : null;
-  const remainingLimit = limit - (targetEnumeration?.inspected ?? 0);
+  const targetResult = targetEnumeration(target, scope, candidates, limit);
+  const remainingLimit = limit - (targetResult?.inspected ?? 0);
   const globalEnumeration =
     variable === undefined
       ? null
       : enumerateAssignments(scope, candidates, null, remainingLimit, false);
   return {
     variable,
-    target: targetEnumeration,
+    target: targetResult,
     global: globalEnumeration,
   };
+}
+
+const groundedViolationCodes = new Set([
+  "RCG-RSN-202",
+  "RCG-RSN-203",
+  "RCG-RSN-204",
+  "RCG-RSN-205",
+]);
+
+function candidateDerivations(
+  viability: CandidateViability | null,
+  enumeration: EnumerationResult | null,
+): readonly PublicReason[] {
+  if (viability === null) return [];
+  if (viability.state === "allowed") return viability.reason_chain;
+  if (
+    viability.state === "excluded" &&
+    viability.reason_chain.some((reason) =>
+      groundedViolationCodes.has(reason.code),
+    )
+  ) {
+    return viability.reason_chain;
+  }
+  if (
+    viability.state === "unknown" &&
+    viability.unknown_reasons.includes("RCG-RSN-007")
+  ) {
+    return enumeration?.blocker_derivations ?? [];
+  }
+  return [];
 }
 
 function analysisViability(
@@ -695,12 +883,8 @@ function analysisDerivations(
   viability: CandidateViability | null,
   enumeration: EnumerationResult | null,
 ): readonly PublicReason[] {
-  if (viability?.state === "allowed") return viability.reason_chain;
-  if (
-    viability?.state === "excluded" &&
-    viability.reason_chain.some((reason) => reason.code === "RCG-RSN-202")
-  ) {
-    return viability.reason_chain;
+  if (target.declaration_kind === "candidate") {
+    return candidateDerivations(viability, enumeration);
   }
   if (enumeration !== null && enumeration.blocker_derivations.length > 0) {
     return enumeration.blocker_derivations;

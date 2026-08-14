@@ -23,6 +23,7 @@ import type {
 
 export const phase2ToolVersion = "0.0.0-phase2";
 export const phase3ToolVersion = "0.0.0-phase3";
+export const phase4RelationalToolVersion = "0.0.0-phase4-relational";
 
 interface ResultInput {
   readonly path: string;
@@ -365,6 +366,17 @@ function targetNormalization(target: Recognition): NormalizationRecord | null {
     : null;
 }
 
+const constraintViolationReasonCodes = new Set([
+  "RCG-RSN-202",
+  "RCG-RSN-203",
+  "RCG-RSN-204",
+  "RCG-RSN-205",
+]);
+
+function isConstraintViolationReason(reason: PublicReason): boolean {
+  return constraintViolationReasonCodes.has(reason.code);
+}
+
 function groundingEdges(
   document: SemanticDocument,
   target: Recognition,
@@ -401,7 +413,8 @@ function groundingEdges(
   if (target.declaration_kind === "candidate") {
     const appliedConstraintIds = uniqueStrings(
       derivations.flatMap((derivation) =>
-        derivation.code === "RCG-RSN-202" && derivation.constraint_id !== null
+        isConstraintViolationReason(derivation) &&
+        derivation.constraint_id !== null
           ? [derivation.constraint_id]
           : [],
       ),
@@ -509,7 +522,7 @@ export function explainBootstrapRecognition(
   const requestedVariableIds = validatedScope(options.requestedVariableIds);
   const phase3Input: BootstrapReadInput = {
     ...input,
-    toolVersion: input.toolVersion ?? phase3ToolVersion,
+    toolVersion: input.toolVersion ?? phase4RelationalToolVersion,
   };
   const validation = validateBootstrapInput(phase3Input);
   if (!validation.valid || validation.document === null) return validation;
@@ -533,7 +546,7 @@ export function explainBootstrapRecognition(
     result.target.declaration_kind === "candidate" &&
     result.target.support !== undefined &&
     result.viability?.state === "excluded" &&
-    result.derivations.some((derivation) => derivation.code === "RCG-RSN-202")
+    result.derivations.some(isConstraintViolationReason)
       ? [supportedExcludedDiagnostic(result.target.id, exclusionIds)]
       : [];
   return {
@@ -770,7 +783,7 @@ export function auditBootstrapDocument(
 ): ValidationResult | AuditResult {
   const phase3Input: BootstrapReadInput = {
     ...input,
-    toolVersion: input.toolVersion ?? phase3ToolVersion,
+    toolVersion: input.toolVersion ?? phase4RelationalToolVersion,
   };
   const validation = validateBootstrapInput(phase3Input);
   if (

@@ -18,6 +18,7 @@ import {
   validateBootstrapInput,
   type BootstrapReadInput,
   type BootstrapReadResult,
+  type ExplainOptions,
 } from "../src/application/bootstrap-read-path.js";
 import type { Diagnostic } from "../src/core/types.js";
 import { renderBootstrapText } from "../src/presentation/bootstrap-text.js";
@@ -34,6 +35,9 @@ const propagatedExclusionPath = `${fixtureRoot}/valid/propagated-exclusion.recog
 const closedConflictPath = `${fixtureRoot}/valid/closed-conflict.recog`;
 const limitUnknownPath = `${fixtureRoot}/valid/limit-unknown.recog`;
 const allDeclarationsPath = `${fixtureRoot}/valid/all-declarations.recog`;
+const relationalConflictPath = `${fixtureRoot}/valid/relational-conflict.recog`;
+const relationalOpenPath = `${fixtureRoot}/valid/relational-open.recog`;
+const relationalIdentitiesPath = `${fixtureRoot}/valid/relational-identities.recog`;
 
 const schemaPaths = [
   "schemas/Llmrecog.Common.v1.schema.json",
@@ -103,6 +107,35 @@ function readInput(relativePath: string): BootstrapReadInput {
     bytes: fs.readFileSync(absolutePath(relativePath)),
     path: relativePath,
   };
+}
+
+function contractInput(relativePath: string): BootstrapReadInput {
+  return { ...readInput(relativePath), toolVersion: "contract-fixture" };
+}
+
+interface ExplainGoldenCase {
+  readonly input: string;
+  readonly id: string;
+  readonly expected: string;
+  readonly text?: string;
+  readonly options?: ExplainOptions;
+}
+
+function assertExplainGolden(fixture: ExplainGoldenCase): void {
+  const result = explainBootstrapRecognition(
+    contractInput(fixture.input),
+    fixture.id,
+    fixture.options,
+  );
+  assert.equal(result.schema, "Llmrecog.ExplainResult.v2");
+  assertResultSchema(result);
+  assert.deepEqual(result, readJson(fixture.expected));
+  if (fixture.text !== undefined) {
+    assert.equal(
+      renderBootstrapText(result),
+      fs.readFileSync(absolutePath(fixture.text), "utf8"),
+    );
+  }
 }
 
 function digest(relativePath: string): string {
@@ -502,10 +535,6 @@ test("text is a deterministic projection of the same typed results", () => {
 });
 
 test("finite one_of explanation matches support, witness, and unknown contracts", () => {
-  const contractInput = (relativePath: string): BootstrapReadInput => ({
-    ...readInput(relativePath),
-    toolVersion: "contract-fixture",
-  });
   const unsupported = explainBootstrapRecognition(
     contractInput(unsupportedAllowedPath),
     "C_SECONDARY",
@@ -557,43 +586,27 @@ test("finite one_of explanation matches support, witness, and unknown contracts"
 });
 
 test("ExplainResult v2 projects typed authored targets without relying on witnesses", () => {
-  const contractInput = (relativePath: string): BootstrapReadInput => ({
-    ...readInput(relativePath),
-    toolVersion: "contract-fixture",
-  });
   const cases = [
     {
       input: explicitFactPath,
       id: "E_DEPLOYMENT",
-      json: `${fixtureRoot}/expected/explicit-entity.explain.json`,
+      expected: `${fixtureRoot}/expected/explicit-entity.explain.json`,
       text: `${fixtureRoot}/expected/explicit-entity.explain.txt`,
     },
     {
       input: explicitFactPath,
       id: "R_STATUS",
-      json: `${fixtureRoot}/expected/explicit-record.explain.json`,
+      expected: `${fixtureRoot}/expected/explicit-record.explain.json`,
       text: `${fixtureRoot}/expected/explicit-record.explain.txt`,
     },
     {
       input: openUnknownPath,
       id: "V_ACTOR",
-      json: `${fixtureRoot}/expected/candidate-unknown.explain.json`,
+      expected: `${fixtureRoot}/expected/candidate-unknown.explain.json`,
       text: `${fixtureRoot}/expected/candidate-unknown.explain.txt`,
     },
   ];
-  for (const fixture of cases) {
-    const result = explainBootstrapRecognition(
-      contractInput(fixture.input),
-      fixture.id,
-    );
-    assert.equal(result.schema, "Llmrecog.ExplainResult.v2");
-    assertResultSchema(result);
-    assert.deepEqual(result, readJson(fixture.json));
-    assert.equal(
-      renderBootstrapText(result),
-      fs.readFileSync(absolutePath(fixture.text), "utf8"),
-    );
-  }
+  for (const fixture of cases) assertExplainGolden(fixture);
 
   const finite = explainBootstrapRecognition(
     contractInput(minimalPath),
@@ -630,27 +643,23 @@ test("ExplainResult v2 projects typed authored targets without relying on witnes
   ]);
 });
 
-test("implemented excludes are finite while other constraint kinds remain explicit", () => {
+test("all five constraint kinds share finite relational evaluation", () => {
   const result = explainBootstrapRecognition(
     readInput(allDeclarationsPath),
     "C_MODE_DESIRE",
   );
   assert.equal(result.schema, "Llmrecog.ExplainResult.v2");
   if (result.schema !== "Llmrecog.ExplainResult.v2") return;
-  assert.equal(result.complete, false);
+  assert.equal(result.complete, true);
   assert.equal(result.truncated, false);
-  assert.deepEqual(result.viability, {
-    state: "unknown",
-    witness: null,
-    reason_chain: [],
-    unknown_reasons: ["RCG-RSN-006"],
-  });
-  assert(result.skipped_constraints.length > 0);
-  assert(
-    result.skipped_constraints.every(
-      (constraint) => constraint.reason_code === "RCG-RSN-006",
+  assert.equal(result.viability?.state, "allowed");
+  assert.deepEqual(
+    result.viability?.witness?.assignments.map(
+      (assignment) => assignment.candidate_id,
     ),
+    ["C_ACTOR_ALPHA", "C_ALIAS_ALPHA", "C_DISTINCT_BETA", "C_MODE_DESIRE"],
   );
+  assert.deepEqual(result.skipped_constraints, []);
 
   assert.throws(
     () =>
@@ -662,10 +671,6 @@ test("implemented excludes are finite while other constraint kinds remain explic
 });
 
 test("finite excludes explanation matches allowed, excluded, conflict, and limit contracts", () => {
-  const contractInput = (relativePath: string): BootstrapReadInput => ({
-    ...readInput(relativePath),
-    toolVersion: "contract-fixture",
-  });
   const cases = [
     {
       input: propagatedExclusionPath,
@@ -698,29 +703,85 @@ test("finite excludes explanation matches allowed, excluded, conflict, and limit
     },
   ] as const;
 
-  for (const fixture of cases) {
-    const result = explainBootstrapRecognition(
-      contractInput(fixture.input),
-      fixture.id,
-      "options" in fixture ? fixture.options : {},
-    );
+  for (const fixture of cases) assertExplainGolden(fixture);
+});
+
+test("relational explanation matches requires, equality, inequality, and open contracts", () => {
+  const cases = [
+    {
+      input: relationalConflictPath,
+      id: "C_REQ_ON",
+      expected: `${fixtureRoot}/expected/requires-excluded.explain.json`,
+      text: `${fixtureRoot}/expected/requires-excluded.explain.txt`,
+    },
+    {
+      input: relationalConflictPath,
+      id: "C_SAME_LEFT_RED",
+      expected: `${fixtureRoot}/expected/same-as-excluded.explain.json`,
+    },
+    {
+      input: relationalConflictPath,
+      id: "C_DISTINCT_LEFT_RED",
+      expected: `${fixtureRoot}/expected/distinct-from-excluded.explain.json`,
+    },
+    {
+      input: relationalOpenPath,
+      id: "C_OPEN_LEFT_RED",
+      expected: `${fixtureRoot}/expected/same-as-open.explain.json`,
+    },
+  ] as const;
+
+  for (const fixture of cases) assertExplainGolden(fixture);
+});
+
+test("relational identity edge cases use exact typed values and self semantics", () => {
+  const input = readInput(relationalIdentitiesPath);
+  const explain = (id: string) => {
+    const result = explainBootstrapRecognition(input, id);
     assert.equal(result.schema, "Llmrecog.ExplainResult.v2");
-    assertResultSchema(result);
-    assert.deepEqual(result, readJson(fixture.expected));
-    if ("text" in fixture) {
-      assert.equal(
-        renderBootstrapText(result),
-        fs.readFileSync(absolutePath(fixture.text), "utf8"),
-      );
+    if (result.schema !== "Llmrecog.ExplainResult.v2") {
+      throw new Error(`unexpected result for ${id}`);
     }
-  }
+    assertResultSchema(result);
+    return result;
+  };
+
+  assert.equal(explain("C_REQ_SELF_ON").viability?.state, "allowed");
+  assert.equal(explain("C_SAME_SELF_RED").viability?.state, "allowed");
+
+  const equalValues = explain("C_EQUAL_LEFT_RED");
+  assert.equal(equalValues.viability?.state, "allowed");
+  assert.deepEqual(
+    equalValues.viability?.witness?.assignments.map(
+      (assignment) => assignment.candidate_id,
+    ),
+    ["C_EQUAL_LEFT_RED", "C_EQUAL_RIGHT_RED"],
+  );
+
+  const distinctSelf = explain("C_DISTINCT_SELF_RED");
+  assert.equal(distinctSelf.viability?.state, "excluded");
+  assert.deepEqual(
+    distinctSelf.viability?.reason_chain.map((reason) => reason.code),
+    ["RCG-RSN-205", "RCG-RSN-206"],
+  );
+  assert.equal(distinctSelf.variable_resolution?.state, "inconsistent");
+
+  const constraint = explain("K_DISTINCT_SELF");
+  assert.deepEqual(
+    constraint.derivations.map((reason) => reason.code),
+    ["RCG-RSN-205"],
+  );
+
+  const exactString = explain("C_STRING_COMPOSED");
+  assert.equal(exactString.viability?.state, "excluded");
+  assert(
+    exactString.viability?.reason_chain.some(
+      (reason) => reason.code === "RCG-RSN-204",
+    ),
+  );
 });
 
 test("focused audit matches frozen diagnostics, thresholds, and truncation", () => {
-  const contractInput = (relativePath: string): BootstrapReadInput => ({
-    ...readInput(relativePath),
-    toolVersion: "contract-fixture",
-  });
   const propagated = auditBootstrapDocument(
     contractInput(propagatedExclusionPath),
   );
@@ -781,11 +842,35 @@ test("focused audit matches frozen diagnostics, thresholds, and truncation", () 
       (diagnostic) => diagnostic.code === "RCG-SUPPORT-001",
     ),
   );
+
+  const relational = auditBootstrapDocument(
+    contractInput(relationalConflictPath),
+  );
+  assert.equal(relational.schema, "Llmrecog.AuditResult.v1");
+  if (relational.schema === "Llmrecog.AuditResult.v1") {
+    assert.equal(relational.passed, false);
+    assert(
+      relational.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === "RCG-CSP-001" &&
+          Array.isArray(diagnostic.reason_data["constraint_ids"]) &&
+          diagnostic.reason_data["constraint_ids"].includes(
+            "K_REQ_ON_REQUIRES_FAST",
+          ),
+      ),
+    );
+    assert(
+      relational.diagnostics.some(
+        (diagnostic) => diagnostic.code === "RCG-CSP-002",
+      ),
+    );
+  }
 });
 
 test("the private CLI is read-only and byte-deterministic for dogfood routes", () => {
   const beforeDigest = digest(minimalPath);
   const beforeAuditDigest = digest(propagatedExclusionPath);
+  const beforeRelationalDigest = digest(relationalConflictPath);
   const cases = [
     ["document", "validate", minimalPath, "--format", "json"],
     ["document", "show", minimalPath, "--format", "json"],
@@ -820,6 +905,26 @@ test("the private CLI is read-only and byte-deterministic for dogfood routes", (
       "--format",
       "text",
     ],
+    [
+      "recognition",
+      "explain",
+      "C_REQ_ON",
+      relationalConflictPath,
+      "--scope",
+      "V_REQ_TRIGGER",
+      "--format",
+      "json",
+    ],
+    [
+      "recognition",
+      "explain",
+      "C_REQ_ON",
+      relationalConflictPath,
+      "--scope",
+      "V_REQ_TRIGGER",
+      "--format",
+      "text",
+    ],
   ] as const;
 
   for (const args of cases) {
@@ -837,9 +942,14 @@ test("the private CLI is read-only and byte-deterministic for dogfood routes", (
       assert(first.stdout.endsWith("\n"));
       assert(first.stdout.includes("Llmrecog."));
     }
+    if (args.includes("C_REQ_ON")) {
+      assert(first.stdout.includes("RCG-RSN-203"));
+      assert(first.stdout.includes("K_REQ_ON_REQUIRES_FAST"));
+    }
   }
   assert.equal(digest(minimalPath), beforeDigest);
   assert.equal(digest(propagatedExclusionPath), beforeAuditDigest);
+  assert.equal(digest(relationalConflictPath), beforeRelationalDigest);
 
   const missing = runPrivateCli([
     "recognition",

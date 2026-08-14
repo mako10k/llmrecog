@@ -78,6 +78,7 @@ task IMPLEMENT_RELATIONAL_CONSTRAINTS PHASE_4_CONTRACT_AND_PROTOCOL_ACCEPTED -> 
   description |
     Add exact fixtures first, then extend the pure scoped assignment engine with grounded requires implication, type-compatible canonical equality and inequality, deterministic transitive public reason composition, candidate and constraint explanation, variable resolution, conflict reporting, and bounded unknown behavior through the real parser, model, application, presentation, and private-adapter seam. Preserve joint witnesses, support and viability separation, declaration ordering, no source-locator I/O, and no persisted solver state. Run focused checks and npm run check including jscpd.
   duration 7p
+  status done
   priority 80
   requires:
     IMPLEMENTER 1
@@ -85,7 +86,7 @@ task IMPLEMENT_RELATIONAL_CONSTRAINTS PHASE_4_CONTRACT_AND_PROTOCOL_ACCEPTED -> 
 task RUN_RELATIONAL_CONSTRAINT_DOGFOOD RELATIONAL_CONSTRAINTS_ACCEPTED -> RELATIONAL_DOGFOOD_OBSERVED:
   title "Dogfood complete relational constraints before space routes"
   description |
-    Use protocol v4 to author and inspect actual repository-derived recognition artifacts with implication chains, equality aliases, inequality collisions, multi-variable joint witnesses, open operands, and conflicts. Re-run every command byte-deterministically and capture immutable receipts and feedback. Explicitly retry the compound allowed-plus-forbidden question from OBS-EXPLAIN-005 using current target-specific explain routes, without pre-deciding that a wider query or navigation result is required.
+    Use protocol v5 to author and inspect actual repository-derived recognition artifacts with implication chains, equality aliases, inequality collisions, multi-variable joint witnesses, open operands, and conflicts. Re-run every command byte-deterministically and capture immutable receipts and feedback. Explicitly retry the compound allowed-plus-forbidden question from OBS-EXPLAIN-005 using current target-specific explain routes, without pre-deciding that a wider query or navigation result is required.
   duration 3p
   priority 70
   requires:
@@ -123,7 +124,7 @@ task IMPLEMENT_BOUNDED_MATERIALIZATION BOUNDED_QUERY_ACCEPTED -> BOUNDED_MATERIA
 task RUN_SPACE_VIEW_DOGFOOD BOUNDED_MATERIALIZATION_ACCEPTED -> SPACE_DOGFOOD_OBSERVED:
   title "Dogfood bounded query and materialization"
   description |
-    Run protocol v4 grounded-provenance filters, compound navigation, joint-witness, open-domain, ordering, low-limit, truncation, and require-complete cases through the actual private routes. Capture immutable command, artifact, output, and replay identities; inspect whether the views imply preference, silently close domains, fabricate source support, hide incomplete scopes, or encourage persisted world state.
+    Run protocol v5 grounded-provenance filters, compound navigation, joint-witness, open-domain, ordering, low-limit, truncation, and require-complete cases through the actual private routes. Capture immutable command, artifact, output, and replay identities; inspect whether the views imply preference, silently close domains, fabricate source support, hide incomplete scopes, or encourage persisted world state.
   duration 2p
   priority 30
   requires:
@@ -177,3 +178,17 @@ work_event FINISH_FREEZE_PHASE_4_CONTRACT_AND_PROTOCOL_20260814:
   kind finish
   occurred_at 2026-08-14T16:53:44+09:00
   effort 0.2902777778ph
+
+work_event START_IMPLEMENT_RELATIONAL_CONSTRAINTS_20260814:
+  model 1
+  task IMPLEMENT_RELATIONAL_CONSTRAINTS
+  kind start
+  occurred_at 2026-08-14T16:54:35+09:00
+  planned_value 7p
+
+work_event FINISH_IMPLEMENT_RELATIONAL_CONSTRAINTS_20260814:
+  model 1
+  task IMPLEMENT_RELATIONAL_CONSTRAINTS
+  kind finish
+  occurred_at 2026-08-14T17:14:05+09:00
+  effort 0.325ph

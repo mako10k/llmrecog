@@ -18,13 +18,13 @@ until it exists in the current checkout and has been verified.
 
 `llmrecog` has a design baseline, a frozen executable contract 0.1, an accepted
 private Phase 2 parse/validate/show read path, and an accepted private Phase 3
-finite `one_of` and `excludes` explain/focused-audit slice. ADR 0010, exact
-fixtures, schemas, and dogfood protocol v4 accept the Phase 4 contract, but no
-Phase 4 runtime exists yet. The next plan-gated task is the fixture-first
-`requires`, `same_as`, and `distinct_from` vertical slice; query and
-materialization remain behind its first dogfood review.
+finite `one_of` and `excludes` explain/focused-audit slice. The private Phase 4
+relational slice now evaluates `requires`, `same_as`, and `distinct_from`
+through the same bounded explain/audit seam. The next plan-gated task is the
+first protocol-v5 relational dogfood round; query and materialization remain
+behind its feedback review.
 
-Completion of the Phase 3 slice does not authorize:
+Completion of the relational slice does not authorize:
 
 - query, materializer, source-verification, or provider implementation before
   their accepted Phase 4/5 gates;

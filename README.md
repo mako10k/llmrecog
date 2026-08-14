@@ -14,10 +14,12 @@ unstructured or weakly structured input
        structured semantic state
 ```
 
-The project has a design baseline and a frozen executable contract for text
-profile `0.1`. No parser, solver, formatter, or CLI is implemented yet. The
-source extension is `.recog`; no public package or compatibility release has
-been made.
+The project has a design baseline, a frozen executable contract for text
+profile `0.1`, and a private read-only dogfood path for parse, validate, show,
+bounded explanation, and focused audit. Its deterministic core evaluates all
+five contract-0.1 constraint kinds. No formatter, public CLI, query or
+materialization runtime, package release, or compatibility release exists.
+The source extension is `.recog`.
 
 ## Product boundary
 
@@ -92,15 +94,14 @@ back into an earlier layer.
 - [Internal dogfood protocol](dogfood/README.md)
 - [Architecture decisions](docs/adr/README.md)
 
-## Initial scope lock
+## Current scope lock
 
-The next implementation, once separately accepted, is limited to a text-only
-parse/validate/show vertical slice for one `.recog` document. The first CSP
-slice follows separately with `one_of`, `excludes`, and one candidate
-explanation; the remaining three constraint kinds follow only after that
-behavior is accepted. LLM extraction, llmthink changes, sidecars, embeddings,
-ontologies, editor integrations, and writes to external systems remain outside
-the first slice.
+The next plan-gated work is the first protocol-v5 dogfood round over the
+implemented `requires`, `same_as`, and `distinct_from` explanation slice.
+Its feedback must be dispositioned before either accepted `space` route is
+implemented. LLM extraction, source verification, llmthink changes, sidecars,
+embeddings, ontologies, editor integrations, public packaging, and writes to
+external systems remain outside this slice.
 
 ## Development
 
@@ -116,5 +117,5 @@ git diff --check
 
 See [Developing llmrecog](docs/development.md) and the repository-wide
 [guidelines](AGENTS.md). The executable contract tests validate schemas,
-goldens, diagnostics, EBNF coverage, and boundary fixtures; they do not
-implement parser or solver behavior.
+goldens, diagnostics, EBNF coverage, boundary fixtures, and the actual private
+parser/model/explain/audit seams.

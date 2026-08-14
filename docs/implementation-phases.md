@@ -122,8 +122,9 @@ Acceptance:
 
 ADR 0010, `Llmrecog.QueryResult.v1`,
 `Llmrecog.MaterializationResult.v1`, exact contract fixtures, and dogfood
-protocol v4 accept this phase's contract. No Phase 4 runtime is implemented by
-that acceptance.
+protocol v4 accept this phase's contract. The first implementation slice now
+evaluates `requires`, `same_as`, and `distinct_from` through the private
+bounded explain and focused-audit seam. Neither `space` route is implemented.
 
 Add:
 
@@ -212,10 +213,10 @@ authorized by accepting llmrecog core implementation.
 
 ## Current implementation frontier
 
-Implement only the fixture-first `requires`, `same_as`, and `distinct_from`
-vertical slice accepted by ADR 0010, then run and disposition the first Phase 4
-protocol-v4 dogfood round before either space route begins. Producer dogfood
-remains gated on the accepted complete initial constraint semantics,
+Run the first Phase 4 protocol-v5 relational dogfood round against the actual
+private explain/audit seam, then disposition every finding and re-estimate the
+remaining work before either space route begins. Producer dogfood remains
+gated on the accepted complete initial constraint semantics,
 fail-closed local source verification, a producer-contract ADR, and a
 separately approved adapter.
 

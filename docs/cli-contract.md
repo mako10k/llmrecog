@@ -4,10 +4,11 @@ ADR 0007 accepts the Phase 2 `document validate`, `document show`, and
 `recognition show` routes and their linked machine shapes. ADR 0008 accepts the
 Phase 3 `recognition explain` and focused `document audit` contracts. ADR 0010
 accepts all five contract-0.1 constraint meanings and the Phase 4 bounded
-`space query` and `space materialize` routes but does not claim their runtime
-exists. Accepted routes remain limited to an unreleased private dogfood
-adapter. Source verification and all producer routes remain provisional and
-separately gated.
+`space query` and `space materialize` routes. The private explain/audit runtime
+now evaluates all five constraint kinds; neither `space` route is implemented.
+Accepted routes remain limited to an unreleased private dogfood adapter.
+Source verification and all producer routes remain provisional and separately
+gated.
 
 ## 1. Design rules
 
@@ -100,11 +101,9 @@ variable, candidate, or constraint, it additionally performs bounded analysis
 as accepted by ADR 0008. The default scope is the smallest transitive
 constraint closure containing the target. The default limit is 100 complete
 represented assignments inspected; JSON always reports the effective limit.
-The accepted Phase 3 runtime evaluates only `one_of` and `excludes` until the
-separately planned Phase 4 relational slice is implemented. The accepted Phase
-4 contract evaluates `requires`, `same_as`, and `distinct_from` with
-three-valued open-operand behavior; the implementation must stop reporting
-those contract-0.1 kinds as skipped only when that complete slice is present.
+The private runtime evaluates `one_of`, `excludes`, `requires`, `same_as`, and
+`distinct_from`. The last three use the accepted three-valued open-operand
+behavior and are no longer reported as skipped.
 
 Required result facts:
 
@@ -274,7 +273,7 @@ The initial contract does not include `extract`, `generate`, `edit`, `set`,
 add a write, producer, or compatibility boundary and requires its own design
 and acceptance examples.
 
-Phase 4 accepts the `space` contracts and remaining constraint meanings but
-does not claim their implementation. `--verify-sources local`, the
+Phase 4 accepts the `space` contracts, but neither route is implemented.
+`--verify-sources local`, the
 `strict-grounding` audit profile, producer routes, and every write remain
 deferred.
