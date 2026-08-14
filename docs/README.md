@@ -14,7 +14,7 @@ This directory is the design and implementation-contract authority.
 | [grammar.md](grammar.md) | Normative scanner, EBNF, semantic-shape, and recovery contract |
 | [canonical-formatting.md](canonical-formatting.md) | Deterministic semantic rendering contract |
 | [diagnostics.md](diagnostics.md) | Stable diagnostic and derivation reason-code contract |
-| [cli-contract.md](cli-contract.md) | Accepted Phase 2/3 private routes and provisional later command contracts |
+| [cli-contract.md](cli-contract.md) | Accepted Phase 2/3 routes and Phase 4 private command contracts |
 | [integration-llmthink.md](integration-llmthink.md) | Optional one-way reasoning integration |
 | [llmthink-grounding-audit.md](llmthink-grounding-audit.md) | Optional recognition-aware premise/evidence audit |
 | [examples/boundary-cases.md](examples/boundary-cases.md) | Required boundary examples |
@@ -34,7 +34,7 @@ This directory is the design and implementation-contract authority.
 | [../dogfood/README.md](../dogfood/README.md) | Internal versioned dogfood protocol and evidence layout |
 | [adr/](adr/) | Accepted design decisions |
 | [../contracts/](../contracts/) | Versioned EBNF and diagnostic/reason registry |
-| [../schemas/](../schemas/) | Versioned AST, semantic, validation, show, explain, and audit JSON Schemas |
+| [../schemas/](../schemas/) | Versioned AST, semantic, validation, show, explain, audit, query, and materialization JSON Schemas |
 
 Normative priority, if two documents disagree:
 
@@ -52,3 +52,6 @@ do not silently extend the grammar.
 ADR 0009 supersedes only the successful explain result version and typed
 target-content shape, requiring `Llmrecog.ExplainResult.v2` before the
 remaining Phase 3 implementation.
+ADR 0010 accepts all five contract-0.1 constraint semantics plus the private
+bounded query and materialization contracts. Their accepted schemas and
+fixtures do not claim that the Phase 4 runtime exists.

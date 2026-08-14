@@ -106,7 +106,8 @@ projection. It does not expose model chain-of-thought.
 
 Read-only projections over the semantic model and solver results. Query does
 not mutate, enrich, rank, or call an LLM. Materialization requires explicit
-scope and limit.
+scope and a positive inspection limit. Neither projection persists results,
+creates source support, or turns one satisfying assignment into a choice.
 
 ### 4.6 CLI
 

@@ -1,0 +1,127 @@
+{
+  "schema": "Llmrecog.ExplainResult.v2",
+  "semantic_version": "0.1",
+  "tool_version": "contract-fixture",
+  "input": {
+    "path": "test/fixtures/contracts/v0.1/valid/relational-conflict.recog",
+    "document_id": "RELATIONAL_CONFLICT",
+    "digest": "sha256:efef4ed2cbff68410b8359f71cf7ae5381ee117324e94ddf755be77b89cfef30"
+  },
+  "complete": true,
+  "truncated": false,
+  "target": { "id": "C_REQ_ON", "declaration_kind": "candidate" },
+  "recognition": {
+    "declaration_kind": "candidate",
+    "id": "C_REQ_ON",
+    "variable_id": "V_REQ_TRIGGER",
+    "value": { "kind": "symbol", "value": "on" },
+    "grounded_in": [{ "id": "S1", "kind": "span" }],
+    "support": {
+      "kind": "explicit",
+      "grounded_in": [{ "id": "S1", "kind": "span" }]
+    }
+  },
+  "support": {
+    "state": "supported",
+    "records": [
+      {
+        "kind": "explicit",
+        "grounded_in": [{ "id": "S1", "kind": "span" }]
+      }
+    ]
+  },
+  "viability": {
+    "state": "excluded",
+    "witness": null,
+    "reason_chain": [
+      {
+        "code": "RCG-RSN-201",
+        "name": "one_of_single_remaining",
+        "subject_id": "C_REQ_SAFE",
+        "constraint_id": "K_REQ_MODE_ONE_OF",
+        "inputs": ["C_REQ_SAFE"]
+      },
+      {
+        "code": "RCG-RSN-203",
+        "name": "requires_consequent_unavailable",
+        "subject_id": "C_REQ_ON",
+        "constraint_id": "K_REQ_ON_REQUIRES_FAST",
+        "inputs": ["C_REQ_ON", "C_REQ_FAST"]
+      },
+      {
+        "code": "RCG-RSN-206",
+        "name": "no_satisfying_witness",
+        "subject_id": "C_REQ_ON",
+        "constraint_id": null,
+        "inputs": ["K_REQ_MODE_ONE_OF", "K_REQ_ON_REQUIRES_FAST"]
+      }
+    ],
+    "unknown_reasons": []
+  },
+  "variable_resolution": {
+    "state": "inconsistent",
+    "unknown_reasons": []
+  },
+  "scope": {
+    "requested_variable_ids": ["V_REQ_TRIGGER"],
+    "effective_variable_ids": ["V_REQ_TRIGGER", "V_REQ_MODE"],
+    "limit": 100
+  },
+  "provenance": [
+    { "kind": "grounded_in", "from": "C_REQ_ON", "to": "S1" },
+    {
+      "kind": "applies",
+      "from": "C_REQ_ON",
+      "to": "K_REQ_ON_REQUIRES_FAST"
+    }
+  ],
+  "normalization": null,
+  "source_verification": [
+    {
+      "source_id": "SRC",
+      "verification": { "mode": "none", "state": "not_requested" }
+    }
+  ],
+  "relevant_constraint_ids": [
+    "K_REQ_TRIGGER_ONE_OF",
+    "K_REQ_MODE_ONE_OF",
+    "K_REQ_ON_REQUIRES_FAST"
+  ],
+  "skipped_constraints": [],
+  "derivations": [
+    {
+      "code": "RCG-RSN-201",
+      "name": "one_of_single_remaining",
+      "subject_id": "C_REQ_SAFE",
+      "constraint_id": "K_REQ_MODE_ONE_OF",
+      "inputs": ["C_REQ_SAFE"]
+    },
+    {
+      "code": "RCG-RSN-203",
+      "name": "requires_consequent_unavailable",
+      "subject_id": "C_REQ_ON",
+      "constraint_id": "K_REQ_ON_REQUIRES_FAST",
+      "inputs": ["C_REQ_ON", "C_REQ_FAST"]
+    },
+    {
+      "code": "RCG-RSN-206",
+      "name": "no_satisfying_witness",
+      "subject_id": "C_REQ_ON",
+      "constraint_id": null,
+      "inputs": ["K_REQ_MODE_ONE_OF", "K_REQ_ON_REQUIRES_FAST"]
+    }
+  ],
+  "diagnostics": [
+    {
+      "code": "RCG-CSP-002",
+      "severity": "warning",
+      "message": "A source-supported candidate is excluded by grounded constraints.",
+      "entity_id": "C_REQ_ON",
+      "span": null,
+      "reason_data": {
+        "constraint_ids": ["K_REQ_MODE_ONE_OF", "K_REQ_ON_REQUIRES_FAST"]
+      },
+      "related": []
+    }
+  ]
+}

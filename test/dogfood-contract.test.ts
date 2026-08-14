@@ -10,7 +10,8 @@ import addFormats from "ajv-formats";
 const repositoryRoot = process.cwd();
 const protocolPath = "dogfood/protocol-v1/protocol.json";
 const phase3ProtocolV2Path = "dogfood/protocol-v2/protocol.json";
-const activeProtocolPath = "dogfood/protocol-v3/protocol.json";
+const phase3ProtocolV3Path = "dogfood/protocol-v3/protocol.json";
+const activeProtocolPath = "dogfood/protocol-v4/protocol.json";
 const runExamplePath = "dogfood/protocol-v1/examples/run-receipt.example.json";
 const grammarRunReceiptPath =
   "dogfood/runs/GRAMMAR_AUTHORING_20260814_01/receipt.json";
@@ -63,6 +64,7 @@ interface CommandCase {
   readonly format: "json" | "text";
   readonly repeat_count: number;
   readonly required_options?: readonly string[];
+  readonly required_flags?: readonly string[];
 }
 
 interface DogfoodProtocol {
@@ -198,6 +200,9 @@ function assertCommandExecutionBindings(
   assert.notEqual(formatIndex, -1);
   assert.equal(argv[formatIndex + 1], commandCase.format);
   assertRequiredOptions(argv, commandCase.required_options ?? []);
+  for (const flag of commandCase.required_flags ?? []) {
+    assert(argv.includes(flag));
+  }
 }
 
 function assertExecutionBindings(
@@ -293,18 +298,22 @@ test("the active dogfood protocol freezes corpus, questions, commands, and gates
     "sha256:f86c886a9bb5b5ac801cd15bd1a94edac26b5afc7546d762d70a3bb1ffafc0b7",
   );
   assert.equal(
-    sha256(activeProtocolPath),
+    sha256(phase3ProtocolV3Path),
     "sha256:868c33d5157f5d83355347247000bad4ec15901776bc22b4bcb6b10d356f6320",
   );
+  assert.equal(
+    sha256(activeProtocolPath),
+    "sha256:e9161272674284cd3f3a551f1de59938cfbdcbc88107836c23ac77b98bc7730b",
+  );
   assert.equal(activeProtocol.schema, "Llmrecog.Internal.DogfoodProtocol.v1");
-  assert.equal(activeProtocol.protocol_version, 3);
+  assert.equal(activeProtocol.protocol_version, 4);
   assert.equal(activeProtocol.semantic_version, "0.1");
   assert.equal(activeProtocol.status, "active");
   assert.equal(activeProtocol.run_path_pattern, "dogfood/runs/<run-id>");
 
   assert.deepEqual(
     activeProtocol.rounds.map((round) => round.sequence),
-    [4],
+    [5, 6],
   );
   assert.equal(
     new Set(activeProtocol.rounds.map((round) => round.id)).size,
@@ -351,6 +360,9 @@ test("the active dogfood protocol freezes corpus, questions, commands, and gates
     assert(command.route.length === 2);
     assert.equal(command.repeat_count, 2);
     assert(Array.isArray(command.required_options));
+    if (command.required_flags !== undefined) {
+      assert(Array.isArray(command.required_flags));
+    }
   }
   for (const round of activeProtocol.rounds) {
     assert(round.command_case_ids.length > 0);
@@ -361,7 +373,21 @@ test("the active dogfood protocol freezes corpus, questions, commands, and gates
     );
   }
   assert(
-    activeProtocol.rounds[0]?.command_case_ids.includes("DOCUMENT_AUDIT_JSON"),
+    activeProtocol.rounds[0]?.command_case_ids.includes(
+      "REQUIRES_EXPLAIN_JSON",
+    ),
+  );
+  assert.deepEqual(
+    requiredCommandCase(
+      activeProtocol,
+      "SPACE_MATERIALIZE_REQUIRE_COMPLETE_JSON",
+    ).required_flags,
+    ["--require-complete"],
+  );
+  assert(
+    activeProtocol.rounds[1]?.command_case_ids.includes(
+      "SPACE_MATERIALIZE_REQUIRE_COMPLETE_JSON",
+    ),
   );
 
   assert.deepEqual(activeProtocol.observation_categories, [
@@ -497,7 +523,8 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   assert.equal(exclusionRun.outcome, "completed");
   assert.equal(exclusionRun.complete, true);
   assert.equal(exclusionRun.truncated, false);
-  assertRunBindings(exclusionRun, activeProtocol, activeProtocolPath);
+  const phase3ProtocolV3 = readJson<DogfoodProtocol>(phase3ProtocolV3Path);
+  assertRunBindings(exclusionRun, phase3ProtocolV3, phase3ProtocolV3Path);
 
   assert(feedbackExample.feedback_id.startsWith("EXAMPLE_"));
   assertFeedbackBindings(feedbackExample, runExamplePath, runExample);

@@ -73,7 +73,7 @@ task IMPLEMENT_AND_DOGFOOD_EXPLAIN PHASE_2_DOGFOOD_SLICE_ACCEPTED -> EXPLAIN_DOG
 
 task COMPLETE_AND_DOGFOOD_CORE EXPLAIN_DOGFOOD_REVIEWED -> CORE_DOGFOOD_REVIEWED:
   title "Complete and dogfood the deterministic semantic core"
-  description "Add requires, same_as, distinct_from, bounded query/materialization, limit behavior, and reason composition; use cross-document and joint-witness questions, evaluate whether one compound allowed-plus-forbidden question needs a composed query or navigation surface before changing the explain contract, disposition the evidence, and revise the source-verification plan"
+  description "Add requires, same_as, distinct_from, bounded query/materialization, limit behavior, and reason composition; use grounded-provenance and joint-witness questions, evaluate whether one compound allowed-plus-forbidden question needs a composed query or navigation surface before changing the explain contract, disposition the evidence, and revise the source-verification plan"
   duration 35p
   status active
   priority 80

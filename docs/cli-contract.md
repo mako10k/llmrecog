@@ -2,10 +2,12 @@
 
 ADR 0007 accepts the Phase 2 `document validate`, `document show`, and
 `recognition show` routes and their linked machine shapes. ADR 0008 accepts the
-Phase 3 `recognition explain` and focused `document audit` contracts but does
-not claim their implementation exists. Accepted routes are limited to an
-unreleased private dogfood adapter when implemented. All later routes in this
-document are provisional and separately gated.
+Phase 3 `recognition explain` and focused `document audit` contracts. ADR 0010
+accepts all five contract-0.1 constraint meanings and the Phase 4 bounded
+`space query` and `space materialize` routes but does not claim their runtime
+exists. Accepted routes remain limited to an unreleased private dogfood
+adapter. Source verification and all producer routes remain provisional and
+separately gated.
 
 ## 1. Design rules
 
@@ -98,9 +100,11 @@ variable, candidate, or constraint, it additionally performs bounded analysis
 as accepted by ADR 0008. The default scope is the smallest transitive
 constraint closure containing the target. The default limit is 100 complete
 represented assignments inspected; JSON always reports the effective limit.
-Phase 3 evaluates only `one_of` and `excludes`. Relevant `requires`, `same_as`,
-and `distinct_from` declarations remain visible as skipped and prevent an
-unsound witness claim.
+The accepted Phase 3 runtime evaluates only `one_of` and `excludes` until the
+separately planned Phase 4 relational slice is implemented. The accepted Phase
+4 contract evaluates `requires`, `same_as`, and `distinct_from` with
+three-valued open-operand behavior; the implementation must stop reporting
+those contract-0.1 kinds as skipped only when that complete slice is present.
 
 Required result facts:
 
@@ -124,7 +128,7 @@ viability, resolution, scope, and reason projections remain separate fields.
 
 ```text
 llmrecog space query <file.recog>
-  [--kind <kind>]
+  [--kind entity|record|variable|candidate|constraint]
   [--variable <id>]
   [--support supported|unsupported|conflicted]
   [--viability allowed|excluded|unknown]
@@ -133,12 +137,23 @@ llmrecog space query <file.recog>
   [--format text|json]
 ```
 
-Repeated filters are conjunctions. Query is a deterministic read-only filter,
-not a new query language. Viability filters require a variable scope and
-return the effective solver scope. Results are ordered by declaration order
-then ID.
+Supplied filters are conjunctions and each option occurs at most once. Query
+filters semantic recognitions only; it is a deterministic read-only filter,
+not a predicate, graph, join, or query language. `--variable` selects only
+candidates of that variable and establishes its requested solver seed.
+Viability filters require `--variable`; a non-candidate kind with `--variable`
+is a usage error. `--grounded-in` matches a validated provenance path to the
+exact span without locator I/O. Results are ordered by declaration order then
+ID.
 
-JSON schema: `Llmrecog.QueryResult.v1`.
+The default limit is 100. The effective value independently caps returned
+matches and complete represented assignments inspected for each requested
+candidate viability. Reaching either cap before deterministic completion sets
+`complete: false`, `truncated: true`; a limit-blocked viability remains
+`unknown` with `RCG-RSN-007`. Query truncation exits with status 1.
+
+JSON schema:
+[`Llmrecog.QueryResult.v1`](../schemas/Llmrecog.QueryResult.v1.schema.json).
 
 ### 2.5 Audit
 
@@ -170,13 +185,22 @@ llmrecog space materialize <file.recog>
 ```
 
 Both scope and limit are mandatory to prevent accidental global expansion.
-The result lazily enumerates satisfying assignments in deterministic order.
-Open variables appear as unresolved/open in the projection; no source
-candidate is invented. Without `--require-complete`, reaching the limit is a
-successful truncated result. With it, incomplete enumeration exits with the
-dedicated incomplete-result status.
+Scope is an ordered, duplicate-free existing-variable list and expands through
+transitive constraint closure. The result lazily inspects complete represented
+assignments in effective variable and candidate declaration order, with each
+open branch last. The limit counts inspected assignments whether satisfying,
+violated, or indeterminate. A one-step exhaustion check distinguishes an
+exactly-limit complete result from truncation.
 
-JSON schema: `Llmrecog.MaterializationResult.v1`.
+Only proved satisfying worlds are emitted. Open variables remain explicit and
+no source candidate is invented. Indeterminate assignments, open variables,
+and unknown reasons are counted separately. `complete` means the represented
+generator was exhausted, not that an open domain is exhaustive. Without
+`--require-complete`, reaching the limit is a successful truncated result.
+With it, the same typed incomplete result exits with status 5.
+
+JSON schema:
+[`Llmrecog.MaterializationResult.v1`](../schemas/Llmrecog.MaterializationResult.v1.schema.json).
 
 ## 3. JSON result envelope
 
@@ -215,7 +239,7 @@ one-based and columns count Unicode scalar values.
 | Code | Meaning |
 | --- | --- |
 | `0` | Complete valid result; non-failing warnings may still be present |
-| `1` | Document invalidity, missing recognition target, diagnostic truncation, or configured audit threshold failure |
+| `1` | Document invalidity, missing recognition target, explain/query/diagnostic truncation, or configured audit threshold failure |
 | `2` | CLI usage error |
 | `3` | Input/output failure |
 | `4` | Required source/reference verification unavailable or mismatched |
@@ -250,7 +274,7 @@ The initial contract does not include `extract`, `generate`, `edit`, `set`,
 add a write, producer, or compatibility boundary and requires its own design
 and acceptance examples.
 
-Phase 3 still defers all `space` routes, `--verify-sources local`, the
-`strict-grounding` audit profile, and CSP evaluation for `requires`, `same_as`,
-and `distinct_from`, even though provisional future contracts are documented
-above.
+Phase 4 accepts the `space` contracts and remaining constraint meanings but
+does not claim their implementation. `--verify-sources local`, the
+`strict-grounding` audit profile, producer routes, and every write remain
+deferred.

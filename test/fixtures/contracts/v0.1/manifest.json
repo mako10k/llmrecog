@@ -156,6 +156,27 @@
       "covers_grammar": []
     },
     {
+      "id": "relational_core",
+      "path": "test/fixtures/contracts/v0.1/valid/relational-core.recog",
+      "expectation": "valid",
+      "expected_diagnostics": [],
+      "covers_grammar": []
+    },
+    {
+      "id": "relational_conflict",
+      "path": "test/fixtures/contracts/v0.1/valid/relational-conflict.recog",
+      "expectation": "valid",
+      "expected_diagnostics": [],
+      "covers_grammar": []
+    },
+    {
+      "id": "relational_open",
+      "path": "test/fixtures/contracts/v0.1/valid/relational-open.recog",
+      "expectation": "valid",
+      "expected_diagnostics": [],
+      "covers_grammar": []
+    },
+    {
       "id": "external_knowledge_open",
       "path": "test/fixtures/contracts/v0.1/valid/external-knowledge-open.recog",
       "expectation": "valid",
@@ -266,7 +287,16 @@
     "test/fixtures/contracts/v0.1/expected/one-of-conflict.explain.json",
     "test/fixtures/contracts/v0.1/expected/limit-unknown.explain.json",
     "test/fixtures/contracts/v0.1/expected/propagated-exclusion.audit.json",
-    "test/fixtures/contracts/v0.1/expected/closed-conflict.audit.json"
+    "test/fixtures/contracts/v0.1/expected/closed-conflict.audit.json",
+    "test/fixtures/contracts/v0.1/expected/requires-excluded.explain.json",
+    "test/fixtures/contracts/v0.1/expected/same-as-excluded.explain.json",
+    "test/fixtures/contracts/v0.1/expected/distinct-from-excluded.explain.json",
+    "test/fixtures/contracts/v0.1/expected/same-as-open.explain.json",
+    "test/fixtures/contracts/v0.1/expected/relational-open.query.json",
+    "test/fixtures/contracts/v0.1/expected/relational-open-truncated.query.json",
+    "test/fixtures/contracts/v0.1/expected/relational-core.materialization.json",
+    "test/fixtures/contracts/v0.1/expected/relational-core-require-complete.materialization.json",
+    "test/fixtures/contracts/v0.1/expected/relational-open.materialization.json"
   ],
   "expected_asts": [
     {
@@ -287,6 +317,11 @@
     "test/fixtures/contracts/v0.1/expected/unsupported-allowed.explain.txt",
     "test/fixtures/contracts/v0.1/expected/limit-unknown.explain.txt",
     "test/fixtures/contracts/v0.1/expected/propagated-exclusion.audit.txt",
-    "test/fixtures/contracts/v0.1/expected/closed-conflict.audit.txt"
+    "test/fixtures/contracts/v0.1/expected/closed-conflict.audit.txt",
+    "test/fixtures/contracts/v0.1/expected/requires-excluded.explain.txt",
+    "test/fixtures/contracts/v0.1/expected/relational-open.query.txt",
+    "test/fixtures/contracts/v0.1/expected/relational-core.materialization.txt",
+    "test/fixtures/contracts/v0.1/expected/relational-core-require-complete.materialization.txt",
+    "test/fixtures/contracts/v0.1/expected/relational-open.materialization.txt"
   ]
 }

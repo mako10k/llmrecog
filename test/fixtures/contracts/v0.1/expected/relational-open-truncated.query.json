@@ -1,0 +1,39 @@
+{
+  "schema": "Llmrecog.QueryResult.v1",
+  "semantic_version": "0.1",
+  "tool_version": "contract-fixture",
+  "input": {
+    "path": "test/fixtures/contracts/v0.1/valid/relational-open.recog",
+    "document_id": "RELATIONAL_OPEN",
+    "digest": "sha256:326c8e4c10fe698e28b598e7fd9834af0fcfe4e8209cd6600f45cb8aec2eb912"
+  },
+  "complete": false,
+  "truncated": true,
+  "filters": {
+    "kind": null,
+    "variable_id": null,
+    "support": null,
+    "viability": null,
+    "grounded_in_span_id": null
+  },
+  "result_limit": 1,
+  "assignment_limit": 1,
+  "matched_count": 1,
+  "items": [
+    {
+      "recognition": {
+        "declaration_kind": "variable",
+        "id": "V_OPEN_LEFT",
+        "value_type": "symbol",
+        "candidate_ids": ["C_OPEN_LEFT_RED"],
+        "grounded_in": [{ "id": "S1", "kind": "span" }]
+      },
+      "support": null,
+      "viability": null,
+      "scope": null,
+      "matching_span_ids": []
+    }
+  ],
+  "source_verification": { "mode": "none", "state": "not_requested" },
+  "diagnostics": []
+}

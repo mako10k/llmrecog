@@ -26,6 +26,7 @@ const requiredFiles = [
   "docs/process/dogfooding.md",
   "dogfood/README.md",
   "dogfood/protocol-v1/protocol.json",
+  "dogfood/protocol-v4/protocol.json",
   "dogfood/protocol-v1/examples/input.example.recog",
   "dogfood/protocol-v1/examples/run-receipt.example.json",
   "dogfood/protocol-v1/examples/feedback.example.json",
@@ -34,6 +35,7 @@ const requiredFiles = [
   "docs/adr/0005-node-22-typescript-esm-development-baseline.md",
   "docs/adr/0006-executable-contract-v0-1.md",
   "docs/adr/0007-phase-2-read-only-command-contract.md",
+  "docs/adr/0010-phase-4-complete-core-contract.md",
   "docs/examples/minimal.recog",
   "docs/examples/meeting.txt",
   "contracts/llmrecog-0.1.ebnf",
@@ -45,6 +47,8 @@ const requiredFiles = [
   "schemas/Llmrecog.ExplainResult.v1.schema.json",
   "schemas/Llmrecog.DocumentResult.v1.schema.json",
   "schemas/Llmrecog.RecognitionResult.v1.schema.json",
+  "schemas/Llmrecog.QueryResult.v1.schema.json",
+  "schemas/Llmrecog.MaterializationResult.v1.schema.json",
   "test/fixtures/contracts/v0.1/manifest.json",
 ];
 

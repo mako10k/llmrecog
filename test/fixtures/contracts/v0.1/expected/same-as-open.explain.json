@@ -1,0 +1,65 @@
+{
+  "schema": "Llmrecog.ExplainResult.v2",
+  "semantic_version": "0.1",
+  "tool_version": "contract-fixture",
+  "input": {
+    "path": "test/fixtures/contracts/v0.1/valid/relational-open.recog",
+    "document_id": "RELATIONAL_OPEN",
+    "digest": "sha256:326c8e4c10fe698e28b598e7fd9834af0fcfe4e8209cd6600f45cb8aec2eb912"
+  },
+  "complete": true,
+  "truncated": false,
+  "target": {
+    "id": "C_OPEN_LEFT_RED",
+    "declaration_kind": "candidate"
+  },
+  "recognition": {
+    "declaration_kind": "candidate",
+    "id": "C_OPEN_LEFT_RED",
+    "variable_id": "V_OPEN_LEFT",
+    "value": { "kind": "symbol", "value": "red" },
+    "grounded_in": [{ "id": "S1", "kind": "span" }],
+    "support": {
+      "kind": "explicit",
+      "grounded_in": [{ "id": "S1", "kind": "span" }]
+    }
+  },
+  "support": {
+    "state": "supported",
+    "records": [
+      {
+        "kind": "explicit",
+        "grounded_in": [{ "id": "S1", "kind": "span" }]
+      }
+    ]
+  },
+  "viability": {
+    "state": "unknown",
+    "witness": null,
+    "reason_chain": [],
+    "unknown_reasons": ["RCG-RSN-001"]
+  },
+  "variable_resolution": {
+    "state": "unknown",
+    "unknown_reasons": ["RCG-RSN-001"]
+  },
+  "scope": {
+    "requested_variable_ids": ["V_OPEN_LEFT"],
+    "effective_variable_ids": ["V_OPEN_LEFT", "V_OPEN_RIGHT"],
+    "limit": 100
+  },
+  "provenance": [
+    { "kind": "grounded_in", "from": "C_OPEN_LEFT_RED", "to": "S1" }
+  ],
+  "normalization": null,
+  "source_verification": [
+    {
+      "source_id": "SRC",
+      "verification": { "mode": "none", "state": "not_requested" }
+    }
+  ],
+  "relevant_constraint_ids": ["K_OPEN_LEFT_ONE_OF", "K_OPEN_VALUES_SAME"],
+  "skipped_constraints": [],
+  "derivations": [],
+  "diagnostics": []
+}

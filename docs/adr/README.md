@@ -18,6 +18,7 @@ Current decisions:
 - [0007: Phase 2 read-only parse, validate, and show contract](0007-phase-2-read-only-command-contract.md)
 - [0008: Phase 3 explainable CSP and focused audit contract](0008-phase-3-explainable-csp-contract.md)
 - [0009: Typed recognition projection in ExplainResult v2](0009-typed-explain-target-projection.md)
+- [0010: Phase 4 complete deterministic semantic-core contract](0010-phase-4-complete-core-contract.md)
 
 Future ADRs are required for changes to:
 

@@ -1,0 +1,64 @@
+llmrecog 0.1
+
+document RELATIONAL_CORE:
+  title "Requires core space"
+
+source SRC:
+  kind text
+  locator "relational-core.txt"
+
+span S1:
+  source SRC
+  range 1:1..1:32
+  quote "Enabled operation requires fast mode"
+
+variable V_TRIGGER:
+  value_type symbol
+  candidates [C_TRIGGER_ON, C_TRIGGER_OFF]
+  grounded_in [S1]
+
+candidate C_TRIGGER_ON in V_TRIGGER:
+  value on
+  grounded_in [S1]
+  support explicit
+
+candidate C_TRIGGER_OFF in V_TRIGGER:
+  value off
+  grounded_in [S1]
+  support explicit
+
+variable V_MODE:
+  value_type symbol
+  candidates [C_MODE_FAST, C_MODE_SAFE]
+  grounded_in [S1]
+
+candidate C_MODE_FAST in V_MODE:
+  value fast
+  grounded_in [S1]
+  support explicit
+
+candidate C_MODE_SAFE in V_MODE:
+  value safe
+  grounded_in [S1]
+  support explicit
+
+constraint K_TRIGGER_ONE_OF:
+  kind one_of
+  variable V_TRIGGER
+  members [C_TRIGGER_ON, C_TRIGGER_OFF]
+  grounded_in [S1]
+  support explicit
+
+constraint K_MODE_ONE_OF:
+  kind one_of
+  variable V_MODE
+  members [C_MODE_FAST, C_MODE_SAFE]
+  grounded_in [S1]
+  support explicit
+
+constraint K_ON_REQUIRES_FAST:
+  kind requires
+  antecedent C_TRIGGER_ON
+  consequent C_MODE_FAST
+  grounded_in [S1]
+  support explicit

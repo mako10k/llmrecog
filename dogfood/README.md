@@ -3,10 +3,12 @@
 This directory contains the versioned, process-only dogfood protocol and later
 run evidence. It is not part of the public llmrecog semantic or CLI contract.
 
-The active Phase 3 protocol is
-[`protocol-v3/protocol.json`](protocol-v3/protocol.json). It freezes the
-post-implementation corpus, exclusion/conflict questions, explain/audit command
-cases, artifact locations, and Round 3b review boundary. Immutable
+The active Phase 4 protocol is
+[`protocol-v4/protocol.json`](protocol-v4/protocol.json). It freezes the
+relational-constraint and bounded-space-view corpora, questions, command cases,
+artifact locations, and Round 4a/4b review boundaries. Immutable
+[`protocol-v3/protocol.json`](protocol-v3/protocol.json) remains bound by the
+completed Phase 3 Round 3b evidence,
 [`protocol-v2/protocol.json`](protocol-v2/protocol.json) remains bound by the
 completed Round 3a evidence, and
 [`protocol-v1/protocol.json`](protocol-v1/protocol.json) remains bound by the

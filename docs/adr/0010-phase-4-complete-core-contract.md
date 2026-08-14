@@ -1,6 +1,6 @@
 # ADR 0010: Phase 4 complete deterministic semantic-core contract
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-08-14
 
 ## Context
@@ -21,13 +21,14 @@ Allowing implementation to decide those points would risk treating an open
 value as equal or unequal, presenting an indeterminate assignment as a
 witness, or turning a materialized view into selected source content.
 
-## Proposed decision
+## Decision
 
 Complete only the deterministic semantic core under semantic contract 0.1.
 The Phase 4 private read path evaluates all five initial constraint kinds and
-adds bounded `space query` and `space materialize` routes. This proposal does
-not claim acceptance or implementation; the complete schema, fixture, and
-dogfood protocol package must be reviewed before runtime work begins.
+adds bounded `space query` and `space materialize` routes. This ADR accepts
+the contract but does not claim implementation. The complete schema, fixture,
+and dogfood protocol package is accepted with this decision before runtime
+work begins.
 
 ### Shared scope and assignment model
 
@@ -123,7 +124,7 @@ resolution, and derivation projections remain independent.
 
 ### Bounded query route
 
-The proposed private route is:
+The accepted private route is:
 
 ```text
 llmrecog space query <file.recog>
@@ -172,7 +173,7 @@ that target-specific explain plus bounded query is insufficient.
 
 ### Bounded materialization route
 
-The proposed private route is:
+The accepted private route is:
 
 ```text
 llmrecog space materialize <file.recog>
@@ -234,8 +235,8 @@ persisted after the command exits.
 
 ## Dogfood and acceptance sequence
 
-After this proposal is accepted with schemas, exact fixtures, and immutable
-protocol v4, Phase 4 proceeds in two feedback-separated slices:
+With this decision accepted together with schemas, exact fixtures, and
+immutable protocol v4, Phase 4 proceeds in two feedback-separated slices:
 
 1. implement all three remaining relational constraints and immediately
    dogfood implication chains, equality, inequality, open operands, joint

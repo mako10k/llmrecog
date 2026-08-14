@@ -1,0 +1,14 @@
+Llmrecog.ExplainResult.v2
+target: candidate C_REQ_ON
+recognition: variable=V_REQ_TRIGGER value=symbol:on
+support: supported (explicit)
+viability: excluded
+variable_resolution: inconsistent
+reason_chain:
+  RCG-RSN-201 one_of_single_remaining subject=C_REQ_SAFE constraint=K_REQ_MODE_ONE_OF inputs=C_REQ_SAFE
+  RCG-RSN-203 requires_consequent_unavailable subject=C_REQ_ON constraint=K_REQ_ON_REQUIRES_FAST inputs=C_REQ_ON,C_REQ_FAST
+  RCG-RSN-206 no_satisfying_witness subject=C_REQ_ON constraint=- inputs=K_REQ_MODE_ONE_OF,K_REQ_ON_REQUIRES_FAST
+scope: requested=V_REQ_TRIGGER effective=V_REQ_TRIGGER,V_REQ_MODE limit=100
+skipped_constraints: -
+complete: true
+truncated: false

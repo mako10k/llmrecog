@@ -1,0 +1,24 @@
+{
+  "schema": "Llmrecog.MaterializationResult.v1",
+  "semantic_version": "0.1",
+  "tool_version": "contract-fixture",
+  "input": {
+    "path": "test/fixtures/contracts/v0.1/valid/relational-open.recog",
+    "document_id": "RELATIONAL_OPEN",
+    "digest": "sha256:326c8e4c10fe698e28b598e7fd9834af0fcfe4e8209cd6600f45cb8aec2eb912"
+  },
+  "complete": true,
+  "truncated": false,
+  "require_complete": false,
+  "requested_variable_ids": ["V_OPEN_LEFT"],
+  "effective_variable_ids": ["V_OPEN_LEFT", "V_OPEN_RIGHT"],
+  "limit": 2,
+  "inspected_assignment_count": 2,
+  "worlds": [],
+  "indeterminate_assignment_count": 1,
+  "open_variable_ids": ["V_OPEN_RIGHT"],
+  "unknown_reasons": ["RCG-RSN-001"],
+  "relevant_constraint_ids": ["K_OPEN_LEFT_ONE_OF", "K_OPEN_VALUES_SAME"],
+  "source_verification": { "mode": "none", "state": "not_requested" },
+  "diagnostics": []
+}

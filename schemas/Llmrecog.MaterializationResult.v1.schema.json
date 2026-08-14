@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mako10k.github.io/llmrecog/schemas/Llmrecog.MaterializationResult.v1.schema.json",
+  "title": "Llmrecog.MaterializationResult.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "semantic_version",
+    "tool_version",
+    "input",
+    "complete",
+    "truncated",
+    "require_complete",
+    "requested_variable_ids",
+    "effective_variable_ids",
+    "limit",
+    "inspected_assignment_count",
+    "worlds",
+    "indeterminate_assignment_count",
+    "open_variable_ids",
+    "unknown_reasons",
+    "relevant_constraint_ids",
+    "source_verification",
+    "diagnostics"
+  ],
+  "properties": {
+    "schema": { "const": "Llmrecog.MaterializationResult.v1" },
+    "semantic_version": { "const": "0.1" },
+    "tool_version": { "type": "string", "minLength": 1 },
+    "input": {
+      "$ref": "Llmrecog.Common.v1.schema.json#/$defs/input"
+    },
+    "complete": { "type": "boolean" },
+    "truncated": { "type": "boolean" },
+    "require_complete": { "type": "boolean" },
+    "requested_variable_ids": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+      }
+    },
+    "effective_variable_ids": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+      }
+    },
+    "limit": { "type": "integer", "minimum": 1 },
+    "inspected_assignment_count": { "type": "integer", "minimum": 0 },
+    "worlds": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/world" }
+    },
+    "indeterminate_assignment_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "open_variable_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+      }
+    },
+    "unknown_reasons": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/unknown_reason" }
+    },
+    "relevant_constraint_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+      }
+    },
+    "source_verification": {
+      "$ref": "Llmrecog.Common.v1.schema.json#/$defs/source_verification"
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "$ref": "Llmrecog.Common.v1.schema.json#/$defs/diagnostic"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "truncated": { "const": true } },
+        "required": ["truncated"]
+      },
+      "then": {
+        "properties": { "complete": { "const": false } }
+      }
+    },
+    {
+      "if": {
+        "properties": { "complete": { "const": true } },
+        "required": ["complete"]
+      },
+      "then": {
+        "properties": { "truncated": { "const": false } }
+      }
+    }
+  ],
+  "$defs": {
+    "unknown_reason": {
+      "enum": [
+        "RCG-RSN-001",
+        "RCG-RSN-002",
+        "RCG-RSN-003",
+        "RCG-RSN-004",
+        "RCG-RSN-005",
+        "RCG-RSN-006",
+        "RCG-RSN-007",
+        "RCG-RSN-008"
+      ]
+    },
+    "world": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["index", "assignments", "open_variable_ids"],
+      "properties": {
+        "index": { "type": "integer", "minimum": 1 },
+        "assignments": {
+          "type": "array",
+          "items": {
+            "$ref": "Llmrecog.ExplainResult.v1.schema.json#/$defs/assignment"
+          }
+        },
+        "open_variable_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+          }
+        }
+      }
+    }
+  }
+}

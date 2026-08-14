@@ -87,13 +87,13 @@ Acceptance:
 - accepted contract/semantic feedback was applied through an ADR before code,
   and the remaining roadmap was re-estimated in points.
 
-## Phase 3: one explainable CSP slice
+## Phase 3: one explainable CSP slice — completed 2026-08-14
 
 ADR 0008 accepts this phase's explain and focused-audit contract. The private
-runtime now implements finite `one_of`, finite `excludes`, typed explanation,
-and the focused base audit through the real parser and semantic model. Phase 3
-itself remains open until the versioned exclusion/conflict dogfood findings are
-reviewed and the final acceptance gate passes.
+runtime implements finite `one_of`, finite `excludes`, typed explanation, and
+the focused base audit through the real parser and semantic model. Both
+versioned dogfood rounds were dispositioned and the exact candidate evidence
+was accepted in [phase-3-acceptance.md](phase-3-acceptance.md).
 
 Implement:
 
@@ -120,6 +120,11 @@ Acceptance:
 
 ## Phase 4: complete initial constraint set and bounded views
 
+ADR 0010, `Llmrecog.QueryResult.v1`,
+`Llmrecog.MaterializationResult.v1`, exact contract fixtures, and dogfood
+protocol v4 accept this phase's contract. No Phase 4 runtime is implemented by
+that acceptance.
+
 Add:
 
 - `requires`, `same_as`, and `distinct_from`;
@@ -136,9 +141,12 @@ Acceptance:
 - no optimization, ranking, arbitrary predicates, or negation-as-failure enters
   the solver.
 
-Then dogfood cross-document queries, joint witnesses, bounds, and
-materialization against the same corpus. Its reviewed feedback is an input to
-the Phase 5 source-verification design.
+Dogfood begins before both space routes are complete. After the relational
+constraint slice, run protocol v4 implication, equality, inequality, open
+operand, joint-witness, and compound-navigation questions. Disposition that
+evidence before query or materialization implementation. Then dogfood bounded
+filters, ordering, bounds, and materialization against the same corpus. Its
+reviewed feedback is an input to the Phase 5 source-verification design.
 
 ## Phase 5: local source verification
 
@@ -204,18 +212,20 @@ authorized by accepting llmrecog core implementation.
 
 ## Current implementation frontier
 
-Complete the versioned Phase 3 exclusion/conflict dogfood and disposition its
-findings before the final Phase 3 acceptance audit. Do not begin Phase 4 or
-producer dogfood from implementation success alone. Producer dogfood remains
-gated on accepted explainability, the complete initial constraint semantics,
+Implement only the fixture-first `requires`, `same_as`, and `distinct_from`
+vertical slice accepted by ADR 0010, then run and disposition the first Phase 4
+protocol-v4 dogfood round before either space route begins. Producer dogfood
+remains gated on the accepted complete initial constraint semantics,
 fail-closed local source verification, a producer-contract ADR, and a
 separately approved adapter.
 
 The current detailed execution order, relative effort, acceptance frontier,
 and explicit Non-goals are tracked in
+[`plans/phase-4-complete-core.pert`](../plans/phase-4-complete-core.pert).
+The completed Phase 2 and Phase 3 plans are retained in
+[`plans/phase-2-parse-validate-show.pert`](../plans/phase-2-parse-validate-show.pert)
+and
 [`plans/phase-3-explainable-csp.pert`](../plans/phase-3-explainable-csp.pert).
-The completed Phase 2 plan is retained in
-[`plans/phase-2-parse-validate-show.pert`](../plans/phase-2-parse-validate-show.pert).
 The point-based cross-phase order and repeated feedback gates are tracked in
 [`plans/dogfooding-roadmap.pert`](../plans/dogfooding-roadmap.pert), while the
 original [`plans/initial-roadmap.pert`](../plans/initial-roadmap.pert) remains

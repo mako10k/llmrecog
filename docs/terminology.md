@@ -76,6 +76,15 @@ These definitions are normative for semantic contract 0.1.
 : One deterministic, query-scoped satisfying assignment emitted from the
   possibility space. It is derived output, not a new recognition or decision.
 
+**Represented assignment**
+: One deterministic tuple containing a declared candidate or the internal
+  open/unbound branch for each effective-scope variable. It is an evaluation
+  input, not automatically a satisfying world or source recognition.
+
+**Indeterminate constraint evaluation**
+: A result in which an open/unbound value prevents proving either satisfaction
+  or violation. It cannot serve as an allowed witness or an exclusion reason.
+
 ## Support and state
 
 **Support kind**

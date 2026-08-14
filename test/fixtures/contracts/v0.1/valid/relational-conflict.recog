@@ -1,0 +1,141 @@
+llmrecog 0.1
+
+document RELATIONAL_CONFLICT:
+  title "Relational constraint conflicts"
+
+source SRC:
+  kind text
+  locator "relational-conflict.txt"
+
+span S1:
+  source SRC
+  range 1:1..1:40
+  quote "Required, equal, and distinct values conflict"
+
+variable V_REQ_TRIGGER:
+  value_type symbol
+  candidates [C_REQ_ON]
+  grounded_in [S1]
+
+candidate C_REQ_ON in V_REQ_TRIGGER:
+  value on
+  grounded_in [S1]
+  support explicit
+
+variable V_REQ_MODE:
+  value_type symbol
+  candidates [C_REQ_FAST, C_REQ_SAFE]
+  grounded_in [S1]
+
+candidate C_REQ_FAST in V_REQ_MODE:
+  value fast
+  grounded_in [S1]
+  support explicit
+
+candidate C_REQ_SAFE in V_REQ_MODE:
+  value safe
+  grounded_in [S1]
+  support explicit
+
+variable V_SAME_LEFT:
+  value_type symbol
+  candidates [C_SAME_LEFT_RED]
+  grounded_in [S1]
+
+candidate C_SAME_LEFT_RED in V_SAME_LEFT:
+  value red
+  grounded_in [S1]
+  support explicit
+
+variable V_SAME_RIGHT:
+  value_type symbol
+  candidates [C_SAME_RIGHT_BLUE]
+  grounded_in [S1]
+
+candidate C_SAME_RIGHT_BLUE in V_SAME_RIGHT:
+  value blue
+  grounded_in [S1]
+  support explicit
+
+variable V_DISTINCT_LEFT:
+  value_type symbol
+  candidates [C_DISTINCT_LEFT_RED]
+  grounded_in [S1]
+
+candidate C_DISTINCT_LEFT_RED in V_DISTINCT_LEFT:
+  value red
+  grounded_in [S1]
+  support explicit
+
+variable V_DISTINCT_RIGHT:
+  value_type symbol
+  candidates [C_DISTINCT_RIGHT_RED]
+  grounded_in [S1]
+
+candidate C_DISTINCT_RIGHT_RED in V_DISTINCT_RIGHT:
+  value red
+  grounded_in [S1]
+  support explicit
+
+constraint K_REQ_TRIGGER_ONE_OF:
+  kind one_of
+  variable V_REQ_TRIGGER
+  members [C_REQ_ON]
+  grounded_in [S1]
+  support explicit
+
+constraint K_REQ_MODE_ONE_OF:
+  kind one_of
+  variable V_REQ_MODE
+  members [C_REQ_SAFE]
+  grounded_in [S1]
+  support explicit
+
+constraint K_REQ_ON_REQUIRES_FAST:
+  kind requires
+  antecedent C_REQ_ON
+  consequent C_REQ_FAST
+  grounded_in [S1]
+  support explicit
+
+constraint K_SAME_LEFT_ONE_OF:
+  kind one_of
+  variable V_SAME_LEFT
+  members [C_SAME_LEFT_RED]
+  grounded_in [S1]
+  support explicit
+
+constraint K_SAME_RIGHT_ONE_OF:
+  kind one_of
+  variable V_SAME_RIGHT
+  members [C_SAME_RIGHT_BLUE]
+  grounded_in [S1]
+  support explicit
+
+constraint K_VALUES_SAME:
+  kind same_as
+  left V_SAME_LEFT
+  right V_SAME_RIGHT
+  grounded_in [S1]
+  support explicit
+
+constraint K_DISTINCT_LEFT_ONE_OF:
+  kind one_of
+  variable V_DISTINCT_LEFT
+  members [C_DISTINCT_LEFT_RED]
+  grounded_in [S1]
+  support explicit
+
+constraint K_DISTINCT_RIGHT_ONE_OF:
+  kind one_of
+  variable V_DISTINCT_RIGHT
+  members [C_DISTINCT_RIGHT_RED]
+  grounded_in [S1]
+  support explicit
+
+constraint K_VALUES_DISTINCT:
+  kind distinct_from
+  left V_DISTINCT_LEFT
+  right V_DISTINCT_RIGHT
+  grounded_in [S1]
+  support explicit

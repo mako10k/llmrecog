@@ -1,6 +1,6 @@
 # Dogfooding workflow
 
-Status: active Phase 3 process; each implementation slice remains plan-gated
+Status: active Phase 4 process; each implementation slice remains plan-gated
 
 This workflow makes llmrecog consume evidence about its own specifications as
 soon as a real read path exists. Dogfooding is an input to design and planning;
@@ -54,9 +54,11 @@ older receipt.
 The exact Phase 2 corpus digests, question IDs, command cases, declaration
 coverage, round gates, and acceptance flags are frozen in
 [`dogfood/protocol-v1/protocol.json`](../../dogfood/protocol-v1/protocol.json).
-The completed Phase 3 ambiguity run remains bound to immutable protocol v2.
-The active exclusion/conflict corpus and command cases are frozen in protocol
-v3 after the finite `excludes` and focused-audit implementation gate.
+The completed Phase 3 ambiguity and exclusion/conflict runs remain bound to
+immutable protocols v2 and v3. Active protocol v4 freezes the Phase 4
+relational-constraint and bounded-space rounds, contract fixtures, questions,
+and command identities in
+[`dogfood/protocol-v4/protocol.json`](../../dogfood/protocol-v4/protocol.json).
 The process-only receipt and feedback schemas are under
 [`dogfood/schemas/`](../../dogfood/schemas/), and the evidence layout and
 immutability rules are in [`dogfood/README.md`](../../dogfood/README.md).
@@ -93,7 +95,8 @@ understanding objective.
 | 2 | Complete Phase 2 read path accepted | Manually encode requirements, terminology, architecture, and phase boundaries | Phase 2 acceptance and Phase 3 estimate |
 | 3a | Finite `one_of` explain slice accepted | Ask ambiguity, closure, unsupported, unknown, and joint-witness questions of the same corpus | `excludes` and focused audit implementation |
 | 3b | Finite `excludes` and focused audit accepted | Ask exclusion-chain, supported-plus-excluded conflict, empty-domain, and limit questions | Phase 3 acceptance and remaining constraint semantics |
-| 4 | Complete deterministic semantic core accepted | Exercise cross-document queries, joint witnesses, limits, and materialization | Source-verification design |
+| 4a | `requires`, `same_as`, and `distinct_from` slice accepted | Exercise implication, equality, inequality, open operands, joint witnesses, and the deferred compound-navigation question | Query and materialization implementation |
+| 4b | Bounded query and materialization accepted | Exercise filters, ordering, limits, open projections, truncation, and require-complete | Phase 4 acceptance and source-verification design |
 | 5 | Local source verification accepted | Detect stale digests, ranges, quotes, and changed source documents | Producer-contract design |
 | 6 | One producer adapter separately accepted | Generate raw-document drafts, then validate, audit, explain, verify, and review them | llmthink handoff design |
 | 7 | Typed llmthink handoff prototype accepted | Pass accepted recognition references into a read-only reasoning audit | Any broader integration plan |

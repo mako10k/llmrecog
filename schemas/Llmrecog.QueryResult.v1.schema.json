@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mako10k.github.io/llmrecog/schemas/Llmrecog.QueryResult.v1.schema.json",
+  "title": "Llmrecog.QueryResult.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "semantic_version",
+    "tool_version",
+    "input",
+    "complete",
+    "truncated",
+    "filters",
+    "result_limit",
+    "assignment_limit",
+    "matched_count",
+    "items",
+    "source_verification",
+    "diagnostics"
+  ],
+  "properties": {
+    "schema": { "const": "Llmrecog.QueryResult.v1" },
+    "semantic_version": { "const": "0.1" },
+    "tool_version": { "type": "string", "minLength": 1 },
+    "input": {
+      "$ref": "Llmrecog.Common.v1.schema.json#/$defs/input"
+    },
+    "complete": { "type": "boolean" },
+    "truncated": { "type": "boolean" },
+    "filters": { "$ref": "#/$defs/filters" },
+    "result_limit": { "type": "integer", "minimum": 1 },
+    "assignment_limit": { "type": "integer", "minimum": 1 },
+    "matched_count": { "type": "integer", "minimum": 0 },
+    "items": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/item" }
+    },
+    "source_verification": {
+      "$ref": "Llmrecog.Common.v1.schema.json#/$defs/source_verification"
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "$ref": "Llmrecog.Common.v1.schema.json#/$defs/diagnostic"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "truncated": { "const": true } },
+        "required": ["truncated"]
+      },
+      "then": {
+        "properties": { "complete": { "const": false } }
+      }
+    },
+    {
+      "if": {
+        "properties": { "complete": { "const": true } },
+        "required": ["complete"]
+      },
+      "then": {
+        "properties": { "truncated": { "const": false } }
+      }
+    }
+  ],
+  "$defs": {
+    "nullable_identifier": {
+      "oneOf": [
+        {
+          "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+        },
+        { "type": "null" }
+      ]
+    },
+    "filters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "variable_id",
+        "support",
+        "viability",
+        "grounded_in_span_id"
+      ],
+      "properties": {
+        "kind": {
+          "oneOf": [
+            {
+              "enum": [
+                "entity",
+                "record",
+                "variable",
+                "candidate",
+                "constraint"
+              ]
+            },
+            { "type": "null" }
+          ]
+        },
+        "variable_id": { "$ref": "#/$defs/nullable_identifier" },
+        "support": {
+          "oneOf": [
+            { "enum": ["supported", "unsupported", "conflicted"] },
+            { "type": "null" }
+          ]
+        },
+        "viability": {
+          "oneOf": [
+            { "enum": ["allowed", "excluded", "unknown"] },
+            { "type": "null" }
+          ]
+        },
+        "grounded_in_span_id": {
+          "$ref": "#/$defs/nullable_identifier"
+        }
+      }
+    },
+    "item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "recognition",
+        "support",
+        "viability",
+        "scope",
+        "matching_span_ids"
+      ],
+      "properties": {
+        "recognition": {
+          "$ref": "Llmrecog.SemanticDocument.v1.schema.json#/$defs/recognition"
+        },
+        "support": {
+          "oneOf": [
+            {
+              "$ref": "Llmrecog.ExplainResult.v1.schema.json#/$defs/support_projection"
+            },
+            { "type": "null" }
+          ]
+        },
+        "viability": {
+          "oneOf": [
+            {
+              "$ref": "Llmrecog.ExplainResult.v1.schema.json#/$defs/allowed"
+            },
+            {
+              "$ref": "Llmrecog.ExplainResult.v1.schema.json#/$defs/excluded"
+            },
+            {
+              "$ref": "Llmrecog.ExplainResult.v1.schema.json#/$defs/unknown"
+            },
+            { "type": "null" }
+          ]
+        },
+        "scope": {
+          "oneOf": [
+            {
+              "$ref": "Llmrecog.ExplainResult.v1.schema.json#/$defs/scope"
+            },
+            { "type": "null" }
+          ]
+        },
+        "matching_span_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+          }
+        }
+      }
+    }
+  }
+}

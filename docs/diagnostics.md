@@ -41,6 +41,11 @@ result must contain at least one grounded constraint derivation ending in
 reason codes. These reason records explain declared constraint application;
 they are not llmthink inference or hidden model rationale.
 
+ADR 0010 accepts `RCG-RSN-203`, `RCG-RSN-204`, and `RCG-RSN-205` as the exact
+Phase 4 `requires`, `same_as`, and `distinct_from` violation reasons. Open
+relational operands remain unknown under `RCG-RSN-001`; they do not emit a
+violation reason.
+
 ## Focused boundary failures
 
 - A forbidden `hypothesis`, `inference`, `conclusion`, `decision`, premise, or

@@ -1,0 +1,15 @@
+Llmrecog.MaterializationResult.v1
+scope: requested=V_TRIGGER effective=V_TRIGGER,V_MODE
+limit: 4
+inspected_assignments: 4
+world 1: V_TRIGGER=C_TRIGGER_ON(symbol:on), V_MODE=C_MODE_FAST(symbol:fast) open=-
+world 2: V_TRIGGER=C_TRIGGER_OFF(symbol:off), V_MODE=C_MODE_FAST(symbol:fast) open=-
+world 3: V_TRIGGER=C_TRIGGER_OFF(symbol:off), V_MODE=C_MODE_SAFE(symbol:safe) open=-
+indeterminate_assignments: 0
+open_variables: -
+unknown_reasons: -
+constraints: K_TRIGGER_ONE_OF, K_MODE_ONE_OF, K_ON_REQUIRES_FAST
+source_verification: none/not_requested
+require_complete: false
+complete: true
+truncated: false

@@ -1,6 +1,6 @@
 # llmrecog requirements
 
-- Status: Private Phase 2 read path accepted; Phase 3 contract accepted but not implemented
+- Status: Private Phase 3 slice accepted; Phase 4 contract accepted but not implemented
 - Date: 2026-08-14
 - Provisional document extension: `.recog`
 - Product role: Recognition
@@ -117,6 +117,12 @@ Constraint propagation Must be deterministic for the same validated document,
 scope, limits, and core semantic version. An empty domain, incompatible
 grounded records, or a source-supported candidate eliminated by constraints
 Must be reported as a conflict rather than silently repaired.
+
+Constraint evaluation over a represented assignment Must distinguish
+`satisfied`, `violated`, and `indeterminate`. An open/unbound operand Must not
+be treated as evidence of equality or inequality. Only assignments that
+satisfy every relevant constraint May be returned as witnesses or materialized
+worlds; indeterminate assignments Must preserve typed unknown reasons.
 
 ## 6. Provenance and explainability
 

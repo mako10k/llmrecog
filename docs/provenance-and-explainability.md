@@ -113,6 +113,18 @@ D2 excluded C_COMMITMENT_WEAK
 This chain explains constraint application. It does not claim why a human
 speaker chose the wording or expose an LLM's private reasoning.
 
+The complete contract-0.1 constraint reason vocabulary is:
+
+- `RCG-RSN-201`: one grounded `one_of` member remains;
+- `RCG-RSN-202`: an `excludes` pair is selected together;
+- `RCG-RSN-203`: a selected antecedent lacks its required consequent;
+- `RCG-RSN-204`: known `same_as` values mismatch;
+- `RCG-RSN-205`: known `distinct_from` values collide;
+- `RCG-RSN-206`: no satisfying target-bearing witness remains.
+
+Open/unbound relational operands produce typed unknown reasons and no
+fabricated constraint derivation.
+
 ## 7. Explain projections
 
 ### 7.1 Semantic record

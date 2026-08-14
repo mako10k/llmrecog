@@ -1,0 +1,47 @@
+llmrecog 0.1
+
+document RELATIONAL_OPEN:
+  title "Open equality operand"
+
+source SRC:
+  kind text
+  locator "relational-open.txt"
+
+span S1:
+  source SRC
+  range 1:1..1:34
+  quote "The left value is red; right is open"
+
+variable V_OPEN_LEFT:
+  value_type symbol
+  candidates [C_OPEN_LEFT_RED]
+  grounded_in [S1]
+
+candidate C_OPEN_LEFT_RED in V_OPEN_LEFT:
+  value red
+  grounded_in [S1]
+  support explicit
+
+variable V_OPEN_RIGHT:
+  value_type symbol
+  candidates [C_OPEN_RIGHT_BLUE]
+  grounded_in [S1]
+
+candidate C_OPEN_RIGHT_BLUE in V_OPEN_RIGHT:
+  value blue
+  grounded_in [S1]
+  support ambiguous
+
+constraint K_OPEN_LEFT_ONE_OF:
+  kind one_of
+  variable V_OPEN_LEFT
+  members [C_OPEN_LEFT_RED]
+  grounded_in [S1]
+  support explicit
+
+constraint K_OPEN_VALUES_SAME:
+  kind same_as
+  left V_OPEN_LEFT
+  right V_OPEN_RIGHT
+  grounded_in [S1]
+  support explicit

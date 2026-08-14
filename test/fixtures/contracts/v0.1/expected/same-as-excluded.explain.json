@@ -1,0 +1,126 @@
+{
+  "schema": "Llmrecog.ExplainResult.v2",
+  "semantic_version": "0.1",
+  "tool_version": "contract-fixture",
+  "input": {
+    "path": "test/fixtures/contracts/v0.1/valid/relational-conflict.recog",
+    "document_id": "RELATIONAL_CONFLICT",
+    "digest": "sha256:efef4ed2cbff68410b8359f71cf7ae5381ee117324e94ddf755be77b89cfef30"
+  },
+  "complete": true,
+  "truncated": false,
+  "target": {
+    "id": "C_SAME_LEFT_RED",
+    "declaration_kind": "candidate"
+  },
+  "recognition": {
+    "declaration_kind": "candidate",
+    "id": "C_SAME_LEFT_RED",
+    "variable_id": "V_SAME_LEFT",
+    "value": { "kind": "symbol", "value": "red" },
+    "grounded_in": [{ "id": "S1", "kind": "span" }],
+    "support": {
+      "kind": "explicit",
+      "grounded_in": [{ "id": "S1", "kind": "span" }]
+    }
+  },
+  "support": {
+    "state": "supported",
+    "records": [
+      {
+        "kind": "explicit",
+        "grounded_in": [{ "id": "S1", "kind": "span" }]
+      }
+    ]
+  },
+  "viability": {
+    "state": "excluded",
+    "witness": null,
+    "reason_chain": [
+      {
+        "code": "RCG-RSN-201",
+        "name": "one_of_single_remaining",
+        "subject_id": "C_SAME_RIGHT_BLUE",
+        "constraint_id": "K_SAME_RIGHT_ONE_OF",
+        "inputs": ["C_SAME_RIGHT_BLUE"]
+      },
+      {
+        "code": "RCG-RSN-204",
+        "name": "same_as_value_mismatch",
+        "subject_id": "C_SAME_LEFT_RED",
+        "constraint_id": "K_VALUES_SAME",
+        "inputs": ["C_SAME_LEFT_RED", "C_SAME_RIGHT_BLUE"]
+      },
+      {
+        "code": "RCG-RSN-206",
+        "name": "no_satisfying_witness",
+        "subject_id": "C_SAME_LEFT_RED",
+        "constraint_id": null,
+        "inputs": ["K_SAME_RIGHT_ONE_OF", "K_VALUES_SAME"]
+      }
+    ],
+    "unknown_reasons": []
+  },
+  "variable_resolution": {
+    "state": "inconsistent",
+    "unknown_reasons": []
+  },
+  "scope": {
+    "requested_variable_ids": ["V_SAME_LEFT"],
+    "effective_variable_ids": ["V_SAME_LEFT", "V_SAME_RIGHT"],
+    "limit": 100
+  },
+  "provenance": [
+    { "kind": "grounded_in", "from": "C_SAME_LEFT_RED", "to": "S1" },
+    { "kind": "applies", "from": "C_SAME_LEFT_RED", "to": "K_VALUES_SAME" }
+  ],
+  "normalization": null,
+  "source_verification": [
+    {
+      "source_id": "SRC",
+      "verification": { "mode": "none", "state": "not_requested" }
+    }
+  ],
+  "relevant_constraint_ids": [
+    "K_SAME_LEFT_ONE_OF",
+    "K_SAME_RIGHT_ONE_OF",
+    "K_VALUES_SAME"
+  ],
+  "skipped_constraints": [],
+  "derivations": [
+    {
+      "code": "RCG-RSN-201",
+      "name": "one_of_single_remaining",
+      "subject_id": "C_SAME_RIGHT_BLUE",
+      "constraint_id": "K_SAME_RIGHT_ONE_OF",
+      "inputs": ["C_SAME_RIGHT_BLUE"]
+    },
+    {
+      "code": "RCG-RSN-204",
+      "name": "same_as_value_mismatch",
+      "subject_id": "C_SAME_LEFT_RED",
+      "constraint_id": "K_VALUES_SAME",
+      "inputs": ["C_SAME_LEFT_RED", "C_SAME_RIGHT_BLUE"]
+    },
+    {
+      "code": "RCG-RSN-206",
+      "name": "no_satisfying_witness",
+      "subject_id": "C_SAME_LEFT_RED",
+      "constraint_id": null,
+      "inputs": ["K_SAME_RIGHT_ONE_OF", "K_VALUES_SAME"]
+    }
+  ],
+  "diagnostics": [
+    {
+      "code": "RCG-CSP-002",
+      "severity": "warning",
+      "message": "A source-supported candidate is excluded by grounded constraints.",
+      "entity_id": "C_SAME_LEFT_RED",
+      "span": null,
+      "reason_data": {
+        "constraint_ids": ["K_SAME_RIGHT_ONE_OF", "K_VALUES_SAME"]
+      },
+      "related": []
+    }
+  ]
+}

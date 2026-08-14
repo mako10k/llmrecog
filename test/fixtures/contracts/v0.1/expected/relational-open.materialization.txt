@@ -1,0 +1,13 @@
+Llmrecog.MaterializationResult.v1
+scope: requested=V_OPEN_LEFT effective=V_OPEN_LEFT,V_OPEN_RIGHT
+limit: 2
+inspected_assignments: 2
+worlds: -
+indeterminate_assignments: 1
+open_variables: V_OPEN_RIGHT
+unknown_reasons: RCG-RSN-001
+constraints: K_OPEN_LEFT_ONE_OF, K_OPEN_VALUES_SAME
+source_verification: none/not_requested
+require_complete: false
+complete: true
+truncated: false

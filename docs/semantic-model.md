@@ -165,6 +165,13 @@ variable.
 Constraints are declarative, source-grounded, and unweighted. Candidate
 references below denote boolean assignment literals.
 
+Each complete represented assignment evaluates a relevant constraint as
+`satisfied`, `violated`, or `indeterminate`. Only assignments with every
+constraint satisfied are witnesses. An indeterminate assignment cannot prove
+allowance or exclusion. Candidate exclusion requires every represented
+target-bearing assignment to be proved violated; otherwise the result remains
+unknown.
+
 ### 6.1 `one_of`
 
 ```text
@@ -184,7 +191,9 @@ requires(A, B) == A -> B
 ```
 
 If a world selects `A`, it must select `B`. This does not positively select
-either candidate. The reverse implication is not assumed.
+either candidate. The reverse implication is not assumed. Candidate literals
+use exact candidate IDs; selecting the open branch does not select `B`.
+`requires(A, A)` is a tautology.
 
 ### 6.3 `excludes`
 
@@ -203,7 +212,11 @@ same_as(V1, V2)
 
 The variables must take canonically equal, type-compatible values in each
 represented world. Initial use is limited to source-grounded alias or
-coreference identity. It is not a general ontology identity rule.
+coreference identity. It is not a general ontology identity rule. Equality is
+exact typed semantic-value equality: entity reference ID, symbol identifier,
+or Unicode scalar string. Candidate IDs themselves do not determine equality.
+For different variables, an open/unbound operand makes evaluation
+indeterminate. `same_as(V, V)` is a tautology.
 
 ### 6.5 `distinct_from`
 
@@ -212,7 +225,9 @@ distinct_from(V1, V2)
 ```
 
 The variables must take different, type-compatible values. Absence of
-`same_as` does not imply `distinct_from`.
+`same_as` does not imply `distinct_from`. Known values use the same exact
+typed comparison as `same_as`; an open/unbound operand of different variables
+is indeterminate. `distinct_from(V, V)` is always violated.
 
 ## 7. Propagation and conflicts
 
@@ -252,6 +267,13 @@ It must be:
 - bounded by a required positive `limit`;
 - explicit about `truncated`, `complete`, and unresolved open variables;
 - free of ranking, confidence sorting, or preferred-world selection.
+
+The required positive limit bounds complete represented assignments inspected,
+including satisfying, violated, and indeterminate tuples. `complete` means the
+finite represented generator was exhausted; it does not claim an open domain
+is exhaustive. Results separately report inspected, satisfying, and
+indeterminate counts, open variables, and unknown reasons. An exactly-limit
+exhausted generator is complete; a remaining tuple is truncated.
 
 A materialized interpretation is a view. It cannot be cited as direct source
 support. A downstream reasoner may cite both the source variable and the

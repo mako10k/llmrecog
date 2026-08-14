@@ -1,0 +1,8 @@
+Llmrecog.QueryResult.v1
+filters: kind=candidate variable=V_OPEN_LEFT support=- viability=unknown grounded_in=-
+limits: results=100 assignments=100
+matched: 1
+candidate C_OPEN_LEFT_RED variable=V_OPEN_LEFT value=symbol:red support=supported viability=unknown reasons=RCG-RSN-001 scope=V_OPEN_LEFT,V_OPEN_RIGHT
+source_verification: none/not_requested
+complete: true
+truncated: false

@@ -248,6 +248,8 @@ test("all result goldens validate against the frozen JSON Schemas", () => {
     "schemas/Llmrecog.ExplainResult.v1.schema.json",
     "schemas/Llmrecog.ExplainResult.v2.schema.json",
     "schemas/Llmrecog.AuditResult.v1.schema.json",
+    "schemas/Llmrecog.QueryResult.v1.schema.json",
+    "schemas/Llmrecog.MaterializationResult.v1.schema.json",
   ];
   const schemas = schemaPaths.map((schemaPath) =>
     readJson<Record<string, unknown>>(schemaPath),
@@ -280,6 +282,14 @@ test("all result goldens validate against the frozen JSON Schemas", () => {
     [
       "Llmrecog.AuditResult.v1",
       "https://mako10k.github.io/llmrecog/schemas/Llmrecog.AuditResult.v1.schema.json",
+    ],
+    [
+      "Llmrecog.QueryResult.v1",
+      "https://mako10k.github.io/llmrecog/schemas/Llmrecog.QueryResult.v1.schema.json",
+    ],
+    [
+      "Llmrecog.MaterializationResult.v1",
+      "https://mako10k.github.io/llmrecog/schemas/Llmrecog.MaterializationResult.v1.schema.json",
     ],
   ]);
 
@@ -373,7 +383,7 @@ test("invalid fixture diagnostics freeze exact codes, typed data, and byte spans
 });
 
 test("accepted text result goldens use deterministic bytes", () => {
-  assert.equal(manifest.expected_text_results.length, 12);
+  assert.equal(manifest.expected_text_results.length, 17);
   for (const resultPath of manifest.expected_text_results) {
     const bytes = fs.readFileSync(path.join(repositoryRoot, resultPath));
     const text = bytes.toString("utf8");
@@ -527,6 +537,76 @@ test("Phase 3 goldens freeze joint witnesses, bounds, and focused audit", () => 
     warnings: 3,
     info: 0,
   });
+});
+
+test("Phase 4 contract goldens freeze relational and bounded-space semantics", () => {
+  const relationalCases = [
+    ["requires-excluded", "RCG-RSN-203"],
+    ["same-as-excluded", "RCG-RSN-204"],
+    ["distinct-from-excluded", "RCG-RSN-205"],
+  ] as const;
+  for (const [name, reasonCode] of relationalCases) {
+    const result = readJson<Record<string, unknown>>(
+      `test/fixtures/contracts/v0.1/expected/${name}.explain.json`,
+    );
+    const viability = result["viability"] as {
+      readonly state: string;
+      readonly reason_chain: readonly { readonly code: string }[];
+    };
+    assert.equal(viability.state, "excluded");
+    assert(viability.reason_chain.some((reason) => reason.code === reasonCode));
+    assert.equal(viability.reason_chain.at(-1)?.code, "RCG-RSN-206");
+    assert.deepEqual(result["skipped_constraints"], []);
+  }
+
+  const open = readJson<Record<string, unknown>>(
+    "test/fixtures/contracts/v0.1/expected/same-as-open.explain.json",
+  );
+  assert.deepEqual(
+    (open["viability"] as { readonly unknown_reasons: readonly string[] })
+      .unknown_reasons,
+    ["RCG-RSN-001"],
+  );
+  assert.deepEqual(open["derivations"], []);
+
+  const query = readJson<Record<string, unknown>>(
+    "test/fixtures/contracts/v0.1/expected/relational-open.query.json",
+  );
+  assert.equal(query["complete"], true);
+  assert.equal(query["matched_count"], 1);
+  const queryItems = query["items"] as readonly {
+    readonly viability: { readonly state: string };
+  }[];
+  assert.equal(queryItems[0]?.viability.state, "unknown");
+
+  const truncatedQuery = readJson<Record<string, unknown>>(
+    "test/fixtures/contracts/v0.1/expected/relational-open-truncated.query.json",
+  );
+  assert.equal(truncatedQuery["complete"], false);
+  assert.equal(truncatedQuery["truncated"], true);
+
+  const materialized = readJson<Record<string, unknown>>(
+    "test/fixtures/contracts/v0.1/expected/relational-core.materialization.json",
+  );
+  assert.equal(materialized["complete"], true);
+  assert.equal(materialized["inspected_assignment_count"], 4);
+  assert.equal((materialized["worlds"] as readonly unknown[]).length, 3);
+
+  const requireComplete = readJson<Record<string, unknown>>(
+    "test/fixtures/contracts/v0.1/expected/relational-core-require-complete.materialization.json",
+  );
+  assert.equal(requireComplete["require_complete"], true);
+  assert.equal(requireComplete["complete"], false);
+  assert.equal(requireComplete["truncated"], true);
+  assert.deepEqual(requireComplete["unknown_reasons"], ["RCG-RSN-007"]);
+
+  const openMaterialization = readJson<Record<string, unknown>>(
+    "test/fixtures/contracts/v0.1/expected/relational-open.materialization.json",
+  );
+  assert.equal(openMaterialization["complete"], true);
+  assert.equal(openMaterialization["indeterminate_assignment_count"], 1);
+  assert.deepEqual(openMaterialization["worlds"], []);
+  assert.deepEqual(openMaterialization["unknown_reasons"], ["RCG-RSN-001"]);
 });
 
 test("machine semantic registries do not admit reasoning or realization roles", () => {

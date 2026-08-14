@@ -1,0 +1,45 @@
+{
+  "schema": "Llmrecog.MaterializationResult.v1",
+  "semantic_version": "0.1",
+  "tool_version": "contract-fixture",
+  "input": {
+    "path": "test/fixtures/contracts/v0.1/valid/relational-core.recog",
+    "document_id": "RELATIONAL_CORE",
+    "digest": "sha256:a4eb61975a0fa13dd94deeb7a9d315c97adc5c238942e7b8f698a17f1bcb7b9c"
+  },
+  "complete": false,
+  "truncated": true,
+  "require_complete": true,
+  "requested_variable_ids": ["V_TRIGGER"],
+  "effective_variable_ids": ["V_TRIGGER", "V_MODE"],
+  "limit": 2,
+  "inspected_assignment_count": 2,
+  "worlds": [
+    {
+      "index": 1,
+      "assignments": [
+        {
+          "variable_id": "V_TRIGGER",
+          "candidate_id": "C_TRIGGER_ON",
+          "value": { "kind": "symbol", "value": "on" }
+        },
+        {
+          "variable_id": "V_MODE",
+          "candidate_id": "C_MODE_FAST",
+          "value": { "kind": "symbol", "value": "fast" }
+        }
+      ],
+      "open_variable_ids": []
+    }
+  ],
+  "indeterminate_assignment_count": 0,
+  "open_variable_ids": [],
+  "unknown_reasons": ["RCG-RSN-007"],
+  "relevant_constraint_ids": [
+    "K_TRIGGER_ONE_OF",
+    "K_MODE_ONE_OF",
+    "K_ON_REQUIRES_FAST"
+  ],
+  "source_verification": { "mode": "none", "state": "not_requested" },
+  "diagnostics": []
+}
