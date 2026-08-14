@@ -88,6 +88,8 @@
         "LOCAL_UNSEALED_JSON",
         "LOCAL_INVALID_UTF8_JSON",
         "LOCAL_BARE_CR_JSON",
+        "LOCAL_BOM_JSON",
+        "LOCAL_CRLF_JSON",
         "LOCAL_SIZE_LIMIT_JSON",
         "LOCAL_MIXED_ORDER_JSON"
       ],
@@ -222,6 +224,34 @@
       "format": "json",
       "repeat_count": 2,
       "fixture_setup": "copy_verified_and_replace_source_with_digest-matched_bare_cr",
+      "required_options": [
+        "--verify-sources",
+        "local",
+        "--max-source-bytes",
+        "1048576"
+      ],
+      "required_option_names": ["--verification-root"]
+    },
+    {
+      "id": "LOCAL_BOM_JSON",
+      "route": ["document", "validate"],
+      "format": "json",
+      "repeat_count": 2,
+      "fixture_setup": "create_digest-matched_bom_content_with_exact_quote",
+      "required_options": [
+        "--verify-sources",
+        "local",
+        "--max-source-bytes",
+        "1048576"
+      ],
+      "required_option_names": ["--verification-root"]
+    },
+    {
+      "id": "LOCAL_CRLF_JSON",
+      "route": ["document", "validate"],
+      "format": "json",
+      "repeat_count": 2,
+      "fixture_setup": "create_digest-matched_crlf_cross-line_exact_quote",
       "required_options": [
         "--verify-sources",
         "local",

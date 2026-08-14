@@ -83,6 +83,7 @@ task RUN_COMPLETE_LOCAL_SOURCE_DOGFOOD COMPLETE_LOCAL_VERIFIER_ACCEPTED -> LOCAL
   title "Dogfood complete local source verification"
   description "Run the successor protocol against unchanged repository sources and deliberately changed copies covering digest, range, quote, encoding, size, ordering, and mixed-source outcomes. Re-run every command byte-deterministically, preserve earlier receipts, and inspect whether verification hides stale evidence, reads outside the explicit root, or encourages automatic repair."
   duration 2p
+  status done
   priority 30
   requires:
     IMPLEMENTER 1
@@ -161,3 +162,17 @@ work_event WE-4b74121ae630e13861e07245c9890a333d2de80cacf2307dccd183f8c7c79929:
   kind finish
   occurred_at 2026-08-14T19:46:07+09:00
   effort 0.1612713889ph
+
+work_event WE-67c872f854c931f4782bc7c751e6436afe56beda01242aa48d9576cada1bd07b:
+  model 1
+  task RUN_COMPLETE_LOCAL_SOURCE_DOGFOOD
+  kind start
+  occurred_at 2026-08-14T19:46:48+09:00
+  planned_value 2p
+
+work_event WE-cc399f67f571cb380fceff1b9e0435df09d1123d920a0a1c2375291b29b351ba:
+  model 1
+  task RUN_COMPLETE_LOCAL_SOURCE_DOGFOOD
+  kind finish
+  occurred_at 2026-08-14T19:52:27+09:00
+  effort 0.0941666667ph

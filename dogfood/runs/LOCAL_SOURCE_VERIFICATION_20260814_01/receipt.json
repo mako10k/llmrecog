@@ -1,0 +1,624 @@
+{
+  "schema": "Llmrecog.Internal.DogfoodRunReceipt.v1",
+  "run_id": "LOCAL_SOURCE_VERIFICATION_20260814_01",
+  "round_id": "local_source_verification_v14",
+  "started_at": "2026-08-14T10:48:41+00:00",
+  "finished_at": "2026-08-14T10:48:51+00:00",
+  "tool": {
+    "repository_revision": "6a0bfd22cecd86e925e543b2877dc9bd52d7ad8f",
+    "semantic_version": "0.1",
+    "node_version": "v25.1.0",
+    "platform": "linux-x64",
+    "working_directory": "."
+  },
+  "protocol": {
+    "path": "dogfood/protocol-v14/protocol.json",
+    "digest": "sha256:5ca75eaa30a0a9be71f4e9fa9f297a97e2ed65125a32a95b4c17003601099ad3"
+  },
+  "question_results": [
+    {
+      "question_id": "DGF-SOURCE-006",
+      "status": "answered",
+      "summary": "Strict decoding and Unicode-scalar selection preserved exact bytes and text boundaries without normalization.",
+      "evidence": [
+        "LOCAL_SELECTOR_VERIFIED_JSON verified the non-BMP emoji selector and a cross-line selector with exact quote digests; its text projection also exited 0.",
+        "LOCAL_INVALID_UTF8_JSON and LOCAL_BARE_CR_JSON returned RCG-VERIFY-009 and RCG-VERIFY-010 with status 4, while LOCAL_BOM_JSON and LOCAL_CRLF_JSON verified their exact BOM-content and CRLF-spanning quote digests with status 0."
+      ]
+    },
+    {
+      "question_id": "DGF-SOURCE-007",
+      "status": "answered",
+      "summary": "Range mismatch, quote mismatch, and missing source identity remained independent typed outcomes.",
+      "evidence": [
+        "LOCAL_RANGE_MISMATCH_JSON returned RCG-VERIFY-011 with digest verified, range mismatch, quote not_checked, and status 4; LOCAL_QUOTE_MISMATCH_JSON returned RCG-VERIFY-012 with digest and range verified, quote mismatch, and status 4.",
+        "LOCAL_UNSEALED_JSON verified its selector and quote but retained digest not_declared, source unverified, RCG-VERIFY-007, and status 4."
+      ]
+    },
+    {
+      "question_id": "DGF-SOURCE-008",
+      "status": "answered",
+      "summary": "The byte limit and previously dogfooded rooted-path prerequisites failed closed before unsupported hashing or selector claims.",
+      "evidence": [
+        "LOCAL_SIZE_LIMIT_JSON returned RCG-VERIFY-006 with source unavailable, actual digest null, every span field not_checked, and status 4.",
+        "The protocol-bound LOCAL_PATH_DIGEST_20260814_01 receipt records missing, root-escape, symlink, and non-regular cases with actual digest null and status 4; the complete verifier retained the same resolver and adapter boundary."
+      ]
+    },
+    {
+      "question_id": "DGF-SOURCE-009",
+      "status": "answered",
+      "summary": "Mixed-source verification stayed declaration-ordered and evaluated every source before truncating the emitted diagnostic prefix.",
+      "evidence": [
+        "LOCAL_MIXED_ORDER_JSON reports FIRST then SECOND: FIRST has digest mismatch, while SECOND has digest verified and its SECOND_SPAN quote mismatch, proving both sources were evaluated.",
+        "With --max-diagnostics 1 the result emitted only RCG-VERIFY-008, complete false, truncated true, and status 1; both repetitions had identical exit status, stdout digest, and empty stderr digest."
+      ]
+    },
+    {
+      "question_id": "DGF-SOURCE-010",
+      "status": "answered",
+      "summary": "Complete-verifier use exposed one incorrect frozen fixture digest, but no producer-contract change or point increase.",
+      "evidence": [
+        "The range-mismatch fixture had recorded a non-SHA-256 value for the one-byte quote x; independent hashing and the implementation both produced sha256:2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881.",
+        "The fixture was corrected before protocol v14 was frozen and executed; all v14 product-boundary cases then passed without starting producer, provider, network, release, or related-repository work."
+      ]
+    }
+  ],
+  "artifact": {
+    "path": "dogfood/runs/LOCAL_SOURCE_VERIFICATION_20260814_01/input.recog",
+    "digest": "sha256:9677e62e418bcf732c8e3d00b0ac330a49c1bf5619a2801afe2e3de244de5a55"
+  },
+  "executions": [
+    {
+      "case_id": "LOCAL_SELECTOR_VERIFIED_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "src/adapters/internal-cli.ts",
+        "document",
+        "validate",
+        "dogfood/runs/LOCAL_SOURCE_VERIFICATION_20260814_01/input.recog",
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        "dogfood/runs/LOCAL_SOURCE_VERIFICATION_20260814_01",
+        "--max-source-bytes",
+        "1048576",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:d8407b086d522ff61c4ee6abfd998cc5ba002362cb2fa6df5ce98fe5ca332567",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "LOCAL_SELECTOR_VERIFIED_TEXT",
+      "repeat_index": 1,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "src/adapters/internal-cli.ts",
+        "document",
+        "validate",
+        "dogfood/runs/LOCAL_SOURCE_VERIFICATION_20260814_01/input.recog",
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        "dogfood/runs/LOCAL_SOURCE_VERIFICATION_20260814_01",
+        "--max-source-bytes",
+        "1048576",
+        "--format",
+        "text"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:f3e92d237675c480cfeff4a51ffc5dc4702c1f4a6fafcfa3b1c6335fa632f944",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "LOCAL_RANGE_MISMATCH_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "src/adapters/internal-cli.ts",
+        "document",
+        "validate",
+        "dogfood/runs/LOCAL_SOURCE_VERIFICATION_20260814_01/range/input.recog",
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        "dogfood/runs/LOCAL_SOURCE_VERIFICATION_20260814_01/range",
+        "--max-source-bytes",
+        "1048576",
+        "--format",
+        "json"
+      ],
+      "exit_status": 4,
+      "stdout_digest": "sha256:a7f260116214d2d44497e1b841c27a02b8adc8344c56aa04296fd43489b45538",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "LOCAL_QUOTE_MISMATCH_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "src/adapters/internal-cli.ts",
+        "document",
+        "validate",
+        "dogfood/runs/LOCAL_SOURCE_VERIFICATION_20260814_01/quote/input.recog",
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        "dogfood/runs/LOCAL_SOURCE_VERIFICATION_20260814_01/quote",
+        "--max-source-bytes",
+        "1048576",
+        "--format",
+        "json"
+      ],
+      "exit_status": 4,
+      "stdout_digest": "sha256:fd40c2cb75c0de7df47f89661b589efb53f8022bf161f0d064ad296d89d83da5",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "LOCAL_UNSEALED_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "src/adapters/internal-cli.ts",
+        "document",
+        "validate",
+        "dogfood/runs/LOCAL_SOURCE_VERIFICATION_20260814_01/unsealed/input.recog",
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        "dogfood/runs/LOCAL_SOURCE_VERIFICATION_20260814_01/unsealed",
+        "--max-source-bytes",
+        "1048576",
+        "--format",
+        "json"
+      ],
+      "exit_status": 4,
+      "stdout_digest": "sha256:7405857eb3572ce41ff48bcd1fc72b8376e80a26e11e480e86e6973cd5593470",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "LOCAL_INVALID_UTF8_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "src/adapters/internal-cli.ts",
+        "document",
+        "validate",
+        "/tmp/llmrecog-local-source-v14.4BF1ER/invalid_utf8/document.recog",
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        "/tmp/llmrecog-local-source-v14.4BF1ER/invalid_utf8",
+        "--max-source-bytes",
+        "1048576",
+        "--format",
+        "json"
+      ],
+      "exit_status": 4,
+      "stdout_digest": "sha256:bb0c9c66bf3d06cab6bb463a0154f936b7b7d91880669ab443e00e3723533570",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "LOCAL_BARE_CR_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "src/adapters/internal-cli.ts",
+        "document",
+        "validate",
+        "/tmp/llmrecog-local-source-v14.4BF1ER/bare_cr/document.recog",
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        "/tmp/llmrecog-local-source-v14.4BF1ER/bare_cr",
+        "--max-source-bytes",
+        "1048576",
+        "--format",
+        "json"
+      ],
+      "exit_status": 4,
+      "stdout_digest": "sha256:ff6f8a5924eb24b70ed9eb72a4bcbc06e498d271983b36f77a2b4313e6145971",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "LOCAL_BOM_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "src/adapters/internal-cli.ts",
+        "document",
+        "validate",
+        "/tmp/llmrecog-local-source-v14.4BF1ER/bom/document.recog",
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        "/tmp/llmrecog-local-source-v14.4BF1ER/bom",
+        "--max-source-bytes",
+        "1048576",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:bbe35a684471daff12b439f87787d9bee4795db86b1e7a7e0039f7ef4879b1d6",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "LOCAL_CRLF_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "src/adapters/internal-cli.ts",
+        "document",
+        "validate",
+        "/tmp/llmrecog-local-source-v14.4BF1ER/crlf/document.recog",
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        "/tmp/llmrecog-local-source-v14.4BF1ER/crlf",
+        "--max-source-bytes",
+        "1048576",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:a12e77e657dce1d5b881bf850ea8f174f5335b5dea5a08c85075d59594c250b2",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "LOCAL_SIZE_LIMIT_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "src/adapters/internal-cli.ts",
+        "document",
+        "validate",
+        "dogfood/runs/LOCAL_SOURCE_VERIFICATION_20260814_01/input.recog",
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        "dogfood/runs/LOCAL_SOURCE_VERIFICATION_20260814_01",
+        "--max-source-bytes",
+        "1",
+        "--format",
+        "json"
+      ],
+      "exit_status": 4,
+      "stdout_digest": "sha256:0154b93d46e8fdaf7ad4e8b1ab98ff4bb5fd7c5f5e0561606b77f5b9ab390561",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "LOCAL_MIXED_ORDER_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "src/adapters/internal-cli.ts",
+        "document",
+        "validate",
+        "/tmp/llmrecog-local-source-v14.4BF1ER/mixed/document.recog",
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        "/tmp/llmrecog-local-source-v14.4BF1ER/mixed",
+        "--max-source-bytes",
+        "1048576",
+        "--max-diagnostics",
+        "1",
+        "--format",
+        "json"
+      ],
+      "exit_status": 1,
+      "stdout_digest": "sha256:454455e72a7a08f553c7a8a728ffa6a2c6754cbbde3eea239217de88195cb8d8",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "LOCAL_SELECTOR_VERIFIED_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "src/adapters/internal-cli.ts",
+        "document",
+        "validate",
+        "dogfood/runs/LOCAL_SOURCE_VERIFICATION_20260814_01/input.recog",
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        "dogfood/runs/LOCAL_SOURCE_VERIFICATION_20260814_01",
+        "--max-source-bytes",
+        "1048576",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:d8407b086d522ff61c4ee6abfd998cc5ba002362cb2fa6df5ce98fe5ca332567",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "LOCAL_SELECTOR_VERIFIED_TEXT",
+      "repeat_index": 2,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "src/adapters/internal-cli.ts",
+        "document",
+        "validate",
+        "dogfood/runs/LOCAL_SOURCE_VERIFICATION_20260814_01/input.recog",
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        "dogfood/runs/LOCAL_SOURCE_VERIFICATION_20260814_01",
+        "--max-source-bytes",
+        "1048576",
+        "--format",
+        "text"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:f3e92d237675c480cfeff4a51ffc5dc4702c1f4a6fafcfa3b1c6335fa632f944",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "LOCAL_RANGE_MISMATCH_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "src/adapters/internal-cli.ts",
+        "document",
+        "validate",
+        "dogfood/runs/LOCAL_SOURCE_VERIFICATION_20260814_01/range/input.recog",
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        "dogfood/runs/LOCAL_SOURCE_VERIFICATION_20260814_01/range",
+        "--max-source-bytes",
+        "1048576",
+        "--format",
+        "json"
+      ],
+      "exit_status": 4,
+      "stdout_digest": "sha256:a7f260116214d2d44497e1b841c27a02b8adc8344c56aa04296fd43489b45538",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "LOCAL_QUOTE_MISMATCH_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "src/adapters/internal-cli.ts",
+        "document",
+        "validate",
+        "dogfood/runs/LOCAL_SOURCE_VERIFICATION_20260814_01/quote/input.recog",
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        "dogfood/runs/LOCAL_SOURCE_VERIFICATION_20260814_01/quote",
+        "--max-source-bytes",
+        "1048576",
+        "--format",
+        "json"
+      ],
+      "exit_status": 4,
+      "stdout_digest": "sha256:fd40c2cb75c0de7df47f89661b589efb53f8022bf161f0d064ad296d89d83da5",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "LOCAL_UNSEALED_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "src/adapters/internal-cli.ts",
+        "document",
+        "validate",
+        "dogfood/runs/LOCAL_SOURCE_VERIFICATION_20260814_01/unsealed/input.recog",
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        "dogfood/runs/LOCAL_SOURCE_VERIFICATION_20260814_01/unsealed",
+        "--max-source-bytes",
+        "1048576",
+        "--format",
+        "json"
+      ],
+      "exit_status": 4,
+      "stdout_digest": "sha256:7405857eb3572ce41ff48bcd1fc72b8376e80a26e11e480e86e6973cd5593470",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "LOCAL_INVALID_UTF8_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "src/adapters/internal-cli.ts",
+        "document",
+        "validate",
+        "/tmp/llmrecog-local-source-v14.4BF1ER/invalid_utf8/document.recog",
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        "/tmp/llmrecog-local-source-v14.4BF1ER/invalid_utf8",
+        "--max-source-bytes",
+        "1048576",
+        "--format",
+        "json"
+      ],
+      "exit_status": 4,
+      "stdout_digest": "sha256:bb0c9c66bf3d06cab6bb463a0154f936b7b7d91880669ab443e00e3723533570",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "LOCAL_BARE_CR_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "src/adapters/internal-cli.ts",
+        "document",
+        "validate",
+        "/tmp/llmrecog-local-source-v14.4BF1ER/bare_cr/document.recog",
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        "/tmp/llmrecog-local-source-v14.4BF1ER/bare_cr",
+        "--max-source-bytes",
+        "1048576",
+        "--format",
+        "json"
+      ],
+      "exit_status": 4,
+      "stdout_digest": "sha256:ff6f8a5924eb24b70ed9eb72a4bcbc06e498d271983b36f77a2b4313e6145971",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "LOCAL_BOM_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "src/adapters/internal-cli.ts",
+        "document",
+        "validate",
+        "/tmp/llmrecog-local-source-v14.4BF1ER/bom/document.recog",
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        "/tmp/llmrecog-local-source-v14.4BF1ER/bom",
+        "--max-source-bytes",
+        "1048576",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:bbe35a684471daff12b439f87787d9bee4795db86b1e7a7e0039f7ef4879b1d6",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "LOCAL_CRLF_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "src/adapters/internal-cli.ts",
+        "document",
+        "validate",
+        "/tmp/llmrecog-local-source-v14.4BF1ER/crlf/document.recog",
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        "/tmp/llmrecog-local-source-v14.4BF1ER/crlf",
+        "--max-source-bytes",
+        "1048576",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:a12e77e657dce1d5b881bf850ea8f174f5335b5dea5a08c85075d59594c250b2",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "LOCAL_SIZE_LIMIT_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "src/adapters/internal-cli.ts",
+        "document",
+        "validate",
+        "dogfood/runs/LOCAL_SOURCE_VERIFICATION_20260814_01/input.recog",
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        "dogfood/runs/LOCAL_SOURCE_VERIFICATION_20260814_01",
+        "--max-source-bytes",
+        "1",
+        "--format",
+        "json"
+      ],
+      "exit_status": 4,
+      "stdout_digest": "sha256:0154b93d46e8fdaf7ad4e8b1ab98ff4bb5fd7c5f5e0561606b77f5b9ab390561",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "LOCAL_MIXED_ORDER_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "src/adapters/internal-cli.ts",
+        "document",
+        "validate",
+        "/tmp/llmrecog-local-source-v14.4BF1ER/mixed/document.recog",
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        "/tmp/llmrecog-local-source-v14.4BF1ER/mixed",
+        "--max-source-bytes",
+        "1048576",
+        "--max-diagnostics",
+        "1",
+        "--format",
+        "json"
+      ],
+      "exit_status": 1,
+      "stdout_digest": "sha256:454455e72a7a08f553c7a8a728ffa6a2c6754cbbde3eea239217de88195cb8d8",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "outcome": "completed",
+  "complete": true,
+  "truncated": false,
+  "observations": [
+    {
+      "id": "OBS-SOURCE-002",
+      "category": "documentation",
+      "summary": "A frozen range-mismatch fixture carried an incorrect expected SHA-256 for the quote x.",
+      "evidence": "The previous fixture value ended in da7e5fb3c15b607fc62f03c3bf60aefe, while hashing the exact UTF-8 byte 0x78 produced 2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881 and matched the verifier result.",
+      "reproduction_steps": [
+        "Read the pre-correction local_range_mismatch expected quote digest from commit c46b406.",
+        "Hash the exact UTF-8 bytes for x with SHA-256.",
+        "Compare the result with the corrected source-verification cases artifact bound by protocol v14."
+      ],
+      "proposed_action": "Accept the exact fixture correction and retain hash-integrity assertions for expected quote digests; no public semantic or producer contract change is required.",
+      "affected_contracts": [
+        "test/fixtures/contracts/v0.1/source-verification/cases.json"
+      ],
+      "point_impact": 0
+    }
+  ]
+}

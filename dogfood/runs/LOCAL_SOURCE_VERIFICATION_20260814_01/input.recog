@@ -1,0 +1,25 @@
+llmrecog 0.1
+
+document LOCAL_VERIFY:
+  title "Local source verification fixture"
+
+source SRC:
+  kind text
+  locator "source.txt"
+  digest "sha256:a7198b769d5ab02b693471bc4884128910132afd6e3ea48bfa058472f8a69b4b"
+
+span S_EMOJI:
+  source SRC
+  range 1:7..1:8
+  quote "😀"
+
+span S_LINES:
+  source SRC
+  range 1:1..2:7
+  quote "Alpha 😀 beta\nSecond"
+
+entity E_MARKER:
+  type marker
+  label "emoji marker"
+  grounded_in [S_EMOJI, S_LINES]
+  support explicit

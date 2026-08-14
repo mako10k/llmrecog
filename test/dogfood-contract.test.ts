@@ -41,6 +41,8 @@ const boundedSpaceReplayReceiptPath =
   "dogfood/runs/BOUNDED_SPACE_VIEWS_20260814_02/receipt.json";
 const localPathDigestReceiptPath =
   "dogfood/runs/LOCAL_PATH_DIGEST_20260814_01/receipt.json";
+const localSourceVerificationReceiptPath =
+  "dogfood/runs/LOCAL_SOURCE_VERIFICATION_20260814_01/receipt.json";
 const feedbackExamplePath =
   "dogfood/protocol-v1/examples/feedback.example.json";
 const grammarFeedbackPath =
@@ -460,7 +462,7 @@ test("the active dogfood protocol freezes corpus, questions, commands, and gates
   );
   assert.equal(
     sha256(activeProtocolPath),
-    "sha256:ed7be4fd98f5701dd303ba49a01a20bf0b07d32ba387157a83a5c8e61e7910ea",
+    "sha256:5ca75eaa30a0a9be71f4e9fa9f297a97e2ed65125a32a95b4c17003601099ad3",
   );
   assert.equal(activeProtocol.schema, "Llmrecog.Internal.DogfoodProtocol.v1");
   assert.equal(activeProtocol.protocol_version, 14);
@@ -558,6 +560,9 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
     boundedSpaceReplayReceiptPath,
   );
   const localPathDigestRun = readJson<RunExample>(localPathDigestReceiptPath);
+  const localSourceVerificationRun = readJson<RunExample>(
+    localSourceVerificationReceiptPath,
+  );
   const feedbackExample = readJson<FeedbackExample>(feedbackExamplePath);
   const grammarFeedback = readJson<FeedbackExample>(grammarFeedbackPath);
   const specificationFeedback = readJson<FeedbackExample>(
@@ -643,6 +648,11 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   );
   assert.equal(
     validateRun(localPathDigestRun),
+    true,
+    JSON.stringify(validateRun.errors, null, 2),
+  );
+  assert.equal(
+    validateRun(localSourceVerificationRun),
     true,
     JSON.stringify(validateRun.errors, null, 2),
   );
@@ -829,6 +839,23 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
     localPathDigestFeedback,
     localPathDigestReceiptPath,
     localPathDigestRun,
+  );
+  assert.equal(
+    localSourceVerificationRun.run_id,
+    "LOCAL_SOURCE_VERIFICATION_20260814_01",
+  );
+  assert(
+    localSourceVerificationRun.question_results.every(
+      (result) => result.status === "answered",
+    ),
+  );
+  assert.equal(localSourceVerificationRun.outcome, "completed");
+  assert.equal(localSourceVerificationRun.complete, true);
+  assert.equal(localSourceVerificationRun.truncated, false);
+  assertRunBindings(
+    localSourceVerificationRun,
+    activeProtocol,
+    activeProtocolPath,
   );
 
   assert(feedbackExample.feedback_id.startsWith("EXAMPLE_"));
