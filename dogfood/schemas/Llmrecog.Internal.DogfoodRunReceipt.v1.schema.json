@@ -30,7 +30,11 @@
         "specification_authoring_v1",
         "ambiguity_explain_v2",
         "exclusion_explain_v2",
-        "exclusion_explain_v3"
+        "exclusion_explain_v3",
+        "relational_constraints_v4",
+        "bounded_space_views_v4",
+        "relational_constraints_v5",
+        "bounded_space_views_v5"
       ]
     },
     "started_at": { "type": "string", "format": "date-time" },
@@ -65,7 +69,9 @@
           "enum": [
             "dogfood/protocol-v1/protocol.json",
             "dogfood/protocol-v2/protocol.json",
-            "dogfood/protocol-v3/protocol.json"
+            "dogfood/protocol-v3/protocol.json",
+            "dogfood/protocol-v4/protocol.json",
+            "dogfood/protocol-v5/protocol.json"
           ]
         },
         "digest": { "$ref": "#/$defs/sha256" }

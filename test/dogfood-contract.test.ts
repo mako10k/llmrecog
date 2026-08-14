@@ -22,6 +22,8 @@ const ambiguityRunReceiptPath =
   "dogfood/runs/AMBIGUITY_EXPLAIN_20260814_01/receipt.json";
 const exclusionRunReceiptPath =
   "dogfood/runs/EXCLUSION_CONFLICT_20260814_01/receipt.json";
+const relationalRunReceiptPath =
+  "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_01/receipt.json";
 const feedbackExamplePath =
   "dogfood/protocol-v1/examples/feedback.example.json";
 const grammarFeedbackPath =
@@ -420,6 +422,7 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   const specificationRun = readJson<RunExample>(specificationRunReceiptPath);
   const ambiguityRun = readJson<RunExample>(ambiguityRunReceiptPath);
   const exclusionRun = readJson<RunExample>(exclusionRunReceiptPath);
+  const relationalRun = readJson<RunExample>(relationalRunReceiptPath);
   const feedbackExample = readJson<FeedbackExample>(feedbackExamplePath);
   const grammarFeedback = readJson<FeedbackExample>(grammarFeedbackPath);
   const specificationFeedback = readJson<FeedbackExample>(
@@ -454,6 +457,11 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   );
   assert.equal(
     validateRun(exclusionRun),
+    true,
+    JSON.stringify(validateRun.errors, null, 2),
+  );
+  assert.equal(
+    validateRun(relationalRun),
     true,
     JSON.stringify(validateRun.errors, null, 2),
   );
@@ -530,6 +538,17 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   assert.equal(exclusionRun.truncated, false);
   const phase3ProtocolV3 = readJson<DogfoodProtocol>(phase3ProtocolV3Path);
   assertRunBindings(exclusionRun, phase3ProtocolV3, phase3ProtocolV3Path);
+  assert.equal(relationalRun.run_id, "RELATIONAL_CONSTRAINTS_20260814_01");
+  assert(
+    relationalRun.question_results.some(
+      (result) => result.status === "blocked",
+    ),
+  );
+  assert.notEqual(relationalRun.tool.repository_revision, "0".repeat(40));
+  assert.equal(relationalRun.outcome, "blocked");
+  assert.equal(relationalRun.complete, false);
+  assert.equal(relationalRun.truncated, false);
+  assertRunBindings(relationalRun, activeProtocol, activeProtocolPath);
 
   assert(feedbackExample.feedback_id.startsWith("EXAMPLE_"));
   assertFeedbackBindings(feedbackExample, runExamplePath, runExample);

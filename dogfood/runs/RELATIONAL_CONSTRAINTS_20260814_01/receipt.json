@@ -1,0 +1,461 @@
+{
+  "schema": "Llmrecog.Internal.DogfoodRunReceipt.v1",
+  "run_id": "RELATIONAL_CONSTRAINTS_20260814_01",
+  "round_id": "relational_constraints_v5",
+  "started_at": "2026-08-14T08:20:09Z",
+  "finished_at": "2026-08-14T08:20:13Z",
+  "tool": {
+    "repository_revision": "b3e25346939884409558a7eeb5dc7c82d7528c8e",
+    "semantic_version": "0.1",
+    "node_version": "v25.1.0",
+    "platform": "linux-x64",
+    "working_directory": "."
+  },
+  "protocol": {
+    "path": "dogfood/protocol-v5/protocol.json",
+    "digest": "sha256:29c91b743677a0c14ad65e41a40a27ec942063d12d1c31987e5b9cc8971613b9"
+  },
+  "question_results": [
+    {
+      "question_id": "DGF-CORE-001",
+      "status": "answered",
+      "summary": "C_REQ_ON remains positively source-supported but is excluded because K_REQ_MODE_ONE_OF leaves only C_REQ_SAFE and grounded K_REQ_ON_REQUIRES_FAST therefore cannot satisfy its C_REQ_FAST consequent.",
+      "evidence": [
+        "REQUIRES_EXPLAIN_JSON reports support supported, viability excluded, effective scope V_REQ_TRIGGER,V_REQ_MODE, and the ordered RCG-RSN-201/203/206 chain.",
+        "RCG-RSN-203 names antecedent C_REQ_ON, consequent C_REQ_FAST, and K_REQ_ON_REQUIRES_FAST; the result does not select the missing consequent or reverse the implication."
+      ]
+    },
+    {
+      "question_id": "DGF-CORE-002",
+      "status": "blocked",
+      "summary": "The run proves equality across different candidate IDs and preserves an open operand as unknown, but protocol v5 has no command case that can expose the required RCG-RSN-204 evidence for a known typed mismatch.",
+      "evidence": [
+        "SAME_AS_EXPLAIN_JSON reports an allowed witness pairing C_SAME_LEFT_RED and C_SAME_RIGHT_RED, whose distinct IDs carry the same symbol value red.",
+        "OPEN_RELATIONAL_EXPLAIN_JSON reports viability and variable resolution unknown with RCG-RSN-001 and no derivations, but no bound v5 execution targets C_SAME_RIGHT_BLUE to expose RCG-RSN-204."
+      ]
+    },
+    {
+      "question_id": "DGF-CORE-003",
+      "status": "answered",
+      "summary": "The two known symbol red assignments violate grounded K_VALUES_DISTINCT and exclude C_DISTINCT_LEFT_RED through a deterministic RCG-RSN-201/205/206 chain.",
+      "evidence": [
+        "DISTINCT_FROM_EXPLAIN_JSON reports C_DISTINCT_LEFT_RED and C_DISTINCT_RIGHT_RED as the RCG-RSN-205 inputs with K_VALUES_DISTINCT.",
+        "The result retains all three effective constraint IDs, explicit grounding through S_SEM_RELATIONAL and S_ADR_ASSIGNMENTS, and an inconsistent variable resolution without treating absence of same_as as evidence."
+      ]
+    },
+    {
+      "question_id": "DGF-CORE-004",
+      "status": "answered",
+      "summary": "The allowed C_NAV_SAFE target proves only the C_NAV_OFF plus C_NAV_SAFE witness; it does not expose the blocked C_NAV_ON plus C_NAV_SAFE alternative, so target-specific explain alone does not answer the compound navigation question.",
+      "evidence": [
+        "COMPOUND_TARGET_EXPLAIN_JSON reports viability allowed, RCG-RSN-101, all three relevant constraints, and the joint C_NAV_OFF plus C_NAV_SAFE witness in both byte-identical repetitions.",
+        "No RCG-RSN-203 for the blocked C_NAV_ON branch is projected; the responsibility-preserving candidate is the later bounded read-only query slice or explicit multi-target navigation, not widening every allowed-candidate reason chain."
+      ]
+    },
+    {
+      "question_id": "DGF-CORE-005",
+      "status": "answered",
+      "summary": "Each allowed relational candidate inspected by the protocol has one complete joint witness over its effective solver scope rather than a combination of individually viable values.",
+      "evidence": [
+        "SAME_AS_EXPLAIN_JSON reports V_SAME_LEFT=C_SAME_LEFT_RED and V_SAME_RIGHT=C_SAME_RIGHT_RED with K_SAME_LEFT_ONE_OF, K_SAME_RIGHT_ONE_OF, and K_VALUES_SAME relevant.",
+        "COMPOUND_TARGET_EXPLAIN_JSON reports V_NAV_STATE=C_NAV_OFF and V_NAV_MODE=C_NAV_SAFE with K_NAV_STATE_ONE_OF, K_NAV_MODE_ONE_OF, and K_NAV_ON_REQUIRES_FAST relevant; both results are complete and non-truncated."
+      ]
+    }
+  ],
+  "artifact": {
+    "path": "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_01/input.recog",
+    "digest": "sha256:d8b381579eec35f375327b14df589eecd4bfe73c710b46a713a65b50c678363e"
+  },
+  "executions": [
+    {
+      "case_id": "DOCUMENT_VALIDATE_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "document",
+        "validate",
+        "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_01/input.recog",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:d1ec94e98e9482fd9e8371f00727674e5cba6bf5f6461291aa64576b392cb446",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "REQUIRES_EXPLAIN_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_REQ_ON",
+        "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_01/input.recog",
+        "--scope",
+        "V_REQ_TRIGGER",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:84b961a605514c5bbd5e0dc5dc6c6879c97b308488f1b0abaf48535c6a1e821e",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "REQUIRES_EXPLAIN_TEXT",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_REQ_ON",
+        "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_01/input.recog",
+        "--scope",
+        "V_REQ_TRIGGER",
+        "--format",
+        "text"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:951bb40b908533c5cc411eb3ec1b02be67965840f2ff5f22b940d863f60a5da3",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "SAME_AS_EXPLAIN_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_SAME_LEFT_RED",
+        "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_01/input.recog",
+        "--scope",
+        "V_SAME_LEFT",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:280e4479007e7fde29c17e1a9704784ab50d9d3dfbd3102f1dcca5a736325c55",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "DISTINCT_FROM_EXPLAIN_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_DISTINCT_LEFT_RED",
+        "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_01/input.recog",
+        "--scope",
+        "V_DISTINCT_LEFT",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:e024780d815b9826a059302979f1b13d08ec4c18dc1a09f7aca84e340eec8c0a",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "OPEN_RELATIONAL_EXPLAIN_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_OPEN_LEFT_RED",
+        "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_01/input.recog",
+        "--scope",
+        "V_OPEN_LEFT",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:c5ad20afea18e3e2706eed34bd8a305d629d36da804094defa2b89ddde42efd3",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "COMPOUND_TARGET_EXPLAIN_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_NAV_SAFE",
+        "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_01/input.recog",
+        "--limit",
+        "100",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:bafd2e249b81cf5d0047d7c87e14fd403a2b741ee954f2ec26c4b148407731d5",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "DOCUMENT_AUDIT_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "document",
+        "audit",
+        "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_01/input.recog",
+        "--profile",
+        "base",
+        "--fail-on",
+        "error",
+        "--format",
+        "json"
+      ],
+      "exit_status": 1,
+      "stdout_digest": "sha256:64e5a23b9bc4e2597a79041a6d18ce8c86cb6c84d44578457b27738fbc2cc329",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "DOCUMENT_VALIDATE_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "document",
+        "validate",
+        "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_01/input.recog",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:d1ec94e98e9482fd9e8371f00727674e5cba6bf5f6461291aa64576b392cb446",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "REQUIRES_EXPLAIN_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_REQ_ON",
+        "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_01/input.recog",
+        "--scope",
+        "V_REQ_TRIGGER",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:84b961a605514c5bbd5e0dc5dc6c6879c97b308488f1b0abaf48535c6a1e821e",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "REQUIRES_EXPLAIN_TEXT",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_REQ_ON",
+        "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_01/input.recog",
+        "--scope",
+        "V_REQ_TRIGGER",
+        "--format",
+        "text"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:951bb40b908533c5cc411eb3ec1b02be67965840f2ff5f22b940d863f60a5da3",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "SAME_AS_EXPLAIN_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_SAME_LEFT_RED",
+        "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_01/input.recog",
+        "--scope",
+        "V_SAME_LEFT",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:280e4479007e7fde29c17e1a9704784ab50d9d3dfbd3102f1dcca5a736325c55",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "DISTINCT_FROM_EXPLAIN_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_DISTINCT_LEFT_RED",
+        "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_01/input.recog",
+        "--scope",
+        "V_DISTINCT_LEFT",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:e024780d815b9826a059302979f1b13d08ec4c18dc1a09f7aca84e340eec8c0a",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "OPEN_RELATIONAL_EXPLAIN_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_OPEN_LEFT_RED",
+        "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_01/input.recog",
+        "--scope",
+        "V_OPEN_LEFT",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:c5ad20afea18e3e2706eed34bd8a305d629d36da804094defa2b89ddde42efd3",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "COMPOUND_TARGET_EXPLAIN_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_NAV_SAFE",
+        "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_01/input.recog",
+        "--limit",
+        "100",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:bafd2e249b81cf5d0047d7c87e14fd403a2b741ee954f2ec26c4b148407731d5",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "DOCUMENT_AUDIT_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "document",
+        "audit",
+        "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_01/input.recog",
+        "--profile",
+        "base",
+        "--fail-on",
+        "error",
+        "--format",
+        "json"
+      ],
+      "exit_status": 1,
+      "stdout_digest": "sha256:64e5a23b9bc4e2597a79041a6d18ce8c86cb6c84d44578457b27738fbc2cc329",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "outcome": "blocked",
+  "complete": false,
+  "truncated": false,
+  "observations": [
+    {
+      "id": "OBS-CORE-001",
+      "category": "documentation",
+      "summary": "Protocol v5 requires RCG-RSN-204 evidence for DGF-CORE-002 but its bound command cases cannot target the known mismatching candidate while also retaining the required scope binding.",
+      "evidence": "SAME_AS_EXPLAIN_JSON is bound to --scope V_SAME_LEFT and was used to prove the equal-red witness, while C_SAME_RIGHT_BLUE requires V_SAME_RIGHT in the requested scope; no other relational_constraints_v5 command case obtains the known-mismatch reason.",
+      "reproduction_steps": [
+        "Run SAME_AS_EXPLAIN_JSON exactly as bound in this receipt and observe the allowed red/red witness with only RCG-RSN-101.",
+        "Run OPEN_RELATIONAL_EXPLAIN_JSON and observe RCG-RSN-001 without RCG-RSN-204.",
+        "Compare the available relational_constraints_v5 command cases with DGF-CORE-002 required_evidence."
+      ],
+      "proposed_action": "Create a new immutable protocol version with a repeated known-mismatch explain case using the complete required scope, then rerun the relational round under a new run ID before marking the dogfood task done.",
+      "affected_contracts": [
+        "dogfood/protocol-v5/protocol.json",
+        "Llmrecog.Internal.DogfoodRunReceipt.v1"
+      ],
+      "point_impact": 1
+    },
+    {
+      "id": "OBS-CORE-002",
+      "category": "diagnostics_presentation",
+      "summary": "The compound allowed C_NAV_SAFE explanation still omits the blocked C_NAV_ON alternative, confirming that one target-specific result cannot answer the allowed-plus-forbidden navigation question.",
+      "evidence": "COMPOUND_TARGET_EXPLAIN_JSON includes K_NAV_ON_REQUIRES_FAST as relevant and proves C_NAV_OFF plus C_NAV_SAFE through RCG-RSN-101, but it has no RCG-RSN-203 derivation for C_NAV_ON plus C_NAV_SAFE.",
+      "reproduction_steps": [
+        "Run COMPOUND_TARGET_EXPLAIN_JSON from this receipt.",
+        "Inspect the complete joint witness and relevant_constraint_ids.",
+        "Observe that the blocked alternative is not present in derivations despite the requires constraint being relevant."
+      ],
+      "proposed_action": "Use the already reserved feedback point to decide whether the next bounded query result supplies composed navigation, explicit target links are needed, or target factoring remains acceptable; do not widen ExplainResult v2 without an ADR.",
+      "affected_contracts": [
+        "Llmrecog.ExplainResult.v2",
+        "Llmrecog.QueryResult.v1",
+        "docs/provenance-and-explainability.md",
+        "docs/cli-contract.md"
+      ],
+      "point_impact": 0
+    },
+    {
+      "id": "OBS-CORE-003",
+      "category": "implementation",
+      "summary": "The internal receipt schema had not been extended beyond protocol v3, so a protocol-v5 receipt could not be validated until its closed round and protocol-path enums were updated.",
+      "evidence": "Before this run was recorded, Llmrecog.Internal.DogfoodRunReceipt.v1 accepted only grammar_authoring_v1 through exclusion_explain_v3 and protocol-v1 through protocol-v3.",
+      "reproduction_steps": [
+        "Inspect the pre-run receipt schema at repository revision b3e25346939884409558a7eeb5dc7c82d7528c8e.",
+        "Attempt to validate a receipt bound to relational_constraints_v5 and dogfood/protocol-v5/protocol.json.",
+        "Observe the round_id and protocol.path enum failures."
+      ],
+      "proposed_action": "Retain the additive v4/v5 enum coverage and the real blocked-receipt schema regression in the dogfood contract test.",
+      "affected_contracts": [
+        "Llmrecog.Internal.DogfoodRunReceipt.v1",
+        "test/dogfood-contract.test.ts"
+      ],
+      "point_impact": 0
+    }
+  ]
+}

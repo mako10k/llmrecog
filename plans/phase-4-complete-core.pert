@@ -88,6 +88,7 @@ task RUN_RELATIONAL_CONSTRAINT_DOGFOOD RELATIONAL_CONSTRAINTS_ACCEPTED -> RELATI
   description |
     Use protocol v5 to author and inspect actual repository-derived recognition artifacts with implication chains, equality aliases, inequality collisions, multi-variable joint witnesses, open operands, and conflicts. Re-run every command byte-deterministically and capture immutable receipts and feedback. Explicitly retry the compound allowed-plus-forbidden question from OBS-EXPLAIN-005 using current target-specific explain routes, without pre-deciding that a wider query or navigation result is required.
   duration 3p
+  status done
   priority 70
   requires:
     IMPLEMENTER 1
@@ -95,9 +96,8 @@ task RUN_RELATIONAL_CONSTRAINT_DOGFOOD RELATIONAL_CONSTRAINTS_ACCEPTED -> RELATI
 
 task APPLY_RELATIONAL_DOGFOOD_FEEDBACK RELATIONAL_DOGFOOD_OBSERVED -> RELATIONAL_DOGFOOD_REVIEWED:
   title "Disposition relational feedback before query and materialization"
-  description |
-    Classify every first-round observation, preserve unknowns, and update an ADR before any accepted semantic or result-contract change. Spend the reserved 1p evaluating whether the compound question needs a composed bounded query, navigation links, or no contract change. Revise the remaining point estimates, query/materialization fixtures, and protocol command cases before either space route is implemented.
-  duration 3p
+  description "Classify every first-round observation, preserve unknowns, and update an ADR before any accepted semantic or result-contract change. Spend the reserved 1p evaluating whether the compound question needs a composed bounded query, navigation links, or no contract change. Spend the additional observed 1p creating an immutable successor protocol with the missing known-mismatch case and rerunning the relational round to completion. Revise the remaining point estimates, query/materialization fixtures, and protocol command cases before either space route is implemented."
+  duration 4p
   priority 60
   requires:
     IMPLEMENTER 1
@@ -192,3 +192,17 @@ work_event FINISH_IMPLEMENT_RELATIONAL_CONSTRAINTS_20260814:
   kind finish
   occurred_at 2026-08-14T17:14:05+09:00
   effort 0.325ph
+
+work_event START_RUN_RELATIONAL_CONSTRAINT_DOGFOOD_20260814:
+  model 1
+  task RUN_RELATIONAL_CONSTRAINT_DOGFOOD
+  kind start
+  occurred_at 2026-08-14T17:16:13+09:00
+  planned_value 3p
+
+work_event FINISH_RUN_RELATIONAL_CONSTRAINT_DOGFOOD_20260814:
+  model 1
+  task RUN_RELATIONAL_CONSTRAINT_DOGFOOD
+  kind finish
+  occurred_at 2026-08-14T17:26:04+09:00
+  effort 0.1641666667ph
