@@ -1,0 +1,142 @@
+project LLMRECOG_DOGFOODING_ROADMAP:
+  version 1
+  title "llmrecog dogfood-first implementation roadmap"
+  description |
+    Sequence the deterministic core, repeated self-use, provider-produced drafts, and the optional llmthink handoff so that evidence from each dogfood round changes the next design and estimate before implementation resumes.
+    Relative complexity points are planning estimates, not elapsed time or dates; velocity remains unspecified until comparable completed work exists.
+    This roadmap is the current phase-selection authority after the Phase 2 public result and fixture contract; plans/phase-2-parse-validate-show.pert remains the detailed Phase 2 task authority.
+    The roadmap does not itself authorize implementation, network/provider access, related-repository changes, release, publication, tagging, or push.
+  duration_unit point
+  finish DOGFOODING_ROADMAP_ACCEPTED
+
+resource IMPLEMENTER:
+  title "Implementation and dogfood operation capacity"
+  capacity 1
+
+resource REVIEWER:
+  title "Semantic, contract, and evidence review capacity"
+  capacity 1
+
+milestone PHASE_2_CONTRACT_ACCEPTED:
+  title "Phase 2 public result and fixture contract accepted"
+  state reached
+
+milestone PHASE_2_DOGFOOD_SLICE_ACCEPTED:
+  title "Phase 2 read path and two authoring dogfood rounds accepted"
+
+milestone EXPLAIN_DOGFOOD_REVIEWED:
+  title "Explainable CSP dogfood feedback dispositioned"
+
+milestone CORE_DOGFOOD_REVIEWED:
+  title "Complete deterministic semantic-core dogfood feedback dispositioned"
+
+milestone PROVENANCE_DOGFOOD_REVIEWED:
+  title "Local provenance dogfood feedback dispositioned"
+
+milestone PRODUCER_CONTRACT_ACCEPTED:
+  title "Provider-neutral producer contract accepted"
+
+milestone PRODUCER_ADAPTER_ACCEPTED:
+  title "One separately authorized producer adapter accepted"
+
+milestone PRODUCER_DOGFOOD_REVIEWED:
+  title "Raw-document producer dogfood feedback dispositioned"
+
+milestone LLMTHINK_HANDOFF_CONTRACT_ACCEPTED:
+  title "Typed llmthink handoff contract accepted"
+
+milestone LLMTHINK_HANDOFF_DOGFOOD_REVIEWED:
+  title "Read-only llmthink handoff dogfood feedback dispositioned"
+
+milestone DOGFOODING_ROADMAP_ACCEPTED:
+  title "Dogfood-informed recognition and reasoning-handoff roadmap accepted"
+
+task DELIVER_PHASE_2_DOGFOOD_SLICE PHASE_2_CONTRACT_ACCEPTED -> PHASE_2_DOGFOOD_SLICE_ACCEPTED:
+  title "Deliver and dogfood the Phase 2 read path"
+  description "Follow plans/phase-2-parse-validate-show.pert: freeze the protocol, build a minimal private read path, dogfood the grammar, complete the 0.1 read path, dogfood the repository specifications, disposition feedback, and accept Phase 2"
+  duration 63p
+  priority 100
+  requires:
+    IMPLEMENTER 1
+    REVIEWER 1
+
+task IMPLEMENT_AND_DOGFOOD_EXPLAIN PHASE_2_DOGFOOD_SLICE_ACCEPTED -> EXPLAIN_DOGFOOD_REVIEWED:
+  title "Implement the explainable CSP slice and dogfood ambiguity questions"
+  description "Implement finite one_of and excludes behavior, joint witnesses, exclusion chains, unknown reasons, candidate explain, and focused audit rules; rerun the versioned corpus and disposition all explain, conflict, and unknown feedback before extending constraint semantics"
+  duration 26p
+  priority 90
+  requires:
+    IMPLEMENTER 1
+    REVIEWER 1
+
+task COMPLETE_AND_DOGFOOD_CORE EXPLAIN_DOGFOOD_REVIEWED -> CORE_DOGFOOD_REVIEWED:
+  title "Complete and dogfood the deterministic semantic core"
+  description "Add requires, same_as, distinct_from, bounded query/materialization, limit behavior, and reason composition; use cross-document and joint-witness questions, disposition the evidence, and revise the source-verification plan"
+  duration 34p
+  priority 80
+  requires:
+    IMPLEMENTER 1
+    REVIEWER 1
+
+task VERIFY_AND_DOGFOOD_LOCAL_SOURCES CORE_DOGFOOD_REVIEWED -> PROVENANCE_DOGFOOD_REVIEWED:
+  title "Implement and dogfood fail-closed local source verification"
+  description "Verify relative locators, digests, ranges, and quotes without network or automatic repair; mutate a copied corpus to prove stale-source failures, disposition provenance feedback, and revise the producer-contract plan"
+  duration 16p
+  priority 70
+  requires:
+    IMPLEMENTER 1
+    REVIEWER 1
+
+task FREEZE_PRODUCER_CONTRACT PROVENANCE_DOGFOOD_REVIEWED -> PRODUCER_CONTRACT_ACCEPTED:
+  title "Freeze the provider-neutral draft producer contract"
+  description "Accept an ADR, schemas, explicit versioned fixtures, resource limits, provenance boundaries, failure behavior, and the mandatory deterministic validation/audit/verification path without selecting or calling a provider"
+  duration 8p
+  priority 60
+  requires:
+    IMPLEMENTER 1
+    REVIEWER 1
+
+task IMPLEMENT_ONE_PRODUCER_ADAPTER PRODUCER_CONTRACT_ACCEPTED -> PRODUCER_ADAPTER_ACCEPTED:
+  title "Implement one separately authorized producer adapter"
+  description "Implement the smallest bounded adapter behind inward-owned ports, retaining raw proposal provenance and treating every result as an untrusted draft; provider selection, credentials, network use, and cost limits require separate authorization"
+  duration 21p
+  priority 50
+  requires:
+    IMPLEMENTER 1
+    REVIEWER 1
+
+task RUN_AND_REVIEW_PRODUCER_DOGFOOD PRODUCER_ADAPTER_ACCEPTED -> PRODUCER_DOGFOOD_REVIEWED:
+  title "Dogfood raw specification understanding and disposition feedback"
+  description "Generate drafts from the versioned repository corpus, pass them through deterministic parse, validate, audit, explain, and local source verification, compare with explicitly reviewed expectations and prior manual receipts, and disposition omissions, unsupported claims, ambiguity loss, and authoring-effort changes"
+  duration 21p
+  priority 40
+  requires:
+    IMPLEMENTER 1
+    REVIEWER 1
+
+task FREEZE_LLMTHINK_HANDOFF PRODUCER_DOGFOOD_REVIEWED -> LLMTHINK_HANDOFF_CONTRACT_ACCEPTED:
+  title "Freeze the dogfood-informed typed llmthink handoff"
+  description "Conduct a separate cross-repository review for typed recognition references, source support, joint compatibility, closure, projection completeness, stale sources, ambiguity propagation, and no-writeback provenance only after producer dogfood stabilizes recognition artifacts"
+  duration 8p
+  priority 30
+  requires:
+    IMPLEMENTER 1
+    REVIEWER 1
+
+task PROTOTYPE_AND_DOGFOOD_LLMTHINK_HANDOFF LLMTHINK_HANDOFF_CONTRACT_ACCEPTED -> LLMTHINK_HANDOFF_DOGFOOD_REVIEWED:
+  title "Prototype and dogfood the read-only llmthink audit handoff"
+  description "Resolve accepted recognition references read-only, audit unsupported premises and jointly impossible bindings, preserve ambiguity and provenance, prove no writeback, and disposition the handoff evidence without making plain llmthink documents depend on llmrecog"
+  duration 26p
+  priority 20
+  requires:
+    IMPLEMENTER 1
+    REVIEWER 1
+
+task ACCEPT_DOGFOODING_ROADMAP LLMTHINK_HANDOFF_DOGFOOD_REVIEWED -> DOGFOODING_ROADMAP_ACCEPTED:
+  title "Audit the dogfood-informed roadmap outcome"
+  description "Review accepted, rejected, and deferred findings; verify responsibility boundaries and deterministic evidence; record remaining unknowns and separately gated later work without publishing, releasing, tagging, or pushing"
+  duration 5p
+  priority 10
+  requires:
+    IMPLEMENTER 1
+    REVIEWER 1

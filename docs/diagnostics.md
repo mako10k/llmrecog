@@ -22,6 +22,13 @@ Diagnostics contain a stable code, severity, non-authoritative message,
 optional entity ID, optional source span, typed reason data, and related
 locations. Source order, code, and entity ID determine deterministic ordering.
 
+For `.recog` syntax positions, `offset` is a zero-based UTF-8 byte offset into
+the exact input bytes. Lines and columns are one-based; columns count Unicode
+scalar values. A field diagnostic spans from the first non-indentation scalar
+through the physical line ending. A declaration-wide missing-field diagnostic
+anchors the declaration header. Missing or malformed version input that
+prevents declaration parsing has no diagnostic span.
+
 ## Explanation reasons
 
 `RCG-RSN-001` through `RCG-RSN-008` explain why viability is `unknown`.

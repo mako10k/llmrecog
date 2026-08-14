@@ -1,0 +1,229 @@
+{
+  "schema": "Llmrecog.Ast.v1",
+  "syntax_version": "0.1",
+  "recovered": false,
+  "header": {
+    "kind": "version_header",
+    "version": "0.1",
+    "span": {
+      "start": { "line": 1, "column": 1, "offset": 0 },
+      "end": { "line": 1, "column": 13, "offset": 12 }
+    }
+  },
+  "document": {
+    "kind": "document",
+    "id": "EXPLICIT_FACT",
+    "header_arguments": [],
+    "fields": [
+      {
+        "name": "title",
+        "value": { "kind": "string", "value": "Explicit status" },
+        "span": {
+          "start": { "line": 4, "column": 3, "offset": 40 },
+          "end": { "line": 5, "column": 1, "offset": 64 }
+        },
+        "recovered": false
+      }
+    ],
+    "span": {
+      "start": { "line": 3, "column": 1, "offset": 14 },
+      "end": { "line": 5, "column": 1, "offset": 64 }
+    },
+    "recovered": false
+  },
+  "declarations": [
+    {
+      "kind": "source",
+      "id": "SRC",
+      "header_arguments": [],
+      "fields": [
+        {
+          "name": "kind",
+          "value": { "kind": "identifier", "value": "text" },
+          "span": {
+            "start": { "line": 7, "column": 3, "offset": 79 },
+            "end": { "line": 8, "column": 1, "offset": 89 }
+          },
+          "recovered": false
+        },
+        {
+          "name": "locator",
+          "value": { "kind": "string", "value": "status.log" },
+          "span": {
+            "start": { "line": 8, "column": 3, "offset": 91 },
+            "end": { "line": 9, "column": 1, "offset": 112 }
+          },
+          "recovered": false
+        }
+      ],
+      "span": {
+        "start": { "line": 6, "column": 1, "offset": 65 },
+        "end": { "line": 9, "column": 1, "offset": 112 }
+      },
+      "recovered": false
+    },
+    {
+      "kind": "span",
+      "id": "S1",
+      "header_arguments": [],
+      "fields": [
+        {
+          "name": "source",
+          "value": { "kind": "identifier", "value": "SRC" },
+          "span": {
+            "start": { "line": 11, "column": 3, "offset": 124 },
+            "end": { "line": 12, "column": 1, "offset": 135 }
+          },
+          "recovered": false
+        },
+        {
+          "name": "range",
+          "value": {
+            "kind": "text_range",
+            "start": { "line": 1, "column": 1 },
+            "end": { "line": 1, "column": 25 }
+          },
+          "span": {
+            "start": { "line": 12, "column": 3, "offset": 137 },
+            "end": { "line": 13, "column": 1, "offset": 153 }
+          },
+          "recovered": false
+        },
+        {
+          "name": "quote",
+          "value": {
+            "kind": "string",
+            "value": "deployment status=failed"
+          },
+          "span": {
+            "start": { "line": 13, "column": 3, "offset": 155 },
+            "end": { "line": 14, "column": 1, "offset": 188 }
+          },
+          "recovered": false
+        }
+      ],
+      "span": {
+        "start": { "line": 10, "column": 1, "offset": 113 },
+        "end": { "line": 14, "column": 1, "offset": 188 }
+      },
+      "recovered": false
+    },
+    {
+      "kind": "entity",
+      "id": "E_DEPLOYMENT",
+      "header_arguments": [],
+      "fields": [
+        {
+          "name": "type",
+          "value": { "kind": "identifier", "value": "occurrence" },
+          "span": {
+            "start": { "line": 16, "column": 3, "offset": 212 },
+            "end": { "line": 17, "column": 1, "offset": 228 }
+          },
+          "recovered": false
+        },
+        {
+          "name": "label",
+          "value": { "kind": "string", "value": "deployment" },
+          "span": {
+            "start": { "line": 17, "column": 3, "offset": 230 },
+            "end": { "line": 18, "column": 1, "offset": 249 }
+          },
+          "recovered": false
+        },
+        {
+          "name": "grounded_in",
+          "value": { "kind": "identifier_list", "items": ["S1"] },
+          "span": {
+            "start": { "line": 18, "column": 3, "offset": 251 },
+            "end": { "line": 19, "column": 1, "offset": 268 }
+          },
+          "recovered": false
+        },
+        {
+          "name": "support",
+          "value": { "kind": "identifier", "value": "explicit" },
+          "span": {
+            "start": { "line": 19, "column": 3, "offset": 270 },
+            "end": { "line": 20, "column": 1, "offset": 287 }
+          },
+          "recovered": false
+        }
+      ],
+      "span": {
+        "start": { "line": 15, "column": 1, "offset": 189 },
+        "end": { "line": 20, "column": 1, "offset": 287 }
+      },
+      "recovered": false
+    },
+    {
+      "kind": "record",
+      "id": "R_STATUS",
+      "header_arguments": [],
+      "fields": [
+        {
+          "name": "kind",
+          "value": { "kind": "identifier", "value": "property" },
+          "span": {
+            "start": { "line": 22, "column": 3, "offset": 307 },
+            "end": { "line": 23, "column": 1, "offset": 321 }
+          },
+          "recovered": false
+        },
+        {
+          "name": "subject",
+          "value": {
+            "kind": "identifier",
+            "value": "E_DEPLOYMENT"
+          },
+          "span": {
+            "start": { "line": 23, "column": 3, "offset": 323 },
+            "end": { "line": 24, "column": 1, "offset": 344 }
+          },
+          "recovered": false
+        },
+        {
+          "name": "predicate",
+          "value": { "kind": "identifier", "value": "status" },
+          "span": {
+            "start": { "line": 24, "column": 3, "offset": 346 },
+            "end": { "line": 25, "column": 1, "offset": 363 }
+          },
+          "recovered": false
+        },
+        {
+          "name": "value",
+          "value": { "kind": "identifier", "value": "failed" },
+          "span": {
+            "start": { "line": 25, "column": 3, "offset": 365 },
+            "end": { "line": 26, "column": 1, "offset": 378 }
+          },
+          "recovered": false
+        },
+        {
+          "name": "grounded_in",
+          "value": { "kind": "identifier_list", "items": ["S1"] },
+          "span": {
+            "start": { "line": 26, "column": 3, "offset": 380 },
+            "end": { "line": 27, "column": 1, "offset": 397 }
+          },
+          "recovered": false
+        },
+        {
+          "name": "support",
+          "value": { "kind": "identifier", "value": "explicit" },
+          "span": {
+            "start": { "line": 27, "column": 3, "offset": 399 },
+            "end": { "line": 28, "column": 1, "offset": 416 }
+          },
+          "recovered": false
+        }
+      ],
+      "span": {
+        "start": { "line": 21, "column": 1, "offset": 288 },
+        "end": { "line": 28, "column": 1, "offset": 416 }
+      },
+      "recovered": false
+    }
+  ]
+}

@@ -2,7 +2,8 @@ project LLMRECOG_INITIAL_ROADMAP:
   version 5
   title "llmrecog initial source-grounded recognition roadmap"
   description |
-    Deliver the first deterministic llmrecog core and an optional recognition-aware llmthink audit prototype through contract-first vertical slices.
+    Retain the original coarse Phase 0/1 baseline and its completed-work history; use plans/dogfooding-roadmap.pert for current phase selection and plans/phase-2-parse-validate-show.pert for detailed Phase 2 task selection.
+    The original future tasks below remain historical estimates and are not current execution authority.
     Durations are coarse relative-day estimates, not delivery dates or calendar commitments; no velocity is declared until measured work exists.
     Provider-backed recognition generation, editor integrations, package publication, and production rollout remain outside this roadmap.
   duration_unit day
@@ -57,7 +58,7 @@ task FREEZE_EXECUTABLE_CONTRACT DESIGN_BASELINE -> EXECUTABLE_CONTRACT_ACCEPTED:
 
 task IMPLEMENT_PARSE_VALIDATE EXECUTABLE_CONTRACT_ACCEPTED -> VALIDATION_SLICE_ACCEPTED:
   title "Implement the parse and validate vertical slice"
-  description "Add the typed parser, reference resolution, five-shape semantic validation, and deterministic validate/show projections without provider or source I/O"
+  description "Add the typed parser, reference resolution, five-shape semantic validation, and deterministic validate/show projections without provider or source I/O; detailed execution plan: plans/phase-2-parse-validate-show.pert"
   duration 13d
   priority 90
   requires:

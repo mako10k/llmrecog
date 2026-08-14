@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mako10k.github.io/llmrecog/schemas/Llmrecog.RecognitionResult.v1.schema.json",
+  "title": "Llmrecog.RecognitionResult.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "semantic_version",
+    "tool_version",
+    "input",
+    "complete",
+    "truncated",
+    "found",
+    "source_verification",
+    "target",
+    "recognition",
+    "diagnostics"
+  ],
+  "properties": {
+    "schema": { "const": "Llmrecog.RecognitionResult.v1" },
+    "semantic_version": { "const": "0.1" },
+    "tool_version": { "type": "string", "minLength": 1 },
+    "input": {
+      "$ref": "Llmrecog.Common.v1.schema.json#/$defs/input"
+    },
+    "complete": { "type": "boolean" },
+    "truncated": { "type": "boolean" },
+    "found": { "type": "boolean" },
+    "source_verification": {
+      "$ref": "Llmrecog.Common.v1.schema.json#/$defs/source_verification"
+    },
+    "target": { "$ref": "#/$defs/target" },
+    "recognition": {
+      "oneOf": [
+        {
+          "$ref": "Llmrecog.SemanticDocument.v1.schema.json#/$defs/recognition"
+        },
+        { "type": "null" }
+      ]
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "$ref": "Llmrecog.Common.v1.schema.json#/$defs/diagnostic"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "found": { "const": true } },
+        "required": ["found"]
+      },
+      "then": {
+        "properties": {
+          "target": { "$ref": "#/$defs/found_target" },
+          "recognition": {
+            "$ref": "Llmrecog.SemanticDocument.v1.schema.json#/$defs/recognition"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "target": { "$ref": "#/$defs/missing_target" },
+          "recognition": { "type": "null" },
+          "diagnostics": { "type": "array", "minItems": 1 }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "truncated": { "const": true } },
+        "required": ["truncated"]
+      },
+      "then": {
+        "properties": { "complete": { "const": false } }
+      }
+    },
+    {
+      "if": {
+        "properties": { "complete": { "const": true } },
+        "required": ["complete"]
+      },
+      "then": {
+        "properties": { "truncated": { "const": false } }
+      }
+    }
+  ],
+  "$defs": {
+    "declaration_kind": {
+      "enum": ["entity", "record", "variable", "candidate", "constraint"]
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "declaration_kind"],
+      "properties": {
+        "id": {
+          "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+        },
+        "declaration_kind": {
+          "oneOf": [{ "$ref": "#/$defs/declaration_kind" }, { "type": "null" }]
+        }
+      }
+    },
+    "found_target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "declaration_kind"],
+      "properties": {
+        "id": {
+          "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+        },
+        "declaration_kind": { "$ref": "#/$defs/declaration_kind" }
+      }
+    },
+    "missing_target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "declaration_kind"],
+      "properties": {
+        "id": {
+          "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+        },
+        "declaration_kind": { "type": "null" }
+      }
+    }
+  }
+}

@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mako10k.github.io/llmrecog/schemas/Llmrecog.DocumentResult.v1.schema.json",
+  "title": "Llmrecog.DocumentResult.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "semantic_version",
+    "tool_version",
+    "input",
+    "complete",
+    "truncated",
+    "source_verification",
+    "summary",
+    "diagnostics"
+  ],
+  "properties": {
+    "schema": { "const": "Llmrecog.DocumentResult.v1" },
+    "semantic_version": { "const": "0.1" },
+    "tool_version": { "type": "string", "minLength": 1 },
+    "input": {
+      "$ref": "Llmrecog.Common.v1.schema.json#/$defs/input"
+    },
+    "complete": { "type": "boolean" },
+    "truncated": { "type": "boolean" },
+    "source_verification": {
+      "$ref": "Llmrecog.Common.v1.schema.json#/$defs/source_verification"
+    },
+    "summary": { "$ref": "#/$defs/summary" },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "$ref": "Llmrecog.Common.v1.schema.json#/$defs/diagnostic"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "truncated": { "const": true } },
+        "required": ["truncated"]
+      },
+      "then": {
+        "properties": { "complete": { "const": false } }
+      }
+    },
+    {
+      "if": {
+        "properties": { "complete": { "const": true } },
+        "required": ["complete"]
+      },
+      "then": {
+        "properties": { "truncated": { "const": false } }
+      }
+    }
+  ],
+  "$defs": {
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sources",
+        "spans",
+        "observations",
+        "entities",
+        "records",
+        "variables",
+        "candidates",
+        "constraints"
+      ],
+      "properties": {
+        "sources": { "type": "integer", "minimum": 0 },
+        "spans": { "type": "integer", "minimum": 0 },
+        "observations": { "type": "integer", "minimum": 0 },
+        "entities": { "type": "integer", "minimum": 0 },
+        "records": { "type": "integer", "minimum": 0 },
+        "variables": { "type": "integer", "minimum": 0 },
+        "candidates": { "type": "integer", "minimum": 0 },
+        "constraints": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "variable": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "value_type", "candidate_ids", "domain"],
+      "properties": {
+        "id": {
+          "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+        },
+        "value_type": { "enum": ["entity_ref", "symbol", "string"] },
+        "candidate_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+          }
+        },
+        "domain": { "enum": ["open", "closed"] }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "document_id",
+        "title",
+        "counts",
+        "source_ids",
+        "recognition_ids",
+        "variables",
+        "constraint_ids"
+      ],
+      "properties": {
+        "document_id": {
+          "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+        },
+        "title": { "type": "string" },
+        "counts": { "$ref": "#/$defs/counts" },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+          }
+        },
+        "recognition_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+          }
+        },
+        "variables": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/variable" }
+        },
+        "constraint_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+          }
+        }
+      }
+    }
+  }
+}

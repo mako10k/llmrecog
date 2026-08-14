@@ -28,6 +28,12 @@ interface Manifest {
   readonly fixtures: readonly Fixture[];
   readonly boundary_cases: Readonly<Record<string, string>>;
   readonly expected_results: readonly string[];
+  readonly expected_asts: readonly {
+    readonly input: string;
+    readonly path: string;
+  }[];
+  readonly diagnostic_expectations: string;
+  readonly expected_text_results: readonly string[];
 }
 
 interface RegistryEntry {
@@ -42,6 +48,37 @@ interface Registry {
   readonly reasons: readonly RegistryEntry[];
 }
 
+interface ExpectedDiagnostic {
+  readonly code: string;
+  readonly entity_id: string | null;
+  readonly span: {
+    readonly start: {
+      readonly line: number;
+      readonly column: number;
+      readonly offset: number;
+    };
+    readonly end: {
+      readonly line: number;
+      readonly column: number;
+      readonly offset: number;
+    };
+  } | null;
+  readonly reason_data: Readonly<Record<string, unknown>>;
+}
+
+interface DiagnosticFixture {
+  readonly id: string;
+  readonly path: string;
+  readonly digest: string;
+  readonly diagnostics: readonly ExpectedDiagnostic[];
+}
+
+interface DiagnosticFixtureSet {
+  readonly schema: string;
+  readonly semantic_version: string;
+  readonly fixtures: readonly DiagnosticFixture[];
+}
+
 function readJson<T>(relativePath: string): T {
   return JSON.parse(
     fs.readFileSync(path.join(repositoryRoot, relativePath), "utf8"),
@@ -53,6 +90,36 @@ function sha256(relativePath: string): string {
     .createHash("sha256")
     .update(fs.readFileSync(path.join(repositoryRoot, relativePath)))
     .digest("hex")}`;
+}
+
+function assertSyntaxSpansMatchInput(value: unknown, inputPath: string): void {
+  const pending: unknown[] = [value];
+  while (pending.length > 0) {
+    const current = pending.pop();
+    if (Array.isArray(current)) {
+      pending.push(...current);
+      continue;
+    }
+    if (current === null || typeof current !== "object") continue;
+    const record = current as Readonly<Record<string, unknown>>;
+    const span = record["span"] as
+      | {
+          readonly start: { readonly offset: number };
+          readonly end: { readonly offset: number };
+        }
+      | undefined;
+    if (span !== undefined) {
+      assert.deepEqual(
+        span.start,
+        positionAtByteOffset(inputPath, span.start.offset),
+      );
+      assert.deepEqual(
+        span.end,
+        positionAtByteOffset(inputPath, span.end.offset),
+      );
+    }
+    pending.push(...Object.values(record));
+  }
 }
 
 const manifest = readJson<Manifest>(
@@ -176,6 +243,8 @@ test("all result goldens validate against the frozen JSON Schemas", () => {
     "schemas/Llmrecog.Ast.v1.schema.json",
     "schemas/Llmrecog.SemanticDocument.v1.schema.json",
     "schemas/Llmrecog.ValidationResult.v1.schema.json",
+    "schemas/Llmrecog.DocumentResult.v1.schema.json",
+    "schemas/Llmrecog.RecognitionResult.v1.schema.json",
     "schemas/Llmrecog.ExplainResult.v1.schema.json",
   ];
   const schemas = schemaPaths.map((schemaPath) =>
@@ -193,6 +262,14 @@ test("all result goldens validate against the frozen JSON Schemas", () => {
     [
       "Llmrecog.ExplainResult.v1",
       "https://mako10k.github.io/llmrecog/schemas/Llmrecog.ExplainResult.v1.schema.json",
+    ],
+    [
+      "Llmrecog.DocumentResult.v1",
+      "https://mako10k.github.io/llmrecog/schemas/Llmrecog.DocumentResult.v1.schema.json",
+    ],
+    [
+      "Llmrecog.RecognitionResult.v1",
+      "https://mako10k.github.io/llmrecog/schemas/Llmrecog.RecognitionResult.v1.schema.json",
     ],
   ]);
 
@@ -214,6 +291,86 @@ test("all result goldens validate against the frozen JSON Schemas", () => {
       { readonly path?: unknown; readonly digest?: unknown } | undefined;
     assert(input && typeof input.path === "string");
     assert.equal(input.digest, sha256(input.path));
+  }
+
+  const validateAst = ajv.getSchema(
+    "https://mako10k.github.io/llmrecog/schemas/Llmrecog.Ast.v1.schema.json",
+  );
+  assert(validateAst);
+  for (const expectedAst of manifest.expected_asts) {
+    const ast = readJson<Record<string, unknown>>(expectedAst.path);
+    assert.equal(
+      validateAst(ast),
+      true,
+      `${expectedAst.path}: ${JSON.stringify(validateAst.errors, null, 2)}`,
+    );
+    assertSyntaxSpansMatchInput(ast, expectedAst.input);
+  }
+});
+
+function positionAtByteOffset(relativePath: string, offset: number) {
+  const bytes = fs.readFileSync(path.join(repositoryRoot, relativePath));
+  assert(offset >= 0 && offset <= bytes.length);
+  const prefix = bytes.subarray(0, offset).toString("utf8");
+  const lines = prefix.split("\n");
+  return {
+    line: lines.length,
+    column: [...(lines.at(-1) ?? "")].length + 1,
+    offset,
+  };
+}
+
+test("invalid fixture diagnostics freeze exact codes, typed data, and byte spans", () => {
+  const expected = readJson<DiagnosticFixtureSet>(
+    manifest.diagnostic_expectations,
+  );
+  assert.equal(expected.schema, "Llmrecog.DiagnosticFixtureSet.v1");
+  assert.equal(expected.semantic_version, "0.1");
+
+  const invalidFixtures = manifest.fixtures.filter(
+    (fixture) => fixture.expectation === "invalid",
+  );
+  assert.deepEqual(
+    expected.fixtures.map((fixture) => fixture.id).sort(),
+    invalidFixtures.map((fixture) => fixture.id).sort(),
+  );
+
+  for (const fixture of expected.fixtures) {
+    const manifestFixture = invalidFixtures.find(
+      (candidate) => candidate.id === fixture.id,
+    );
+    assert(manifestFixture);
+    assert.equal(fixture.path, manifestFixture.path);
+    assert.equal(fixture.digest, sha256(fixture.path));
+    assert.deepEqual(
+      fixture.diagnostics.map((diagnostic) => diagnostic.code),
+      manifestFixture.expected_diagnostics,
+    );
+    for (const diagnostic of fixture.diagnostics) {
+      assert(Object.keys(diagnostic.reason_data).length > 0);
+      if (diagnostic.span !== null) {
+        assert.deepEqual(
+          diagnostic.span.start,
+          positionAtByteOffset(fixture.path, diagnostic.span.start.offset),
+        );
+        assert.deepEqual(
+          diagnostic.span.end,
+          positionAtByteOffset(fixture.path, diagnostic.span.end.offset),
+        );
+      }
+    }
+  }
+});
+
+test("Phase 2 text result goldens use deterministic bytes", () => {
+  assert.equal(manifest.expected_text_results.length, 3);
+  for (const resultPath of manifest.expected_text_results) {
+    const bytes = fs.readFileSync(path.join(repositoryRoot, resultPath));
+    const text = bytes.toString("utf8");
+    assert(text.startsWith("Llmrecog."));
+    assert(text.endsWith("\n"));
+    assert(!text.includes("\r"));
+    assert(!text.includes("\t"));
   }
 });
 

@@ -216,8 +216,23 @@
   "expected_results": [
     "test/fixtures/contracts/v0.1/expected/empty-document.validation.json",
     "test/fixtures/contracts/v0.1/expected/missing-header.validation.json",
+    "test/fixtures/contracts/v0.1/expected/minimal.document-show.json",
+    "test/fixtures/contracts/v0.1/expected/minimal-deadline.recognition-show.json",
+    "test/fixtures/contracts/v0.1/expected/minimal-missing.recognition-show.json",
     "test/fixtures/contracts/v0.1/expected/candidate-allowed.explain.json",
     "test/fixtures/contracts/v0.1/expected/candidate-excluded.explain.json",
     "test/fixtures/contracts/v0.1/expected/candidate-unknown.explain.json"
+  ],
+  "expected_asts": [
+    {
+      "input": "test/fixtures/contracts/v0.1/valid/explicit-fact.recog",
+      "path": "test/fixtures/contracts/v0.1/expected/explicit-fact.ast.json"
+    }
+  ],
+  "diagnostic_expectations": "test/fixtures/contracts/v0.1/expected/invalid-diagnostics.json",
+  "expected_text_results": [
+    "test/fixtures/contracts/v0.1/expected/minimal.document-show.txt",
+    "test/fixtures/contracts/v0.1/expected/minimal-deadline.recognition-show.txt",
+    "test/fixtures/contracts/v0.1/expected/minimal-missing.recognition-show.txt"
   ]
 }

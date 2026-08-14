@@ -59,14 +59,22 @@ semantic validator, solver, formatter, or CLI.
 
 ## Phase 2: parse and validate vertical slice
 
-Implement:
+Implement and dogfood in this order:
 
-- `.recog` parser for document, source, span, entity, record, variable,
-  candidate, and constraint blocks;
-- typed model and reference resolution;
-- semantic validator for the five constraint shapes;
-- `document validate`, `document show`, and `recognition show` in text/JSON;
-- no locator I/O by default and no writes.
+1. Freeze the dogfood corpus, understanding questions, receipt fields, and
+   feedback disposition rules.
+2. Implement the smallest real bytes-to-AST-to-model-to-validation path for
+   document, source, span, entity, and record declarations, with private
+   read-only validate/show projections.
+3. Dogfood `docs/grammar.md` and the normative EBNF, then disposition the
+   findings and re-estimate the unfinished work.
+4. Complete variables, candidates, constraints, reference resolution,
+   semantic validation, and all accepted text/JSON projections.
+5. Dogfood requirements, terminology, architecture, and implementation phases,
+   then disposition the findings before Phase 2 acceptance.
+
+The intermediate command route is an internal dogfood instrument, not a public
+CLI or compatibility promise. There is no locator I/O and no writes.
 
 Acceptance:
 
@@ -74,6 +82,10 @@ Acceptance:
 - all phase-1 invalid fixtures fail with stable spans/codes;
 - output is deterministic across repeated runs;
 - the dependency graph contains no provider or related-project runtime.
+- both Phase 2 dogfood rounds have reproducible receipts and all observations
+  are accepted, rejected, or deferred;
+- accepted contract/semantic feedback was applied through an ADR before code,
+  and the remaining roadmap was re-estimated in points.
 
 ## Phase 3: one explainable CSP slice
 
@@ -88,6 +100,10 @@ Implement:
 Use the minimal example as the end-to-end acceptance: weak commitment remains
 allowed with Sato, the Tanaka/weak world is excluded, and both results have
 deterministic explanations.
+
+After the implementation acceptance checks, rerun the versioned dogfood corpus
+with ambiguity, exclusion, conflict, and unknown questions. Disposition those
+findings before Phase 4 design or implementation resumes.
 
 Acceptance:
 
@@ -114,6 +130,10 @@ Acceptance:
 - no optimization, ranking, arbitrary predicates, or negation-as-failure enters
   the solver.
 
+Then dogfood cross-document queries, joint witnesses, bounds, and
+materialization against the same corpus. Its reviewed feedback is an input to
+the Phase 5 source-verification design.
+
 ## Phase 5: local source verification
 
 Add the separately bounded `--verify-sources local` path:
@@ -126,7 +146,30 @@ Add the separately bounded `--verify-sources local` path:
 This phase is separated because it introduces filesystem I/O and source race
 questions absent from the pure core.
 
-## Phase 6: typed llmthink reference prototype
+Dogfood this path by verifying the repository corpus and deliberately changed
+copies. Digest, range, and quote mismatches must fail closed. Disposition the
+evidence before designing a provider-backed producer.
+
+## Phase 6: provider-neutral producer and one adapter
+
+Only after the deterministic core and local source verification have passed
+their dogfood gates:
+
+- freeze a provider-neutral draft producer contract in an ADR, schemas, and
+  explicit fixtures;
+- implement the provider-neutral application boundary;
+- separately authorize and implement one bounded provider adapter;
+- generate draft recognitions from the versioned repository corpus;
+- pass every draft through parse, validate, audit, explain, and source
+  verification before review;
+- compare producer evidence with explicit expectations and the earlier manual
+  dogfood receipts, never with an LLM response as a golden oracle;
+- disposition feedback before freezing a cross-product handoff.
+
+Provider selection, credentials, network access, cost limits, and live calls
+remain separately gated from this planning document.
+
+## Phase 7: typed llmthink reference prototype
 
 Only after a separate llmthink design review:
 
@@ -146,7 +189,6 @@ authorized by accepting llmrecog core implementation.
 
 ## Later, separately gated work
 
-- provider-neutral producer API and one LLM adapter;
 - explicit recognition generation command and safe output contract;
 - structured-source selectors such as JSON Pointer or symbol ranges;
 - sidecar or bundle formats if real artifacts demonstrate a readability need;
@@ -156,7 +198,18 @@ authorized by accepting llmrecog core implementation.
 
 ## Recommended first implementation slice
 
-After a separate Phase 2 authorization, implement Phase 2 only. It creates the
-smallest useful foundation and lets the semantic model fail early under real
-parse/reference seams. Do not start with LLM extraction, a general CSP backend,
-or cross-repository integration.
+After a separate Phase 2 authorization, begin with its dogfood protocol and
+smallest private read path. Start authoring dogfood immediately after that path
+works; do not wait for the complete parser or solver. Do not start producer
+dogfood until explainability, complete initial semantics, and fail-closed local
+source verification have been accepted and a producer contract is separately
+approved.
+
+The detailed execution order, relative effort, acceptance frontier, and
+explicit Non-goals are tracked in
+[`plans/phase-2-parse-validate-show.pert`](../plans/phase-2-parse-validate-show.pert).
+The point-based cross-phase order and repeated feedback gates are tracked in
+[`plans/dogfooding-roadmap.pert`](../plans/dogfooding-roadmap.pert). The
+original [`plans/initial-roadmap.pert`](../plans/initial-roadmap.pert) is
+retained as coarse Phase 0/1 history and is no longer the current
+phase-selection authority.

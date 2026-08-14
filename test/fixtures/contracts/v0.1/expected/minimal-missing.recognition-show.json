@@ -1,0 +1,36 @@
+{
+  "schema": "Llmrecog.RecognitionResult.v1",
+  "semantic_version": "0.1",
+  "tool_version": "contract-fixture",
+  "input": {
+    "path": "docs/examples/minimal.recog",
+    "document_id": "MEETING_RECOG",
+    "digest": "sha256:87575b777def738ce3e69345d64053770d1e2fec5bd1e000162ca4b63a2afba2"
+  },
+  "complete": true,
+  "truncated": false,
+  "found": false,
+  "source_verification": {
+    "mode": "none",
+    "state": "not_requested"
+  },
+  "target": {
+    "id": "R_MISSING",
+    "declaration_kind": null
+  },
+  "recognition": null,
+  "diagnostics": [
+    {
+      "code": "RCG-REF-002",
+      "severity": "error",
+      "message": "The requested recognition ID does not exist.",
+      "entity_id": "R_MISSING",
+      "span": null,
+      "reason_data": {
+        "reference_id": "R_MISSING",
+        "expected_kind": "recognition"
+      },
+      "related": []
+    }
+  ]
+}

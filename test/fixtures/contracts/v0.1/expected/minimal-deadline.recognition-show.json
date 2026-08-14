@@ -1,0 +1,41 @@
+{
+  "schema": "Llmrecog.RecognitionResult.v1",
+  "semantic_version": "0.1",
+  "tool_version": "contract-fixture",
+  "input": {
+    "path": "docs/examples/minimal.recog",
+    "document_id": "MEETING_RECOG",
+    "digest": "sha256:87575b777def738ce3e69345d64053770d1e2fec5bd1e000162ca4b63a2afba2"
+  },
+  "complete": true,
+  "truncated": false,
+  "found": true,
+  "source_verification": {
+    "mode": "none",
+    "state": "not_requested"
+  },
+  "target": {
+    "id": "R_DEADLINE",
+    "declaration_kind": "record"
+  },
+  "recognition": {
+    "declaration_kind": "record",
+    "id": "R_DEADLINE",
+    "grounded_in": [{ "id": "S1", "kind": "span" }],
+    "support": {
+      "kind": "normalized",
+      "grounded_in": [{ "id": "S1", "kind": "span" }]
+    },
+    "record_kind": "property",
+    "subject_id": "E_RESPONSE",
+    "predicate": "deadline",
+    "value": { "kind": "symbol", "value": "next_week" },
+    "normalization": {
+      "surface": "来週まで",
+      "rule": "temporal.relative-week.symbolic.v1",
+      "grounded_in": [{ "id": "S1", "kind": "span" }],
+      "anchors": []
+    }
+  },
+  "diagnostics": []
+}

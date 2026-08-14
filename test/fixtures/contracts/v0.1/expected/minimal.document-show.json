@@ -1,0 +1,68 @@
+{
+  "schema": "Llmrecog.DocumentResult.v1",
+  "semantic_version": "0.1",
+  "tool_version": "contract-fixture",
+  "input": {
+    "path": "docs/examples/minimal.recog",
+    "document_id": "MEETING_RECOG",
+    "digest": "sha256:87575b777def738ce3e69345d64053770d1e2fec5bd1e000162ca4b63a2afba2"
+  },
+  "complete": true,
+  "truncated": false,
+  "source_verification": {
+    "mode": "none",
+    "state": "not_requested"
+  },
+  "summary": {
+    "document_id": "MEETING_RECOG",
+    "title": "Ambiguous meeting statement",
+    "counts": {
+      "sources": 1,
+      "spans": 4,
+      "observations": 0,
+      "entities": 3,
+      "records": 3,
+      "variables": 2,
+      "candidates": 4,
+      "constraints": 3
+    },
+    "source_ids": ["SRC_MEETING"],
+    "recognition_ids": [
+      "E_TANAKA",
+      "E_SATO",
+      "E_RESPONSE",
+      "V_ACTOR",
+      "C_ACTOR_TANAKA",
+      "C_ACTOR_SATO",
+      "R_ACTOR",
+      "V_COMMITMENT",
+      "C_DESIRE",
+      "C_WEAK_COMMITMENT",
+      "R_INTENT",
+      "R_DEADLINE",
+      "K_ACTOR_ONE_OF",
+      "K_COMMITMENT_ONE_OF",
+      "K_TANAKA_NOT_WEAK"
+    ],
+    "variables": [
+      {
+        "id": "V_ACTOR",
+        "value_type": "entity_ref",
+        "candidate_ids": ["C_ACTOR_TANAKA", "C_ACTOR_SATO"],
+        "domain": "closed"
+      },
+      {
+        "id": "V_COMMITMENT",
+        "value_type": "symbol",
+        "candidate_ids": ["C_DESIRE", "C_WEAK_COMMITMENT"],
+        "domain": "closed"
+      }
+    ],
+    "constraint_ids": [
+      "K_ACTOR_ONE_OF",
+      "K_COMMITMENT_ONE_OF",
+      "K_TANAKA_NOT_WEAK"
+    ]
+  },
+  "diagnostics": []
+}

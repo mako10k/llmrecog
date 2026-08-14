@@ -21,8 +21,10 @@ const requiredFiles = [
   "docs/llmthink-grounding-audit.md",
   "docs/development.md",
   "docs/process/development-method.md",
+  "docs/process/dogfooding.md",
   "docs/adr/0005-node-22-typescript-esm-development-baseline.md",
   "docs/adr/0006-executable-contract-v0-1.md",
+  "docs/adr/0007-phase-2-read-only-command-contract.md",
   "docs/examples/minimal.recog",
   "docs/examples/meeting.txt",
   "contracts/llmrecog-0.1.ebnf",
@@ -32,6 +34,8 @@ const requiredFiles = [
   "schemas/Llmrecog.SemanticDocument.v1.schema.json",
   "schemas/Llmrecog.ValidationResult.v1.schema.json",
   "schemas/Llmrecog.ExplainResult.v1.schema.json",
+  "schemas/Llmrecog.DocumentResult.v1.schema.json",
+  "schemas/Llmrecog.RecognitionResult.v1.schema.json",
   "test/fixtures/contracts/v0.1/manifest.json",
 ];
 

@@ -1,8 +1,9 @@
-# Provisional CLI contract
+# CLI contract
 
-The command routes remain provisional until a CLI slice is accepted. Phase 1
-freezes only the linked `ValidationResult.v1` and `ExplainResult.v1` machine
-shapes; no `llmrecog` executable exists yet.
+ADR 0007 accepts the Phase 2 `document validate`, `document show`, and
+`recognition show` routes and their linked machine shapes. The routes remain
+unimplemented until the Phase 2 vertical slice is accepted. All later routes
+in this document are provisional and separately gated.
 
 ## 1. Design rules
 
@@ -19,7 +20,8 @@ llmrecog guide ...
 
 - Text is the default human output.
 - `--format json` emits the stable machine projection.
-- stdout carries result data; stderr carries diagnostics and progress.
+- stdout carries typed result data, including document diagnostics; stderr
+  carries CLI usage and input/output failures.
 - Core semantics are shared with future adapters.
 - Unknown options, actions, and required operands are errors.
 - No command in the initial contract writes a source or `.recog` file.
@@ -34,16 +36,20 @@ argument order: `llmrecog recognition explain R12 file.recog`.
 
 ```text
 llmrecog document validate <file.recog> [--format text|json]
-  [--verify-sources none|local]
+  [--max-diagnostics <positive-integer>] [--verify-sources none]
 ```
 
 Validates syntax, types, IDs, references, record shapes, candidate membership,
 constraint operands, and normalization requirements.
 
-`--verify-sources none` is the initial default and performs no locator I/O.
-`local` may read relative or absolute local-file sources, verify digest/range/
-quote, and rejects remote resolution. Structural validity and source
-verification status remain separate result fields.
+`--verify-sources none` is the Phase 2 default and performs no locator I/O.
+`local` remains reserved for Phase 5 and is not accepted or silently ignored
+by the Phase 2 command. Structural validity and source verification status
+remain separate result fields.
+
+The default diagnostic limit is 100. Reaching the limit returns the
+deterministic diagnostic prefix, `complete: false`, and `truncated: true`; it
+never changes an invalid result to valid.
 
 JSON schema:
 [`Llmrecog.ValidationResult.v1`](../schemas/Llmrecog.ValidationResult.v1.schema.json).
@@ -52,15 +58,29 @@ JSON schema:
 
 ```text
 llmrecog document show <file.recog> [--format text|json]
+  [--max-diagnostics <positive-integer>]
 llmrecog recognition show <id> <file.recog> [--format text|json]
+  [--max-diagnostics <positive-integer>]
 ```
 
 `document show` gives a compact inventory and source/ambiguity summary.
 `recognition show` returns the declared record without solving its possibility
 space.
 
-JSON schemas: `Llmrecog.DocumentResult.v1` and
-`Llmrecog.RecognitionResult.v1`.
+`document show` reports declaration counts and ordered source, recognition,
+variable, candidate, and constraint IDs. A variable domain is `closed` only
+when a validated grounded `one_of` applies; this is not a value selection or a
+viability result. `recognition show` returns the declared semantic record. A
+missing ID returns `found: false`, a null declaration kind and recognition,
+and `RCG-REF-002`.
+
+If either show route receives an invalid document, it returns
+`Llmrecog.ValidationResult.v1` rather than a partial show projection.
+
+JSON schemas:
+
+- [`Llmrecog.DocumentResult.v1`](../schemas/Llmrecog.DocumentResult.v1.schema.json);
+- [`Llmrecog.RecognitionResult.v1`](../schemas/Llmrecog.RecognitionResult.v1.schema.json).
 
 ### 2.3 Explain
 
@@ -171,14 +191,21 @@ Every machine result contains at least:
 Record-specific payloads follow the frozen schemas. Support is always a
 separate projection from candidate viability or variable resolution. Numeric
 IDs or localized prose are never the only representation of a reason; stable
-codes and entity references are required.
+codes and entity references are required. Arrays preserve validated
+declaration order.
+
+JSON output uses UTF-8, LF, two-space indentation, and exactly one final
+newline. With identical input bytes and arguments, both JSON and text output
+must be byte-identical across repeated runs. A syntax position `offset` is a
+zero-based UTF-8 byte offset into the exact `.recog` input; line and column are
+one-based and columns count Unicode scalar values.
 
 ## 4. Exit statuses
 
 | Code | Meaning |
 | --- | --- |
-| `0` | Command completed; unknown or non-failing warnings may still be present |
-| `1` | Document/semantic invalidity or configured audit threshold failure |
+| `0` | Complete valid result; non-failing warnings may still be present |
+| `1` | Document invalidity, missing recognition target, diagnostic truncation, or configured audit threshold failure |
 | `2` | CLI usage error |
 | `3` | Input/output failure |
 | `4` | Required source/reference verification unavailable or mismatched |
@@ -212,3 +239,7 @@ The initial contract does not include `extract`, `generate`, `edit`, `set`,
 `remove`, `format`, `import`, `export`, or provider configuration. Each would
 add a write, producer, or compatibility boundary and requires its own design
 and acceptance examples.
+
+Phase 2 additionally defers `document audit`, `recognition explain`, all
+`space` routes, and `--verify-sources local`, even though their provisional
+future contracts are documented above.

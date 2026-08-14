@@ -1,0 +1,159 @@
+{
+  "schema": "Llmrecog.DiagnosticFixtureSet.v1",
+  "semantic_version": "0.1",
+  "fixtures": [
+    {
+      "id": "authored_viability",
+      "path": "test/fixtures/contracts/v0.1/invalid/authored-viability.recog",
+      "digest": "sha256:9f998091491e29a24827b8e4444ee754e4c1f8faa1b806bd4be04cddfa0dce0b",
+      "diagnostics": [
+        {
+          "code": "RCG-SYNTAX-011",
+          "entity_id": "C_A",
+          "span": {
+            "start": { "line": 22, "column": 3, "offset": 301 },
+            "end": { "line": 23, "column": 1, "offset": 314 }
+          },
+          "reason_data": {
+            "field": "allowed",
+            "declaration_kind": "candidate"
+          }
+        }
+      ]
+    },
+    {
+      "id": "empty_one_of",
+      "path": "test/fixtures/contracts/v0.1/invalid/empty-one-of.recog",
+      "digest": "sha256:0f280e85404eca47b62964b37e0f3838b0bc3fd4882461b7bd1aa30543822868",
+      "diagnostics": [
+        {
+          "code": "RCG-CONSTRAINT-003",
+          "entity_id": "K_EMPTY",
+          "span": {
+            "start": { "line": 22, "column": 3, "offset": 288 },
+            "end": { "line": 23, "column": 1, "offset": 299 }
+          },
+          "reason_data": { "variable_id": "V_VALUE" }
+        }
+      ]
+    },
+    {
+      "id": "forbidden_conclusion",
+      "path": "test/fixtures/contracts/v0.1/invalid/forbidden-conclusion.recog",
+      "digest": "sha256:5ec6ccb9036227608be68bb5e7fa785657acbb27b39248b4cbdebdabf33c4875",
+      "diagnostics": [
+        {
+          "code": "RCG-BOUNDARY-001",
+          "entity_id": "R_UNSAFE",
+          "span": {
+            "start": { "line": 21, "column": 3, "offset": 291 },
+            "end": { "line": 22, "column": 1, "offset": 307 }
+          },
+          "reason_data": {
+            "record_kind": "conclusion",
+            "owner": "llmthink"
+          }
+        }
+      ]
+    },
+    {
+      "id": "missing_header",
+      "path": "test/fixtures/contracts/v0.1/invalid/missing-header.recog",
+      "digest": "sha256:3bec97b42865af9758b31dc3929e0017783da5135b77d16884d2d8d0c058fb20",
+      "diagnostics": [
+        {
+          "code": "RCG-SYNTAX-003",
+          "entity_id": null,
+          "span": null,
+          "reason_data": { "expected_version": "0.1" }
+        }
+      ]
+    },
+    {
+      "id": "normalization_without_grounding",
+      "path": "test/fixtures/contracts/v0.1/invalid/normalization-without-grounding.recog",
+      "digest": "sha256:6f4e623bdaed68774ffc28a696b4cdc71673d7c06d788311b4fc0fba5e5ac380",
+      "diagnostics": [
+        {
+          "code": "RCG-NORM-001",
+          "entity_id": "R_VALUE",
+          "span": {
+            "start": { "line": 19, "column": 3, "offset": 280 },
+            "end": { "line": 20, "column": 1, "offset": 295 }
+          },
+          "reason_data": {
+            "missing_fields": ["rule", "grounded_in"]
+          }
+        }
+      ]
+    },
+    {
+      "id": "prohibited_backflow",
+      "path": "test/fixtures/contracts/v0.1/invalid/prohibited-backflow.recog",
+      "digest": "sha256:8113026391cdd48d1da6b97922ea479635c9bd708066849ad612066432bef412",
+      "diagnostics": [
+        {
+          "code": "RCG-BOUNDARY-001",
+          "entity_id": "R_DATABASE",
+          "span": {
+            "start": { "line": 22, "column": 3, "offset": 363 },
+            "end": { "line": 23, "column": 1, "offset": 377 }
+          },
+          "reason_data": {
+            "record_kind": "decision",
+            "owner": "llmthink"
+          }
+        },
+        {
+          "code": "RCG-BOUNDARY-002",
+          "entity_id": "R_DATABASE",
+          "span": {
+            "start": { "line": 22, "column": 3, "offset": 363 },
+            "end": { "line": 23, "column": 1, "offset": 377 }
+          },
+          "reason_data": {
+            "source_id": "THINK_OUTPUT",
+            "source_locator": "llmthink://decision/C1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ungrounded_constraint",
+      "path": "test/fixtures/contracts/v0.1/invalid/ungrounded-constraint.recog",
+      "digest": "sha256:cc9670e346306c508f0aecdb76fc634b7e37b1470f6ab0423373e94f461bb6d4",
+      "diagnostics": [
+        {
+          "code": "RCG-GROUND-002",
+          "entity_id": "K_UNGROUNDED",
+          "span": {
+            "start": { "line": 27, "column": 1, "offset": 380 },
+            "end": { "line": 28, "column": 1, "offset": 405 }
+          },
+          "reason_data": {
+            "missing_fields": ["grounded_in", "support"]
+          }
+        }
+      ]
+    },
+    {
+      "id": "unresolved_reference",
+      "path": "test/fixtures/contracts/v0.1/invalid/unresolved-reference.recog",
+      "digest": "sha256:71959562160ca5c623c42eb11bbac71aeee1a2d001213a74ca63e6b08c20cb01",
+      "diagnostics": [
+        {
+          "code": "RCG-REF-002",
+          "entity_id": "R_STATUS",
+          "span": {
+            "start": { "line": 16, "column": 3, "offset": 201 },
+            "end": { "line": 17, "column": 1, "offset": 219 }
+          },
+          "reason_data": {
+            "reference_id": "E_MISSING",
+            "expected_kinds": ["entity", "variable"]
+          }
+        }
+      ]
+    }
+  ]
+}

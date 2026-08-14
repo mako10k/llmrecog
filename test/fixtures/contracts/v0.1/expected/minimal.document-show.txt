@@ -1,0 +1,16 @@
+Llmrecog.DocumentResult.v1 semantic=0.1 tool=contract-fixture
+input: docs/examples/minimal.recog
+document: MEETING_RECOG
+digest: sha256:87575b777def738ce3e69345d64053770d1e2fec5bd1e000162ca4b63a2afba2
+title: Ambiguous meeting statement
+counts: sources=1 spans=4 observations=0 entities=3 records=3 variables=2 candidates=4 constraints=3
+sources: SRC_MEETING
+recognitions: E_TANAKA, E_SATO, E_RESPONSE, V_ACTOR, C_ACTOR_TANAKA, C_ACTOR_SATO, R_ACTOR, V_COMMITMENT, C_DESIRE, C_WEAK_COMMITMENT, R_INTENT, R_DEADLINE, K_ACTOR_ONE_OF, K_COMMITMENT_ONE_OF, K_TANAKA_NOT_WEAK
+variables:
+  V_ACTOR type=entity_ref domain=closed candidates=C_ACTOR_TANAKA,C_ACTOR_SATO
+  V_COMMITMENT type=symbol domain=closed candidates=C_DESIRE,C_WEAK_COMMITMENT
+constraints: K_ACTOR_ONE_OF, K_COMMITMENT_ONE_OF, K_TANAKA_NOT_WEAK
+source_verification: none/not_requested
+complete: true
+truncated: false
+diagnostics: 0

@@ -1,0 +1,151 @@
+project LLMRECOG_PHASE_2_PARSE_VALIDATE_SHOW:
+  version 6
+  title "llmrecog Phase 2 dogfood-first parse, validate, and show slice"
+  description |
+    Refine only the Phase 2 read path into fixture-first, test-backed vertical slices against semantic contract 0.1, with an evidence review and replan gate after each usable slice.
+    Relative complexity points are estimated independently from elapsed time; no velocity, calendar forecast, or delivery date is declared before measured work exists.
+    Phase 2 dogfooding means reading repository specifications, authoring bounded .recog documents, and exercising deterministic validate/show behavior; it does not mean provider-generated recognition.
+    This plan does not authorize Phase 3 CSP behavior, source locator verification, provider integration, release, publication, or related-repository changes.
+  duration_unit point
+  finish PHASE_2_ACCEPTED
+
+resource IMPLEMENTER:
+  title "Phase 2 implementation capacity"
+  capacity 1
+
+resource SEMANTIC_REVIEWER:
+  title "Contract and semantic-boundary review capacity"
+  description "Only one public-contract or acceptance review runs at a time"
+  capacity 1
+
+milestone EXECUTABLE_CONTRACT_0_1_ACCEPTED:
+  title "Executable text and result contract 0.1 accepted"
+  state reached
+
+milestone PHASE_2_CONTRACT_ACCEPTED:
+  title "Phase 2 public result and fixture contract accepted"
+
+milestone DOGFOOD_PROTOCOL_ACCEPTED:
+  title "Phase 2 dogfood corpus, questions, receipts, and feedback gates accepted"
+
+milestone BOOTSTRAP_READ_PATH_ACCEPTED:
+  title "Minimal source, span, entity, and record read path accepted for private self-use"
+
+milestone GRAMMAR_DOGFOOD_OBSERVED:
+  title "Grammar-first authoring dogfood evidence captured"
+
+milestone GRAMMAR_DOGFOOD_REVIEWED:
+  title "Grammar-first dogfood feedback dispositioned and plan updated"
+
+milestone COMPLETE_READ_PATH_ACCEPTED:
+  title "Complete 0.1 parse, reference, validation, and read-only command path accepted"
+
+milestone SPEC_DOGFOOD_OBSERVED:
+  title "Cross-specification authoring dogfood evidence captured"
+
+milestone SPEC_DOGFOOD_REVIEWED:
+  title "Cross-specification dogfood feedback dispositioned and plan updated"
+
+milestone PHASE_2_ACCEPTED:
+  title "Phase 2 parse, validate, and show vertical slice accepted"
+
+task FREEZE_PHASE_2_CONTRACT EXECUTABLE_CONTRACT_0_1_ACCEPTED -> PHASE_2_CONTRACT_ACCEPTED:
+  title "Freeze and accept the Phase 2 public contract"
+  description |
+    Record the public command and result decision in an accepted ADR before implementation. Add schemas and text/JSON expectations for document show and recognition show, one AST round-trip golden, and exact diagnostic span/code goldens for every Phase 1 invalid fixture. Freeze objective, acceptance, Non-goals, semantic version 0.1, command routes, exit behavior, ordering, completeness, and truncation while keeping implementation and later phases separately gated.
+  duration 8p
+  status done
+  priority 100
+  requires:
+    IMPLEMENTER 1
+    SEMANTIC_REVIEWER 1
+
+task FREEZE_DOGFOOD_PROTOCOL PHASE_2_CONTRACT_ACCEPTED -> DOGFOOD_PROTOCOL_ACCEPTED:
+  title "Freeze the Phase 2 dogfood protocol and bounded corpus"
+  description |
+    Freeze docs/grammar.md and contracts/llmrecog-0.1.ebnf as the first corpus, followed by requirements, terminology, architecture, and implementation phases. Define explicit understanding questions, manually authored .recog inputs, reproducible command receipts, evidence categories, and accepted/rejected/deferred feedback disposition. Dogfood artifacts remain evidence and do not become normative fixtures without separate review.
+  duration 5p
+  priority 90
+  requires:
+    IMPLEMENTER 1
+    SEMANTIC_REVIEWER 1
+
+task IMPLEMENT_BOOTSTRAP_READ_PATH DOGFOOD_PROTOCOL_ACCEPTED -> BOOTSTRAP_READ_PATH_ACCEPTED:
+  title "Implement the smallest privately usable read path"
+  description |
+    Add success and failure fixtures, then implement the real bytes-to-AST-to-model-to-validation seam for document, source, span, entity, and record declarations plus thin document validate/show and recognition show projections. Preserve exact bytes, Unicode-scalar positions, deterministic ordering, stable diagnostics, and no-write/no-locator-I/O behavior. This internal pre-acceptance route is only a dogfood instrument and is not a released or compatibility-stable CLI.
+  duration 13p
+  priority 80
+  requires:
+    IMPLEMENTER 1
+
+task RUN_GRAMMAR_AUTHORING_DOGFOOD BOOTSTRAP_READ_PATH_ACCEPTED -> GRAMMAR_DOGFOOD_OBSERVED:
+  title "Dogfood grammar understanding through the bootstrap read path"
+  description |
+    Read the normative grammar and EBNF, answer the frozen questions by authoring a bounded .recog document, then run validate and show repeatedly through the actual implementation. Capture reproducible receipts for authoring friction, parser and diagnostic behavior, semantic expressiveness, output usefulness, and responsibility-boundary pressure without treating the operator's interpretation or an LLM response as a golden oracle.
+  duration 5p
+  priority 70
+  requires:
+    IMPLEMENTER 1
+
+task APPLY_GRAMMAR_DOGFOOD_FEEDBACK GRAMMAR_DOGFOOD_OBSERVED -> GRAMMAR_DOGFOOD_REVIEWED:
+  title "Disposition grammar dogfood findings before expanding the grammar"
+  description |
+    Classify every observation as a contract or semantic issue, implementation defect, diagnostic or presentation issue, documentation issue, or out-of-scope reasoning/planning request. Record accepted, rejected, and deferred decisions; update an ADR first for any semantic or public-contract change; revise the remaining point estimates and acceptance evidence before implementation resumes.
+  duration 3p
+  priority 60
+  requires:
+    IMPLEMENTER 1
+    SEMANTIC_REVIEWER 1
+
+task IMPLEMENT_COMPLETE_PHASE_2_READ_PATH GRAMMAR_DOGFOOD_REVIEWED -> COMPLETE_READ_PATH_ACCEPTED:
+  title "Complete the 0.1 ambiguity and constraint read path"
+  description |
+    Extend the real scanner, recovered AST, typed model, reference resolution, validation, and read-only projections across observation, normalization, variable, candidate, and all five constraint declarations. Validate declaration registries, grounding, candidate membership, and operand shapes without evaluating CSP viability. Make all Phase 1 success and failure fixtures pass with exact stable diagnostics and schema-valid deterministic text/JSON projections.
+  duration 21p
+  priority 50
+  requires:
+    IMPLEMENTER 1
+
+task RUN_SPECIFICATION_AUTHORING_DOGFOOD COMPLETE_READ_PATH_ACCEPTED -> SPEC_DOGFOOD_OBSERVED:
+  title "Dogfood requirements and architecture understanding"
+  description |
+    Read requirements, terminology, architecture, and implementation phases; author bounded .recog documents for explicit claims, ambiguity, exclusions, and cross-document references; and exercise validate/show through the actual complete Phase 2 path. Record where supported, allowed, excluded, and unknown are easy to confuse, where the source does not ground a desired constraint, and where requested inference or execution planning belongs outside llmrecog.
+  duration 8p
+  priority 40
+  requires:
+    IMPLEMENTER 1
+
+task APPLY_SPECIFICATION_DOGFOOD_FEEDBACK SPEC_DOGFOOD_OBSERVED -> SPEC_DOGFOOD_REVIEWED:
+  title "Disposition specification dogfood findings and re-estimate later phases"
+  description |
+    Review receipts against the frozen questions and corpus digests, separate correctness from usability and missing later-phase behavior, update the accepted/rejected/deferred ledger, and revise Phase 2 acceptance plus the dogfood-first roadmap. Do not broaden the contract merely to encode an ungrounded conclusion or to make the self-produced artifact pass.
+  duration 5p
+  priority 30
+  requires:
+    IMPLEMENTER 1
+    SEMANTIC_REVIEWER 1
+
+task ACCEPT_PHASE_2_SLICE SPEC_DOGFOOD_REVIEWED -> PHASE_2_ACCEPTED:
+  title "Audit and accept the Phase 2 vertical slice"
+  description |
+    Run focused success and failure checks, npm run check, and git diff --check; verify supported Node targets, schema and fixture parity, deterministic repeated output, core dependency direction, no provider or related-project runtime, no source locator I/O, and no responsibility leakage into CSP inference or execution planning. Review the final diff and record unresolved or deferred work without starting Phase 3, publishing, releasing, tagging, or pushing.
+  duration 3p
+  priority 20
+  requires:
+    IMPLEMENTER 1
+    SEMANTIC_REVIEWER 1
+
+work_event START_FREEZE_PHASE_2_CONTRACT_20260814:
+  model 1
+  task FREEZE_PHASE_2_CONTRACT
+  kind start
+  occurred_at 2026-08-14T09:50:26+09:00
+  planned_value 8p
+
+work_event FINISH_FREEZE_PHASE_2_CONTRACT_20260814:
+  model 1
+  task FREEZE_PHASE_2_CONTRACT
+  kind finish
+  occurred_at 2026-08-14T10:02:41+09:00
+  effort 0.2041666667ph

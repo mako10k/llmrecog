@@ -1,0 +1,13 @@
+Llmrecog.RecognitionResult.v1 semantic=0.1 tool=contract-fixture
+input: docs/examples/minimal.recog
+document: MEETING_RECOG
+digest: sha256:87575b777def738ce3e69345d64053770d1e2fec5bd1e000162ca4b63a2afba2
+target: R_MISSING
+found: false
+declaration_kind: -
+recognition: -
+source_verification: none/not_requested
+complete: true
+truncated: false
+diagnostics:
+  RCG-REF-002 error entity=R_MISSING The requested recognition ID does not exist.
