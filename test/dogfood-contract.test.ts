@@ -308,7 +308,7 @@ test("the active dogfood protocol freezes corpus, questions, commands, and gates
   );
   assert.equal(
     sha256(activeProtocolPath),
-    "sha256:dd50010f9009f1e196895e66f6a949424b9b1adbca48e25886d26936ee23f2b8",
+    "sha256:29c91b743677a0c14ad65e41a40a27ec942063d12d1c31987e5b9cc8971613b9",
   );
   assert.equal(activeProtocol.schema, "Llmrecog.Internal.DogfoodProtocol.v1");
   assert.equal(activeProtocol.protocol_version, 5);

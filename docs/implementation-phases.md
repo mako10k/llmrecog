@@ -143,7 +143,7 @@ Acceptance:
   the solver.
 
 Dogfood begins before both space routes are complete. After the relational
-constraint slice, run protocol v4 implication, equality, inequality, open
+constraint slice, run protocol v5 implication, equality, inequality, open
 operand, joint-witness, and compound-navigation questions. Disposition that
 evidence before query or materialization implementation. Then dogfood bounded
 filters, ordering, bounds, and materialization against the same corpus. Its
