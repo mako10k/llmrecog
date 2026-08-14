@@ -1,0 +1,27 @@
+llmrecog 0.1
+
+document EXAMPLE:
+  title "Dogfood receipt shape example"
+
+source SRC:
+  kind text
+  locator "example.txt"
+
+span S1:
+  source SRC
+  range 1:1..1:8
+  quote "example"
+
+entity E_EXAMPLE:
+  type concept
+  label "example"
+  grounded_in [S1]
+  support explicit
+
+record R_EXAMPLE:
+  kind property
+  subject E_EXAMPLE
+  predicate purpose
+  value demonstration
+  grounded_in [S1]
+  support explicit

@@ -21,8 +21,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "node --import tsx --test test/*.test.ts",
     "lint": "eslint .",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" \"scripts/**/*.mjs\" \"schemas/**/*.json\" \"contracts/**/*.json\" \"test/fixtures/**/*.json\" \"*.{json,js}\" \".github/workflows/*.yml\"",
-    "format:check": "prettier --check \"src/**/*.ts\" \"test/**/*.ts\" \"scripts/**/*.mjs\" \"schemas/**/*.json\" \"contracts/**/*.json\" \"test/fixtures/**/*.json\" \"*.{json,js}\" \".github/workflows/*.yml\"",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" \"scripts/**/*.mjs\" \"schemas/**/*.json\" \"contracts/**/*.json\" \"dogfood/**/*.json\" \"test/fixtures/**/*.json\" \"*.{json,js}\" \".github/workflows/*.yml\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"test/**/*.ts\" \"scripts/**/*.mjs\" \"schemas/**/*.json\" \"contracts/**/*.json\" \"dogfood/**/*.json\" \"test/fixtures/**/*.json\" \"*.{json,js}\" \".github/workflows/*.yml\"",
     "check:docs": "node scripts/check-docs.mjs",
     "check": "npm run typecheck && npm run lint && npm run format:check && npm test && npm run check:docs && npm run build"
   },

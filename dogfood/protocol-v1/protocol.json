@@ -1,0 +1,230 @@
+{
+  "schema": "Llmrecog.Internal.DogfoodProtocol.v1",
+  "protocol_version": 1,
+  "semantic_version": "0.1",
+  "status": "active",
+  "receipt_schema": "dogfood/schemas/Llmrecog.Internal.DogfoodRunReceipt.v1.schema.json",
+  "feedback_schema": "dogfood/schemas/Llmrecog.Internal.DogfoodFeedback.v1.schema.json",
+  "run_path_pattern": "dogfood/runs/<run-id>",
+  "rounds": [
+    {
+      "id": "grammar_authoring_v1",
+      "sequence": 1,
+      "earliest_gate": "BOOTSTRAP_READ_PATH_ACCEPTED",
+      "documents": [
+        {
+          "id": "grammar_scanner_semantics",
+          "path": "docs/grammar.md",
+          "digest": "sha256:c2669a616a5d4fae46e39aa55d17d16382473dfd2fd7a4522eec9be5da92cc9d",
+          "authority": "normative_scanner_and_recovery"
+        },
+        {
+          "id": "grammar_ebnf",
+          "path": "contracts/llmrecog-0.1.ebnf",
+          "digest": "sha256:bece61e408892aaf1c5bd010b7d8b482dbf10c1d81d7dd471fd2fcda476ce490",
+          "authority": "normative_production_grammar"
+        }
+      ],
+      "question_ids": [
+        "DGF-GRAMMAR-001",
+        "DGF-GRAMMAR-002",
+        "DGF-GRAMMAR-003",
+        "DGF-GRAMMAR-004"
+      ],
+      "required_declarations": [
+        "document",
+        "source",
+        "span",
+        "entity",
+        "record"
+      ],
+      "command_case_ids": [
+        "DOCUMENT_VALIDATE_JSON",
+        "DOCUMENT_SHOW_JSON",
+        "DOCUMENT_SHOW_TEXT",
+        "RECOGNITION_SHOW_JSON",
+        "RECOGNITION_SHOW_TEXT"
+      ],
+      "next_gate": "GRAMMAR_DOGFOOD_REVIEWED"
+    },
+    {
+      "id": "specification_authoring_v1",
+      "sequence": 2,
+      "earliest_gate": "COMPLETE_READ_PATH_ACCEPTED",
+      "documents": [
+        {
+          "id": "product_requirements",
+          "path": "docs/requirements.md",
+          "digest": "sha256:c6f7f7e37490f00abff22f6d67fc09014847ca427766dbf59a81780f349b0086",
+          "authority": "normative_requirements"
+        },
+        {
+          "id": "normative_terminology",
+          "path": "docs/terminology.md",
+          "digest": "sha256:0c36a1145bb41495d4b28a3c60b0e2c0687aab605b02713d2418a4e70ace7f0c",
+          "authority": "normative_vocabulary"
+        },
+        {
+          "id": "architecture_boundaries",
+          "path": "docs/architecture.md",
+          "digest": "sha256:33b1b346379ff1e643ed79c92547bf8d3c395c581e8b75698c0fc002205395bf",
+          "authority": "architecture_and_responsibility"
+        },
+        {
+          "id": "implementation_phases",
+          "path": "docs/implementation-phases.md",
+          "digest": "sha256:ce8895e47975269782b2801a5c655b97a32ddd1b5e07804f8c243221b76c94aa",
+          "authority": "implementation_sequence"
+        }
+      ],
+      "question_ids": [
+        "DGF-SPEC-001",
+        "DGF-SPEC-002",
+        "DGF-SPEC-003",
+        "DGF-SPEC-004",
+        "DGF-SPEC-005",
+        "DGF-SPEC-006"
+      ],
+      "required_declarations": [
+        "document",
+        "source",
+        "span",
+        "observation",
+        "entity",
+        "record",
+        "variable",
+        "candidate",
+        "constraint"
+      ],
+      "command_case_ids": [
+        "DOCUMENT_VALIDATE_JSON",
+        "DOCUMENT_SHOW_JSON",
+        "DOCUMENT_SHOW_TEXT",
+        "RECOGNITION_SHOW_JSON",
+        "RECOGNITION_SHOW_TEXT"
+      ],
+      "next_gate": "SPEC_DOGFOOD_REVIEWED"
+    }
+  ],
+  "questions": [
+    {
+      "id": "DGF-GRAMMAR-001",
+      "round_id": "grammar_authoring_v1",
+      "prompt": "Which declaration kinds, field sequences, and nesting relationships are explicitly defined?",
+      "required_evidence": "Cited grammar spans and authored entity or record IDs",
+      "non_goal": "Inferring an undocumented syntax extension"
+    },
+    {
+      "id": "DGF-GRAMMAR-002",
+      "round_id": "grammar_authoring_v1",
+      "prompt": "Which byte, newline, indentation, identifier, string, and position rules constrain parsing?",
+      "required_evidence": "Cited scanner spans and separately represented rules",
+      "non_goal": "Treating canonical formatting as silent input normalization"
+    },
+    {
+      "id": "DGF-GRAMMAR-003",
+      "round_id": "grammar_authoring_v1",
+      "prompt": "Which recovery, diagnostic ordering, completeness, and truncation behaviors are required?",
+      "required_evidence": "Cited recovery spans and records preserving distinct behaviors",
+      "non_goal": "Claiming runtime behavior before it is observed"
+    },
+    {
+      "id": "DGF-GRAMMAR-004",
+      "round_id": "grammar_authoring_v1",
+      "prompt": "Which supported grammar meanings cannot yet be represented or inspected through the bootstrap declaration subset?",
+      "required_evidence": "A cited meaning plus the exact missing declaration or projection capability",
+      "non_goal": "Classifying planned later-phase behavior as an implementation defect"
+    },
+    {
+      "id": "DGF-SPEC-001",
+      "round_id": "specification_authoring_v1",
+      "prompt": "Which propositions are explicitly supported and by which source spans?",
+      "required_evidence": "Recognition IDs bound to exact source spans",
+      "non_goal": "Certifying a source statement as a world fact"
+    },
+    {
+      "id": "DGF-SPEC-002",
+      "round_id": "specification_authoring_v1",
+      "prompt": "Which meanings remain open, ambiguous, or incomplete?",
+      "required_evidence": "Variables, candidates, observations, or explicit unknown reasons grounded in source",
+      "non_goal": "Selecting one interpretation for convenience"
+    },
+    {
+      "id": "DGF-SPEC-003",
+      "round_id": "specification_authoring_v1",
+      "prompt": "Which constraints are explicitly grounded as relationships by the source?",
+      "required_evidence": "Constraint IDs with positive relationship support and grounding",
+      "non_goal": "Creating a constraint only because it makes the model viable"
+    },
+    {
+      "id": "DGF-SPEC-004",
+      "round_id": "specification_authoring_v1",
+      "prompt": "Where could supported, allowed, excluded, conflicted, and unknown be confused?",
+      "required_evidence": "Separate support and viability observations with cited IDs",
+      "non_goal": "Persisting derived state as authored source meaning"
+    },
+    {
+      "id": "DGF-SPEC-005",
+      "round_id": "specification_authoring_v1",
+      "prompt": "Which desired operations derive, choose, or conclude and therefore belong to llmthink?",
+      "required_evidence": "Cited source meaning and the exact proposed operation crossing the boundary",
+      "non_goal": "Adding reasoning records to llmrecog"
+    },
+    {
+      "id": "DGF-SPEC-006",
+      "round_id": "specification_authoring_v1",
+      "prompt": "Which desired operations create milestones, tasks, dependencies, resources, estimates, or execution state and therefore belong to perttool?",
+      "required_evidence": "Cited source meaning and the exact realization operation crossing the boundary",
+      "non_goal": "Adding planning or execution state to llmrecog"
+    }
+  ],
+  "command_cases": [
+    {
+      "id": "DOCUMENT_VALIDATE_JSON",
+      "route": ["document", "validate"],
+      "format": "json",
+      "repeat_count": 2
+    },
+    {
+      "id": "DOCUMENT_SHOW_JSON",
+      "route": ["document", "show"],
+      "format": "json",
+      "repeat_count": 2
+    },
+    {
+      "id": "DOCUMENT_SHOW_TEXT",
+      "route": ["document", "show"],
+      "format": "text",
+      "repeat_count": 2
+    },
+    {
+      "id": "RECOGNITION_SHOW_JSON",
+      "route": ["recognition", "show"],
+      "format": "json",
+      "repeat_count": 2
+    },
+    {
+      "id": "RECOGNITION_SHOW_TEXT",
+      "route": ["recognition", "show"],
+      "format": "text",
+      "repeat_count": 2
+    }
+  ],
+  "observation_categories": [
+    "contract_semantic",
+    "implementation",
+    "diagnostics_presentation",
+    "documentation",
+    "product_boundary"
+  ],
+  "feedback_dispositions": ["accepted", "rejected", "deferred"],
+  "acceptance": {
+    "receipt_immutable": true,
+    "feedback_binds_receipt_digest": true,
+    "all_questions_answered_or_blocked": true,
+    "all_observations_dispositioned_before_next_gate": true,
+    "contract_change_requires_adr": true,
+    "unfinished_work_reestimated_in_points": true,
+    "elapsed_time_forecast_requires_stable_velocity": true
+  }
+}

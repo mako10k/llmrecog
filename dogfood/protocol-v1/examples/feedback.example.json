@@ -1,0 +1,23 @@
+{
+  "schema": "Llmrecog.Internal.DogfoodFeedback.v1",
+  "feedback_id": "EXAMPLE_GRAMMAR_FEEDBACK",
+  "receipt": {
+    "path": "dogfood/protocol-v1/examples/run-receipt.example.json",
+    "digest": "sha256:ff5fdae0a567abd11bbfb4dbc08f2170cd3a08e15fe2ce3b963e0bc515b4171a"
+  },
+  "reviewed_at": "1970-01-01T00:00:02Z",
+  "reviewer": "EXAMPLE_REVIEWER",
+  "supersedes": null,
+  "entries": [
+    {
+      "observation_id": "OBS-EXAMPLE-001",
+      "disposition": "rejected",
+      "rationale": "The example observation is shape documentation, not product evidence.",
+      "contract_change": "not_required",
+      "action_task_ids": []
+    }
+  ],
+  "point_adjustments": [],
+  "round_complete": true,
+  "unresolved_observation_ids": []
+}

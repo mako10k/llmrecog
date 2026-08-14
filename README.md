@@ -88,6 +88,8 @@ back into an earlier layer.
 - [Prior-art review](docs/reference-review.md)
 - [Development setup](docs/development.md)
 - [Development method](docs/process/development-method.md)
+- [Dogfooding workflow](docs/process/dogfooding.md)
+- [Internal dogfood protocol](dogfood/README.md)
 - [Architecture decisions](docs/adr/README.md)
 
 ## Initial scope lock

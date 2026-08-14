@@ -1,0 +1,221 @@
+{
+  "schema": "Llmrecog.Internal.DogfoodRunReceipt.v1",
+  "run_id": "EXAMPLE_GRAMMAR_RUN",
+  "round_id": "grammar_authoring_v1",
+  "started_at": "1970-01-01T00:00:00Z",
+  "finished_at": "1970-01-01T00:00:01Z",
+  "tool": {
+    "repository_revision": "0000000000000000000000000000000000000000",
+    "semantic_version": "0.1",
+    "node_version": "EXAMPLE_NODE_VERSION",
+    "platform": "EXAMPLE_PLATFORM",
+    "working_directory": "."
+  },
+  "protocol": {
+    "path": "dogfood/protocol-v1/protocol.json",
+    "digest": "sha256:d9cd79dfb7a614bf42c2966ee27535e99dbf9c9d2e5259b05317a306104f201f"
+  },
+  "question_results": [
+    {
+      "question_id": "DGF-GRAMMAR-001",
+      "status": "answered",
+      "summary": "Example answer summary for declaration and nesting rules.",
+      "evidence": ["R_EXAMPLE demonstrates the receipt reference shape."]
+    },
+    {
+      "question_id": "DGF-GRAMMAR-002",
+      "status": "answered",
+      "summary": "Example answer summary for scanner and position rules.",
+      "evidence": ["This is shape documentation rather than run evidence."]
+    },
+    {
+      "question_id": "DGF-GRAMMAR-003",
+      "status": "answered",
+      "summary": "Example answer summary for recovery and diagnostics.",
+      "evidence": ["This is shape documentation rather than run evidence."]
+    },
+    {
+      "question_id": "DGF-GRAMMAR-004",
+      "status": "blocked",
+      "summary": "The example does not execute a bootstrap implementation.",
+      "evidence": ["Example files are explicitly non-evidence artifacts."]
+    }
+  ],
+  "artifact": {
+    "path": "dogfood/protocol-v1/examples/input.example.recog",
+    "digest": "sha256:fc6c7cb01a2971775baf62e4d726d10435ea99b470d572d7bbc5467545422aa9"
+  },
+  "executions": [
+    {
+      "case_id": "DOCUMENT_VALIDATE_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "llmrecog",
+        "document",
+        "validate",
+        "dogfood/protocol-v1/examples/input.example.recog",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "DOCUMENT_VALIDATE_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "llmrecog",
+        "document",
+        "validate",
+        "dogfood/protocol-v1/examples/input.example.recog",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "DOCUMENT_SHOW_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "llmrecog",
+        "document",
+        "show",
+        "dogfood/protocol-v1/examples/input.example.recog",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "DOCUMENT_SHOW_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "llmrecog",
+        "document",
+        "show",
+        "dogfood/protocol-v1/examples/input.example.recog",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "DOCUMENT_SHOW_TEXT",
+      "repeat_index": 1,
+      "argv": [
+        "llmrecog",
+        "document",
+        "show",
+        "dogfood/protocol-v1/examples/input.example.recog",
+        "--format",
+        "text"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "DOCUMENT_SHOW_TEXT",
+      "repeat_index": 2,
+      "argv": [
+        "llmrecog",
+        "document",
+        "show",
+        "dogfood/protocol-v1/examples/input.example.recog",
+        "--format",
+        "text"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "RECOGNITION_SHOW_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "llmrecog",
+        "recognition",
+        "show",
+        "R_EXAMPLE",
+        "dogfood/protocol-v1/examples/input.example.recog",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "RECOGNITION_SHOW_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "llmrecog",
+        "recognition",
+        "show",
+        "R_EXAMPLE",
+        "dogfood/protocol-v1/examples/input.example.recog",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "RECOGNITION_SHOW_TEXT",
+      "repeat_index": 1,
+      "argv": [
+        "llmrecog",
+        "recognition",
+        "show",
+        "R_EXAMPLE",
+        "dogfood/protocol-v1/examples/input.example.recog",
+        "--format",
+        "text"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "RECOGNITION_SHOW_TEXT",
+      "repeat_index": 2,
+      "argv": [
+        "llmrecog",
+        "recognition",
+        "show",
+        "R_EXAMPLE",
+        "dogfood/protocol-v1/examples/input.example.recog",
+        "--format",
+        "text"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "outcome": "completed",
+  "complete": true,
+  "truncated": false,
+  "observations": [
+    {
+      "id": "OBS-EXAMPLE-001",
+      "category": "documentation",
+      "summary": "Example observation only",
+      "evidence": "This record demonstrates the immutable receipt shape.",
+      "reproduction_steps": [
+        "Read this example without treating it as run evidence."
+      ],
+      "proposed_action": "No product action",
+      "affected_contracts": [],
+      "point_impact": 0
+    }
+  ]
+}

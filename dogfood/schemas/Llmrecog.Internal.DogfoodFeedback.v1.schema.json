@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mako10k.github.io/llmrecog/dogfood/schemas/Llmrecog.Internal.DogfoodFeedback.v1.schema.json",
+  "title": "Llmrecog.Internal.DogfoodFeedback.v1",
+  "description": "Internal reviewed disposition bound to one immutable dogfood receipt; not a public product result.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "feedback_id",
+    "receipt",
+    "reviewed_at",
+    "reviewer",
+    "supersedes",
+    "entries",
+    "point_adjustments",
+    "round_complete",
+    "unresolved_observation_ids"
+  ],
+  "properties": {
+    "schema": { "const": "Llmrecog.Internal.DogfoodFeedback.v1" },
+    "feedback_id": { "$ref": "#/$defs/identifier" },
+    "receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "digest"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "digest": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "reviewed_at": { "type": "string", "format": "date-time" },
+    "reviewer": { "type": "string", "minLength": 1 },
+    "supersedes": {
+      "oneOf": [{ "$ref": "#/$defs/sha256" }, { "type": "null" }]
+    },
+    "entries": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/entry" }
+    },
+    "point_adjustments": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/point_adjustment" }
+    },
+    "round_complete": { "type": "boolean" },
+    "unresolved_observation_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/identifier" }
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "observation_id",
+        "disposition",
+        "rationale",
+        "contract_change",
+        "action_task_ids"
+      ],
+      "properties": {
+        "observation_id": { "$ref": "#/$defs/identifier" },
+        "disposition": { "enum": ["accepted", "rejected", "deferred"] },
+        "rationale": { "type": "string", "minLength": 1 },
+        "contract_change": {
+          "enum": ["required", "not_required", "deferred"]
+        },
+        "action_task_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/identifier" }
+        }
+      }
+    },
+    "point_adjustment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "plan_path",
+        "task_id",
+        "previous_points",
+        "revised_points",
+        "rationale"
+      ],
+      "properties": {
+        "plan_path": { "type": "string", "minLength": 1 },
+        "task_id": { "$ref": "#/$defs/identifier" },
+        "previous_points": { "type": "integer", "minimum": 0 },
+        "revised_points": { "type": "integer", "minimum": 0 },
+        "rationale": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

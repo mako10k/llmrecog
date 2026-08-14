@@ -27,6 +27,7 @@ This directory is the design authority for the pre-implementation phase.
 | [development.md](development.md) | Maintainer setup and executable checks |
 | [process/development-method.md](process/development-method.md) | Specification-first, fixture-first change workflow |
 | [process/dogfooding.md](process/dogfooding.md) | Dogfood modes, corpus order, feedback receipts, and replan gates |
+| [../dogfood/README.md](../dogfood/README.md) | Internal versioned dogfood protocol and evidence layout |
 | [adr/](adr/) | Accepted design decisions |
 | [../contracts/](../contracts/) | Versioned EBNF and diagnostic/reason registry |
 | [../schemas/](../schemas/) | Versioned AST, semantic, validation, and explain JSON Schemas |

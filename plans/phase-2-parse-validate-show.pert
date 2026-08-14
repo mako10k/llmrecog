@@ -65,6 +65,7 @@ task FREEZE_DOGFOOD_PROTOCOL PHASE_2_CONTRACT_ACCEPTED -> DOGFOOD_PROTOCOL_ACCEP
   description |
     Freeze docs/grammar.md and contracts/llmrecog-0.1.ebnf as the first corpus, followed by requirements, terminology, architecture, and implementation phases. Define explicit understanding questions, manually authored .recog inputs, reproducible command receipts, evidence categories, and accepted/rejected/deferred feedback disposition. Dogfood artifacts remain evidence and do not become normative fixtures without separate review.
   duration 5p
+  status done
   priority 90
   requires:
     IMPLEMENTER 1
@@ -149,3 +150,17 @@ work_event FINISH_FREEZE_PHASE_2_CONTRACT_20260814:
   kind finish
   occurred_at 2026-08-14T10:02:41+09:00
   effort 0.2041666667ph
+
+work_event START_FREEZE_DOGFOOD_PROTOCOL_20260814:
+  model 1
+  task FREEZE_DOGFOOD_PROTOCOL
+  kind start
+  occurred_at 2026-08-14T10:36:27+09:00
+  planned_value 5p
+
+work_event FINISH_FREEZE_DOGFOOD_PROTOCOL_20260814:
+  model 1
+  task FREEZE_DOGFOOD_PROTOCOL
+  kind finish
+  occurred_at 2026-08-14T10:46:04+09:00
+  effort 0.1602777778ph

@@ -1,0 +1,182 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mako10k.github.io/llmrecog/dogfood/schemas/Llmrecog.Internal.DogfoodRunReceipt.v1.schema.json",
+  "title": "Llmrecog.Internal.DogfoodRunReceipt.v1",
+  "description": "Internal immutable evidence from one dogfood execution; not a public product result.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "run_id",
+    "round_id",
+    "started_at",
+    "finished_at",
+    "tool",
+    "protocol",
+    "question_results",
+    "artifact",
+    "executions",
+    "outcome",
+    "complete",
+    "truncated",
+    "observations"
+  ],
+  "properties": {
+    "schema": { "const": "Llmrecog.Internal.DogfoodRunReceipt.v1" },
+    "run_id": { "$ref": "#/$defs/identifier" },
+    "round_id": {
+      "enum": ["grammar_authoring_v1", "specification_authoring_v1"]
+    },
+    "started_at": { "type": "string", "format": "date-time" },
+    "finished_at": { "type": "string", "format": "date-time" },
+    "tool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository_revision",
+        "semantic_version",
+        "node_version",
+        "platform",
+        "working_directory"
+      ],
+      "properties": {
+        "repository_revision": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "semantic_version": { "const": "0.1" },
+        "node_version": { "type": "string", "minLength": 1 },
+        "platform": { "type": "string", "minLength": 1 },
+        "working_directory": { "const": "." }
+      }
+    },
+    "protocol": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "digest"],
+      "properties": {
+        "path": { "const": "dogfood/protocol-v1/protocol.json" },
+        "digest": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "question_results": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/question_result" }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "digest"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "digest": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "executions": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/execution" }
+    },
+    "outcome": { "enum": ["completed", "blocked"] },
+    "complete": { "type": "boolean" },
+    "truncated": { "type": "boolean" },
+    "observations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/observation" }
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "case_id",
+        "repeat_index",
+        "argv",
+        "exit_status",
+        "stdout_digest",
+        "stderr_digest"
+      ],
+      "properties": {
+        "case_id": { "$ref": "#/$defs/identifier" },
+        "repeat_index": { "type": "integer", "minimum": 1 },
+        "argv": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string" }
+        },
+        "exit_status": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "stdout_digest": { "$ref": "#/$defs/sha256" },
+        "stderr_digest": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "question_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["question_id", "status", "summary", "evidence"],
+      "properties": {
+        "question_id": { "$ref": "#/$defs/identifier" },
+        "status": { "enum": ["answered", "blocked"] },
+        "summary": { "type": "string", "minLength": 1 },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "category",
+        "summary",
+        "evidence",
+        "reproduction_steps",
+        "proposed_action",
+        "affected_contracts",
+        "point_impact"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/identifier" },
+        "category": {
+          "enum": [
+            "contract_semantic",
+            "implementation",
+            "diagnostics_presentation",
+            "documentation",
+            "product_boundary"
+          ]
+        },
+        "summary": { "type": "string", "minLength": 1 },
+        "evidence": { "type": "string", "minLength": 1 },
+        "reproduction_steps": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "proposed_action": { "type": "string", "minLength": 1 },
+        "affected_contracts": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "point_impact": { "type": "integer" }
+      }
+    }
+  }
+}

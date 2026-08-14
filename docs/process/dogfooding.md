@@ -49,6 +49,19 @@ The corpus is identified by repository-relative path and digest. A corpus
 change starts a new comparison baseline; it must not silently invalidate an
 older receipt.
 
+## Frozen Phase 2 protocol
+
+The exact Phase 2 corpus digests, question IDs, command cases, declaration
+coverage, round gates, and acceptance flags are frozen in
+[`dogfood/protocol-v1/protocol.json`](../../dogfood/protocol-v1/protocol.json).
+The process-only receipt and feedback schemas are under
+[`dogfood/schemas/`](../../dogfood/schemas/), and the evidence layout and
+immutability rules are in [`dogfood/README.md`](../../dogfood/README.md).
+
+Changing a corpus document, question, command case, evidence shape, or storage
+rule creates a new protocol version. An older receipt continues to identify its
+original protocol by exact digest.
+
 ## Frozen questions
 
 Each round selects a bounded subset of these questions before execution:
@@ -87,7 +100,7 @@ reviewed.
 
 ## Receipt and feedback contract
 
-Each run records:
+Each immutable run receipt records:
 
 - run identifier, exact tool revision, semantic version, and command inputs;
 - corpus paths and digests, frozen question IDs, and authored artifact digest;
@@ -95,12 +108,16 @@ Each run records:
 - observed friction with a reproducible example;
 - category: contract/semantic, implementation, diagnostics/presentation,
   documentation, or product-boundary pressure;
-- proposed action, affected contract version, and point-estimate impact;
-- disposition: accepted, rejected, or deferred, with reviewer and rationale.
+- proposed action, affected contract version, and point-estimate impact.
 
-Receipts record evidence and decisions, not private chain-of-thought. An
-authored or generated dogfood artifact becomes a normative fixture only after
-its expected meaning is explicitly reviewed and versioned.
+A separate feedback artifact binds to the receipt digest and records accepted,
+rejected, or deferred disposition, reviewer, rationale, follow-up task IDs, and
+point changes. This separation lets the dogfood round capture observations
+before its following review/replan task decides what to do with them.
+
+Receipts and feedback record evidence and decisions, not private
+chain-of-thought. An authored or generated dogfood artifact becomes a normative
+fixture only after its expected meaning is explicitly reviewed and versioned.
 
 ## Feedback gates
 
