@@ -1,0 +1,59 @@
+{
+  "schema": "Llmrecog.Internal.DogfoodFeedback.v1",
+  "feedback_id": "SPECIFICATION_AUTHORING_20260814_01_FEEDBACK_01",
+  "receipt": {
+    "path": "dogfood/runs/SPECIFICATION_AUTHORING_20260814_01/receipt.json",
+    "digest": "sha256:50fe66d795450f4b2171a78b592021fcc205599c758722d2c99ed8d9103a61c2"
+  },
+  "reviewed_at": "2026-08-14T12:11:26+09:00",
+  "reviewer": "codex",
+  "supersedes": null,
+  "entries": [
+    {
+      "observation_id": "OBS-SPEC-001",
+      "disposition": "accepted",
+      "rationale": "The run reproduced a real authoring hazard: an enumerated set of candidates does not prove exhaustive closure. Existing requirements and one_of semantics already require relationship-level grounding, so boundary case 3 was clarified to keep the variable open until a separate cited span explicitly closes it. This aligns documentation with contract 0.1 and does not change grammar, schemas, or semantics.",
+      "contract_change": "not_required",
+      "action_task_ids": ["APPLY_SPECIFICATION_DOGFOOD_FEEDBACK"]
+    },
+    {
+      "observation_id": "OBS-SPEC-002",
+      "disposition": "rejected",
+      "rationale": "The complete read path makes declaration, variable, candidate, constraint, and one-record inspection available. Grouping by frozen dogfood question is process-specific rather than a stable semantic result, while expanding arbitrary grounding graphs would anticipate the separately gated explain contract. Phase 2 acceptance does not justify a new filter route or public result shape.",
+      "contract_change": "not_required",
+      "action_task_ids": []
+    },
+    {
+      "observation_id": "OBS-SPEC-003",
+      "disposition": "deferred",
+      "rationale": "The status text is stale for the current private implementation, but requirements.md is part of the protocol-v1 corpus and the completed receipt intentionally binds its old digest. Preserve that evidence and update the status only when the next CSP dogfood round establishes protocol v2 and a new corpus baseline.",
+      "contract_change": "deferred",
+      "action_task_ids": ["IMPLEMENT_AND_DOGFOOD_EXPLAIN"]
+    },
+    {
+      "observation_id": "OBS-SPEC-004",
+      "disposition": "accepted",
+      "rationale": "The observed output preserves authored grounding and domain closure without producing support-state or viability classifications. This is the required Phase 2 boundary; candidate viability, exclusion chains, and unknown reasons remain Phase 3 work.",
+      "contract_change": "not_required",
+      "action_task_ids": ["ACCEPT_PHASE_2_SLICE"]
+    }
+  ],
+  "point_adjustments": [
+    {
+      "plan_path": "plans/dogfooding-roadmap.pert",
+      "task_id": "DELIVER_PHASE_2_DOGFOOD_SLICE",
+      "previous_points": 63,
+      "revised_points": 75,
+      "rationale": "Synchronize the coarse Phase 2 slice with the current detailed plan total, including the accepted jscpd gate and both dogfood feedback reviews, without converting points into elapsed time."
+    },
+    {
+      "plan_path": "plans/dogfooding-roadmap.pert",
+      "task_id": "IMPLEMENT_AND_DOGFOOD_EXPLAIN",
+      "previous_points": 26,
+      "revised_points": 28,
+      "rationale": "Reserve 2p to create the next versioned corpus baseline, update the stale requirements status, and preserve protocol-v1 receipt identity before the CSP dogfood rerun."
+    }
+  ],
+  "round_complete": true,
+  "unresolved_observation_ids": []
+}

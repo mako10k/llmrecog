@@ -54,7 +54,7 @@ milestone DOGFOODING_ROADMAP_ACCEPTED:
 task DELIVER_PHASE_2_DOGFOOD_SLICE PHASE_2_CONTRACT_ACCEPTED -> PHASE_2_DOGFOOD_SLICE_ACCEPTED:
   title "Deliver and dogfood the Phase 2 read path"
   description "Follow plans/phase-2-parse-validate-show.pert: freeze the protocol, build a minimal private read path, dogfood the grammar, complete the 0.1 read path, dogfood the repository specifications, disposition feedback, and accept Phase 2"
-  duration 63p
+  duration 75p
   priority 100
   requires:
     IMPLEMENTER 1
@@ -63,7 +63,7 @@ task DELIVER_PHASE_2_DOGFOOD_SLICE PHASE_2_CONTRACT_ACCEPTED -> PHASE_2_DOGFOOD_
 task IMPLEMENT_AND_DOGFOOD_EXPLAIN PHASE_2_DOGFOOD_SLICE_ACCEPTED -> EXPLAIN_DOGFOOD_REVIEWED:
   title "Implement the explainable CSP slice and dogfood ambiguity questions"
   description "Implement finite one_of and excludes behavior, joint witnesses, exclusion chains, unknown reasons, candidate explain, and focused audit rules; rerun the versioned corpus and disposition all explain, conflict, and unknown feedback before extending constraint semantics"
-  duration 26p
+  duration 28p
   priority 90
   requires:
     IMPLEMENTER 1

@@ -126,6 +126,7 @@ task APPLY_SPECIFICATION_DOGFOOD_FEEDBACK SPEC_DOGFOOD_OBSERVED -> SPEC_DOGFOOD_
   title "Disposition specification dogfood findings and re-estimate later phases"
   description "Review receipts against the frozen questions and corpus digests, separate correctness from usability and missing later-phase behavior, and re-evaluate the deferred grounded-summary or filtering affordance against the complete read path before any public contract change. Update the accepted/rejected/deferred ledger, revise Phase 2 acceptance plus the dogfood-first roadmap, and do not broaden the contract merely to encode an ungrounded conclusion or to make the self-produced artifact pass."
   duration 7p
+  status done
   priority 30
   requires:
     IMPLEMENTER 1
@@ -265,3 +266,17 @@ work_event FINISH_RUN_SPECIFICATION_AUTHORING_DOGFOOD_20260814:
   kind finish
   occurred_at 2026-08-14T12:08:25+09:00
   effort 0.1430555556ph
+
+work_event START_APPLY_SPECIFICATION_DOGFOOD_FEEDBACK_20260814:
+  model 1
+  task APPLY_SPECIFICATION_DOGFOOD_FEEDBACK
+  kind start
+  occurred_at 2026-08-14T12:09:12+09:00
+  planned_value 7p
+
+work_event FINISH_APPLY_SPECIFICATION_DOGFOOD_FEEDBACK_20260814:
+  model 1
+  task APPLY_SPECIFICATION_DOGFOOD_FEEDBACK
+  kind finish
+  occurred_at 2026-08-14T12:12:45+09:00
+  effort 0.0591666667ph

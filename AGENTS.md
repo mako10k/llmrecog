@@ -19,8 +19,8 @@ until it exists in the current checkout and has been verified.
 `llmrecog` has a design baseline, a frozen executable contract 0.1, and a
 private Phase 2 parse/validate/show read path. It has no constraint solver,
 public CLI, or released package. The next separately gated work in
-`docs/implementation-phases.md` is specification-authoring dogfood and Phase 2
-acceptance against the accepted contract fixtures.
+`docs/implementation-phases.md` is the Phase 2 acceptance audit against the
+accepted contract fixtures and both reviewed dogfood rounds.
 
 Completion of the Phase 2 read path does not authorize:
 

@@ -18,6 +18,8 @@ const feedbackExamplePath =
   "dogfood/protocol-v1/examples/feedback.example.json";
 const grammarFeedbackPath =
   "dogfood/runs/GRAMMAR_AUTHORING_20260814_01/feedback.json";
+const specificationFeedbackPath =
+  "dogfood/runs/SPECIFICATION_AUTHORING_20260814_01/feedback.json";
 
 interface ProtocolDocument {
   readonly id: string;
@@ -283,6 +285,9 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   const specificationRun = readJson<RunExample>(specificationRunReceiptPath);
   const feedbackExample = readJson<FeedbackExample>(feedbackExamplePath);
   const grammarFeedback = readJson<FeedbackExample>(grammarFeedbackPath);
+  const specificationFeedback = readJson<FeedbackExample>(
+    specificationFeedbackPath,
+  );
   const ajv = new Ajv2020({ allErrors: true, strict: true });
   addFormats(ajv);
 
@@ -310,6 +315,11 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   );
   assert.equal(
     validateFeedback(grammarFeedback),
+    true,
+    JSON.stringify(validateFeedback.errors, null, 2),
+  );
+  assert.equal(
+    validateFeedback(specificationFeedback),
     true,
     JSON.stringify(validateFeedback.errors, null, 2),
   );
@@ -355,4 +365,31 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
     },
   ]);
   assertFeedbackBindings(grammarFeedback, grammarRunReceiptPath, grammarRun);
+  assert.equal(
+    specificationFeedback.feedback_id,
+    "SPECIFICATION_AUTHORING_20260814_01_FEEDBACK_01",
+  );
+  assert.deepEqual(specificationFeedback.point_adjustments, [
+    {
+      plan_path: "plans/dogfooding-roadmap.pert",
+      task_id: "DELIVER_PHASE_2_DOGFOOD_SLICE",
+      previous_points: 63,
+      revised_points: 75,
+      rationale:
+        "Synchronize the coarse Phase 2 slice with the current detailed plan total, including the accepted jscpd gate and both dogfood feedback reviews, without converting points into elapsed time.",
+    },
+    {
+      plan_path: "plans/dogfooding-roadmap.pert",
+      task_id: "IMPLEMENT_AND_DOGFOOD_EXPLAIN",
+      previous_points: 26,
+      revised_points: 28,
+      rationale:
+        "Reserve 2p to create the next versioned corpus baseline, update the stale requirements status, and preserve protocol-v1 receipt identity before the CSP dogfood rerun.",
+    },
+  ]);
+  assertFeedbackBindings(
+    specificationFeedback,
+    specificationRunReceiptPath,
+    specificationRun,
+  );
 });

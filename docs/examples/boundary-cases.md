@@ -65,14 +65,20 @@ Input:
 田中は佐藤に、彼が来週までには対応したいと伝えた。
 ```
 
-Valid factorized recognition:
+Valid factorized recognition from this sentence alone:
 
 ```text
 V_ACTOR = { E_TANAKA, E_SATO }
 C_ACTOR_TANAKA support ambiguous
 C_ACTOR_SATO   support ambiguous
-one_of(V_ACTOR, [C_ACTOR_TANAKA, C_ACTOR_SATO])
+V_ACTOR domain open
 ```
+
+The candidate list does not itself prove exhaustiveness. A grounded
+`one_of(V_ACTOR, [C_ACTOR_TANAKA, C_ACTOR_SATO])` may be added only when a
+separately cited source span says that the referent is exactly one of those two,
+as in the second line of `docs/examples/meeting.txt`. An enumerated but
+unclosed list remains open.
 
 Invalid simplification:
 
