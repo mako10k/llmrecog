@@ -4,11 +4,7 @@ import type {
   RecognitionResult,
   ValidationResult,
 } from "../application/bootstrap-read-path.js";
-import type {
-  BootstrapRecognition,
-  Diagnostic,
-  SemanticValue,
-} from "../core/types.js";
+import type { Diagnostic, Recognition, SemanticValue } from "../core/types.js";
 
 function renderDiagnostics(
   diagnostics: readonly Diagnostic[],
@@ -58,8 +54,16 @@ function renderDocument(result: DocumentResult): string {
     `counts: sources=${counts.sources} spans=${counts.spans} observations=${counts.observations} entities=${counts.entities} records=${counts.records} variables=${counts.variables} candidates=${counts.candidates} constraints=${counts.constraints}`,
     `sources: ${result.summary.source_ids.join(", ") || "-"}`,
     `recognitions: ${result.summary.recognition_ids.join(", ") || "-"}`,
-    "variables: -",
-    "constraints: -",
+    ...(result.summary.variables.length === 0
+      ? ["variables: -"]
+      : [
+          "variables:",
+          ...result.summary.variables.map(
+            (variable) =>
+              `  ${variable.id} type=${variable.value_type} domain=${variable.domain} candidates=${variable.candidate_ids.join(",") || "-"}`,
+          ),
+        ]),
+    `constraints: ${result.summary.constraint_ids.join(", ") || "-"}`,
     `source_verification: ${result.source_verification.mode}/${result.source_verification.state}`,
     `complete: ${String(result.complete)}`,
     `truncated: ${String(result.truncated)}`,
@@ -78,35 +82,108 @@ function renderValue(value: SemanticValue): string {
   }
 }
 
-function renderRecognitionDetails(
-  recognition: BootstrapRecognition,
+type RecordRecognition = Extract<
+  Recognition,
+  { readonly declaration_kind: "record" }
+>;
+
+type ConstraintRecognition = Extract<
+  Recognition,
+  { readonly declaration_kind: "constraint" }
+>;
+
+function renderRecordDetails(
+  recognition: RecordRecognition,
 ): readonly string[] {
-  const lines = [`declaration_kind: ${recognition.declaration_kind}`];
-  if (recognition.declaration_kind === "entity") {
-    lines.push(`type: ${recognition.type}`, `label: ${recognition.label}`);
-  } else {
-    lines.push(
-      `record_kind: ${recognition.record_kind}`,
-      `subject: ${recognition.subject_id}`,
-    );
-    if ("predicate" in recognition)
-      lines.push(`predicate: ${recognition.predicate}`);
-    if ("object" in recognition)
-      lines.push(`object: ${renderValue(recognition.object)}`);
-    if ("value" in recognition)
-      lines.push(`value: ${renderValue(recognition.value)}`);
-  }
-  lines.push(
-    `grounded_in: ${recognition.grounded_in.map((entry) => entry.id).join(",") || "-"}`,
-  );
-  if (recognition.support === undefined) {
-    lines.push("support: -");
-  } else {
-    lines.push(
-      `support: ${recognition.support.kind} grounded_in=${recognition.support.grounded_in.map((entry) => entry.id).join(",")}`,
-    );
-  }
+  const lines = [`record_kind: ${recognition.record_kind}`];
+  if (recognition.subject_id !== undefined)
+    lines.push(`subject: ${recognition.subject_id}`);
+  if ("predicate" in recognition)
+    lines.push(`predicate: ${recognition.predicate}`);
+  if ("object" in recognition)
+    lines.push(`object: ${renderValue(recognition.object)}`);
+  if ("value" in recognition)
+    lines.push(`value: ${renderValue(recognition.value)}`);
   return lines;
+}
+
+function renderConstraintDetails(
+  recognition: ConstraintRecognition,
+): readonly string[] {
+  const lines = [`constraint_kind: ${recognition.constraint_kind}`];
+  if (recognition.constraint_kind === "one_of") {
+    return [
+      ...lines,
+      `variable: ${recognition.variable_id}`,
+      `members: ${recognition.member_ids.join(",")}`,
+    ];
+  }
+  if (recognition.constraint_kind === "requires") {
+    return [
+      ...lines,
+      `antecedent: ${recognition.antecedent_id}`,
+      `consequent: ${recognition.consequent_id}`,
+    ];
+  }
+  return [
+    ...lines,
+    `left: ${recognition.left_id}`,
+    `right: ${recognition.right_id}`,
+  ];
+}
+
+function renderKindDetails(recognition: Recognition): readonly string[] {
+  switch (recognition.declaration_kind) {
+    case "entity":
+      return [`type: ${recognition.type}`, `label: ${recognition.label}`];
+    case "record":
+      return renderRecordDetails(recognition);
+    case "variable":
+      return [
+        `value_type: ${recognition.value_type}`,
+        `candidates: ${recognition.candidate_ids.join(",") || "-"}`,
+      ];
+    case "candidate":
+      return [
+        `variable: ${recognition.variable_id}`,
+        `value: ${renderValue(recognition.value)}`,
+      ];
+    case "constraint":
+      return renderConstraintDetails(recognition);
+  }
+}
+
+function renderSupport(recognition: Recognition): string {
+  if (recognition.support === undefined) {
+    return "support: -";
+  }
+  return `support: ${recognition.support.kind} grounded_in=${recognition.support.grounded_in.map((entry) => entry.id).join(",")}`;
+}
+
+function renderNormalization(recognition: Recognition): readonly string[] {
+  if (
+    recognition.declaration_kind !== "record" ||
+    recognition.normalization === undefined
+  ) {
+    return [];
+  }
+  return [
+    "normalization:",
+    `  surface: ${recognition.normalization.surface}`,
+    `  rule: ${recognition.normalization.rule}`,
+    `  grounded_in: ${recognition.normalization.grounded_in.map((entry) => entry.id).join(",")}`,
+    `  anchors: ${recognition.normalization.anchors.map((entry) => entry.id).join(",") || "-"}`,
+  ];
+}
+
+function renderRecognitionDetails(recognition: Recognition): readonly string[] {
+  return [
+    `declaration_kind: ${recognition.declaration_kind}`,
+    ...renderKindDetails(recognition),
+    `grounded_in: ${recognition.grounded_in.map((entry) => entry.id).join(",") || "-"}`,
+    renderSupport(recognition),
+    ...renderNormalization(recognition),
+  ];
 }
 
 function renderRecognition(result: RecognitionResult): string {

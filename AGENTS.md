@@ -16,14 +16,15 @@ until it exists in the current checkout and has been verified.
 
 ## Current phase and scope lock
 
-`llmrecog` has a design baseline and a frozen executable contract 0.1, but no
-parser, constraint solver, public CLI, or released package. The next separately
-gated phase is Phase 2 in `docs/implementation-phases.md`: implement only the
-parse/validate/show vertical slice against the accepted contract fixtures.
+`llmrecog` has a design baseline, a frozen executable contract 0.1, and a
+private Phase 2 parse/validate/show read path. It has no constraint solver,
+public CLI, or released package. The next separately gated work in
+`docs/implementation-phases.md` is specification-authoring dogfood and Phase 2
+acceptance against the accepted contract fixtures.
 
-Completion of Phase 1 does not authorize:
+Completion of the Phase 2 read path does not authorize:
 
-- parser, solver, materializer, or provider implementation;
+- solver, materializer, source-verification, or provider implementation;
 - changes in `llmthink`, `perttool`, SEMDL, or STDL;
 - publication, release, tagging, remote pushes, or registry writes;
 - adding MCP, LSP, VSIX, databases, embeddings, or network dependencies.

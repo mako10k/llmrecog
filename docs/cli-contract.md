@@ -1,9 +1,10 @@
 # CLI contract
 
 ADR 0007 accepts the Phase 2 `document validate`, `document show`, and
-`recognition show` routes and their linked machine shapes. The routes remain
-unimplemented until the Phase 2 vertical slice is accepted. All later routes
-in this document are provisional and separately gated.
+`recognition show` routes and their linked machine shapes. They are implemented
+only through an unreleased private dogfood adapter while Phase 2 acceptance
+remains separately gated. All later routes in this document are provisional
+and separately gated.
 
 ## 1. Design rules
 

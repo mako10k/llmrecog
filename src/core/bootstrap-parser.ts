@@ -3,7 +3,7 @@ import type {
   AstDocument,
   AstField,
   AstValue,
-  BootstrapDeclarationKind,
+  DeclarationKind,
   Diagnostic,
   SyntaxSpan,
   TextPosition,
@@ -11,15 +11,13 @@ import type {
 
 const encoder = new TextEncoder();
 const identifierPattern = /^[A-Za-z][A-Za-z0-9_.-]*$/u;
-const bootstrapKinds = new Set<BootstrapDeclarationKind>([
+const declarationKinds = new Set<DeclarationKind>([
   "document",
   "source",
   "span",
+  "observation",
   "entity",
   "record",
-]);
-const laterKinds = new Set([
-  "observation",
   "variable",
   "candidate",
   "constraint",
@@ -49,16 +47,6 @@ interface PhysicalLine {
   readonly startOffset: number;
   readonly contentEndOffset: number;
   readonly nextOffset: number;
-}
-
-export class BootstrapScopeError extends Error {
-  readonly feature: string;
-
-  constructor(feature: string) {
-    super(`The private bootstrap read path does not implement ${feature}.`);
-    this.name = "BootstrapScopeError";
-    this.feature = feature;
-  }
 }
 
 export interface BootstrapParseResult {
@@ -378,12 +366,27 @@ const fieldValueParsers: ReadonlyMap<string, FieldValueParser> = new Map([
     "observed_at",
     "quote",
     "label",
+    "surface",
   ].map((name) => [name, stringFieldParser] as const),
-  ...["kind", "source", "type", "support", "subject", "predicate"].map(
-    (name) => [name, identifierFieldParser] as const,
-  ),
+  ...[
+    "kind",
+    "source",
+    "type",
+    "support",
+    "subject",
+    "predicate",
+    "rule",
+    "value_type",
+    "variable",
+    "antecedent",
+    "consequent",
+    "left",
+    "right",
+  ].map((name) => [name, identifierFieldParser] as const),
   ...["object", "value"].map((name) => [name, scalarFieldParser] as const),
-  ["grounded_in", listFieldParser],
+  ...["grounded_in", "anchors", "candidates", "members"].map(
+    (name) => [name, listFieldParser] as const,
+  ),
   ["range", rangeFieldParser],
   ["confidence", confidenceFieldParser],
 ]);
@@ -391,6 +394,7 @@ const fieldValueParsers: ReadonlyMap<string, FieldValueParser> = new Map([
 function parseField(
   line: PhysicalLine,
   declarationId: string,
+  declarationKind: DeclarationKind,
   diagnostics: Diagnostic[],
 ): AstField {
   const indent = leadingSpaces(line);
@@ -401,9 +405,6 @@ function parseField(
   const valueText = separator === -1 ? "" : raw.slice(separator + 1);
   const span = fieldSpan(line, indent);
   const before = diagnostics.length;
-  if (raw === "normalization:") {
-    throw new BootstrapScopeError("normalization");
-  }
   const parser = fieldValueParsers.get(name);
   const value = parser?.(valueText, name, declarationId, span, diagnostics) ?? {
     kind: "identifier" as const,
@@ -413,6 +414,7 @@ function parseField(
     diagnostics.push(
       diagnostic("RCG-SYNTAX-011", "error", declarationId, span, {
         field: name,
+        declaration_kind: declarationKind,
       }),
     );
   }
@@ -429,8 +431,28 @@ function withOptionalSupport(base: readonly string[]): readonly string[][] {
   return [[...base], [...base, "support"], [...base, "support", "confidence"]];
 }
 
+function withOptionalSupportAndNormalization(
+  base: readonly string[],
+): readonly string[][] {
+  return [
+    ...withOptionalSupport(base),
+    [...base, "normalization"],
+    [...base, "support", "normalization"],
+    [...base, "support", "confidence", "normalization"],
+  ];
+}
+
+function constraintSequences(base: readonly string[]): readonly string[][] {
+  return [
+    [...base],
+    [...base, "grounded_in"],
+    [...base, "grounded_in", "support"],
+    [...base, "grounded_in", "support", "confidence"],
+  ];
+}
+
 function expectedFieldSequences(
-  kind: BootstrapDeclarationKind,
+  kind: DeclarationKind,
 ): readonly (readonly string[])[] {
   switch (kind) {
     case "document":
@@ -451,38 +473,67 @@ function expectedFieldSequences(
         ["source", "range"],
         ["source", "range", "quote"],
       ];
+    case "observation":
+      return [["surface", "grounded_in"]];
     case "entity":
       return withOptionalSupport(["type", "label", "grounded_in"]);
     case "record":
       return [
-        ...withOptionalSupport([
+        ...withOptionalSupportAndNormalization([
           "kind",
           "subject",
           "predicate",
           "object",
           "grounded_in",
         ]),
-        ...withOptionalSupport([
+        ...withOptionalSupportAndNormalization([
           "kind",
           "subject",
           "predicate",
           "value",
           "grounded_in",
         ]),
-        ...withOptionalSupport(["kind", "subject", "value", "grounded_in"]),
-        ...withOptionalSupport(["kind", "subject", "object", "grounded_in"]),
+        ...withOptionalSupportAndNormalization([
+          "kind",
+          "subject",
+          "value",
+          "grounded_in",
+        ]),
+        ...withOptionalSupportAndNormalization([
+          "kind",
+          "subject",
+          "object",
+          "grounded_in",
+        ]),
+        ...withOptionalSupportAndNormalization([
+          "kind",
+          "value",
+          "grounded_in",
+        ]),
+      ];
+    case "variable":
+      return [["value_type", "candidates", "grounded_in"]];
+    case "candidate":
+      return withOptionalSupport(["value", "grounded_in"]);
+    case "constraint":
+      return [
+        ...constraintSequences(["kind", "variable", "members"]),
+        ...constraintSequences(["kind", "antecedent", "consequent"]),
+        ...constraintSequences(["kind", "left", "right"]),
       ];
   }
 }
 
-const requiredFields: Readonly<
-  Record<BootstrapDeclarationKind, readonly string[]>
-> = {
+const requiredFields: Readonly<Record<DeclarationKind, readonly string[]>> = {
   document: ["title"],
   source: ["kind", "locator"],
   span: ["source", "range"],
+  observation: ["surface", "grounded_in"],
   entity: ["type", "label", "grounded_in"],
   record: ["kind", "grounded_in"],
+  variable: ["value_type", "candidates", "grounded_in"],
+  candidate: ["value", "grounded_in"],
+  constraint: ["kind"],
 };
 
 function duplicateField(fields: readonly AstField[]): AstField | undefined {
@@ -566,8 +617,9 @@ function validateFieldSequence(
 }
 
 interface ParsedDeclarationHeader {
-  readonly kind: BootstrapDeclarationKind;
+  readonly kind: DeclarationKind;
   readonly id: string;
+  readonly headerArguments: readonly string[];
   readonly malformed: boolean;
 }
 
@@ -575,35 +627,161 @@ function parseDeclarationHeader(
   headerLine: PhysicalLine,
   diagnostics: Diagnostic[],
 ): ParsedDeclarationHeader {
+  const candidateMatch =
+    /^candidate ([A-Za-z][A-Za-z0-9_.-]*) in ([A-Za-z][A-Za-z0-9_.-]*):$/u.exec(
+      headerLine.content,
+    );
+  if (candidateMatch !== null) {
+    return {
+      kind: "candidate",
+      id: candidateMatch[1]!,
+      headerArguments: [candidateMatch[2]!],
+      malformed: false,
+    };
+  }
   const match = /^([A-Za-z][A-Za-z0-9_.-]*) ([A-Za-z][A-Za-z0-9_.-]*):$/u.exec(
     headerLine.content,
   );
   if (match === null) {
     const keyword = headerLine.content.split(/[ :]/u, 1)[0] ?? "";
-    if (laterKinds.has(keyword)) throw new BootstrapScopeError(keyword);
     diagnostics.push(
       diagnostic("RCG-SYNTAX-010", "error", null, contentSpan(headerLine), {
         declaration: keyword,
       }),
     );
-    return { kind: "record", id: "INVALID", malformed: true };
+    return {
+      kind: "record",
+      id: "INVALID",
+      headerArguments: [],
+      malformed: true,
+    };
   }
 
   const kindText = match[1]!;
   const id = match[2]!;
-  if (laterKinds.has(kindText)) throw new BootstrapScopeError(kindText);
-  if (!bootstrapKinds.has(kindText as BootstrapDeclarationKind)) {
+  if (!declarationKinds.has(kindText as DeclarationKind)) {
     diagnostics.push(
       diagnostic("RCG-SYNTAX-010", "error", id, contentSpan(headerLine), {
         declaration: kindText,
       }),
     );
-    return { kind: "record", id, malformed: false };
+    return { kind: "record", id, headerArguments: [], malformed: false };
+  }
+  if (kindText === "candidate") {
+    diagnostics.push(
+      diagnostic("RCG-SYNTAX-010", "error", id, contentSpan(headerLine), {
+        declaration: "candidate",
+        expected_header: "candidate <id> in <variable-id>:",
+      }),
+    );
   }
   return {
-    kind: kindText as BootstrapDeclarationKind,
+    kind: kindText as DeclarationKind,
     id,
+    headerArguments: [],
     malformed: false,
+  };
+}
+
+const normalizationFieldOrder = [
+  "surface",
+  "rule",
+  "grounded_in",
+  "anchors",
+] as const;
+
+function validateNormalizationFields(
+  declarationId: string,
+  fields: readonly AstField[],
+  diagnostics: Diagnostic[],
+): boolean {
+  const before = diagnostics.length;
+  const duplicate = duplicateField(fields);
+  if (duplicate !== undefined) {
+    diagnostics.push(
+      diagnostic("RCG-SYNTAX-013", "error", declarationId, duplicate.span, {
+        field: duplicate.name,
+        declaration_kind: "record",
+      }),
+    );
+    return true;
+  }
+  let previousOrder = -1;
+  for (const nestedField of fields) {
+    const order = normalizationFieldOrder.indexOf(
+      nestedField.name as (typeof normalizationFieldOrder)[number],
+    );
+    if (order < 0 || order <= previousOrder) {
+      if (!nestedField.recovered) {
+        diagnostics.push(
+          diagnostic(
+            "RCG-SYNTAX-011",
+            "error",
+            declarationId,
+            nestedField.span,
+            {
+              field: nestedField.name,
+              declaration_kind: "record",
+            },
+          ),
+        );
+      }
+      return true;
+    }
+    previousOrder = order;
+  }
+  return diagnostics.length > before || fields.some((field) => field.recovered);
+}
+
+function collectNormalizationField(
+  lines: readonly PhysicalLine[],
+  meaningfulIndexes: readonly number[],
+  headerPosition: number,
+  declarationId: string,
+  diagnostics: Diagnostic[],
+): { readonly field: AstField; readonly nextPosition: number } {
+  const header = lines[meaningfulIndexes[headerPosition]!]!;
+  const nestedFields: AstField[] = [];
+  let nextPosition = headerPosition + 1;
+  const before = diagnostics.length;
+  while (nextPosition < meaningfulIndexes.length) {
+    const line = lines[meaningfulIndexes[nextPosition]!]!;
+    const indent = leadingSpaces(line);
+    if (indent <= 2) break;
+    if (indent !== 4) {
+      diagnostics.push(
+        diagnostic(
+          "RCG-SYNTAX-005",
+          "error",
+          declarationId,
+          contentSpan(line, indent),
+          { indentation: indent, expected: 4 },
+        ),
+      );
+      nextPosition += 1;
+      while (nextPosition < meaningfulIndexes.length) {
+        const deeper = lines[meaningfulIndexes[nextPosition]!]!;
+        if (leadingSpaces(deeper) <= indent) break;
+        nextPosition += 1;
+      }
+      continue;
+    }
+    nestedFields.push(parseField(line, declarationId, "record", diagnostics));
+    nextPosition += 1;
+  }
+  const recovered = validateNormalizationFields(
+    declarationId,
+    nestedFields,
+    diagnostics,
+  );
+  return {
+    field: {
+      name: "normalization",
+      value: { kind: "block", fields: nestedFields },
+      span: fieldSpan(header, 2),
+      recovered: recovered || diagnostics.length > before,
+    },
+    nextPosition,
   };
 }
 
@@ -612,6 +790,7 @@ function collectDeclarationFields(
   meaningfulIndexes: readonly number[],
   meaningfulPosition: number,
   declarationId: string,
+  declarationKind: DeclarationKind,
   diagnostics: Diagnostic[],
 ): { readonly fields: readonly AstField[]; readonly nextPosition: number } {
   const fields: AstField[] = [];
@@ -640,10 +819,31 @@ function collectDeclarationFields(
         continue;
       }
     }
-    fields.push(parseField(line, declarationId, diagnostics));
+    if (
+      declarationKind === "record" &&
+      indent === 2 &&
+      line.content.slice(indent) === "normalization:"
+    ) {
+      const nested = collectNormalizationField(
+        lines,
+        meaningfulIndexes,
+        nextPosition,
+        declarationId,
+        diagnostics,
+      );
+      fields.push(nested.field);
+      nextPosition = nested.nextPosition;
+      continue;
+    }
+    fields.push(parseField(line, declarationId, declarationKind, diagnostics));
     nextPosition += 1;
   }
   return { fields, nextPosition };
+}
+
+function astFieldEnd(field: AstField | undefined): TextPosition | undefined {
+  if (field?.value.kind !== "block") return field?.span.end;
+  return field.value.fields.at(-1)?.span.end ?? field.span.end;
 }
 
 function parseDeclaration(
@@ -677,11 +877,12 @@ function parseDeclaration(
     meaningfulIndexes,
     meaningfulPosition,
     parsedHeader.id,
+    parsedHeader.kind,
     diagnostics,
   );
 
   const end =
-    fields.at(-1)?.span.end ??
+    astFieldEnd(fields.at(-1)) ??
     (headerLine.terminator === ""
       ? position(headerLine, headerLine.content.length)
       : {
@@ -692,7 +893,7 @@ function parseDeclaration(
   const declaration: AstDeclaration = {
     kind: parsedHeader.kind,
     id: parsedHeader.id,
-    header_arguments: [],
+    header_arguments: parsedHeader.headerArguments,
     fields,
     span: { start: position(headerLine, 0), end },
     recovered: false,

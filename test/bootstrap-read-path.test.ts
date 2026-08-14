@@ -16,13 +16,13 @@ import {
   type BootstrapReadInput,
   type BootstrapReadResult,
 } from "../src/application/bootstrap-read-path.js";
-import { BootstrapScopeError } from "../src/core/bootstrap-parser.js";
 import type { Diagnostic } from "../src/core/types.js";
 import { renderBootstrapText } from "../src/presentation/bootstrap-text.js";
 
 const repositoryRoot = process.cwd();
 const fixtureRoot = "test/fixtures/contracts/v0.1";
 const explicitFactPath = `${fixtureRoot}/valid/explicit-fact.recog`;
+const minimalPath = "docs/examples/minimal.recog";
 
 const schemaPaths = [
   "schemas/Llmrecog.Common.v1.schema.json",
@@ -55,6 +55,14 @@ interface DiagnosticFixtureSet {
     readonly id: string;
     readonly path: string;
     readonly diagnostics: readonly ExpectedDiagnostic[];
+  }[];
+}
+
+interface ContractFixtureManifest {
+  readonly fixtures: readonly {
+    readonly id: string;
+    readonly path: string;
+    readonly expectation: "valid" | "invalid";
   }[];
 }
 
@@ -131,7 +139,7 @@ function runPrivateCli(args: readonly string[]): CommandResult {
   };
 }
 
-test("the bootstrap read path matches the frozen AST and result schemas", () => {
+test("the Phase 2 read path matches the frozen AST and result schemas", () => {
   const input = readInput(explicitFactPath);
   const validation = validateBootstrapInput(input);
   assert.equal(validation.valid, true);
@@ -189,7 +197,7 @@ test("the bootstrap read path matches the frozen AST and result schemas", () => 
   );
 });
 
-test("bootstrap validation reproduces the accepted subset goldens", () => {
+test("validation reproduces the accepted validation goldens", () => {
   const cases = [
     {
       input: `${fixtureRoot}/valid/empty-document.recog`,
@@ -209,29 +217,18 @@ test("bootstrap validation reproduces the accepted subset goldens", () => {
   }
 });
 
-test("bootstrap diagnostics match the frozen invalid fixture contracts", () => {
+test("validation matches every frozen invalid diagnostic contract", () => {
   const expected = readJson<DiagnosticFixtureSet>(
     `${fixtureRoot}/expected/invalid-diagnostics.json`,
   );
-  const fixtureIds = [
-    "missing_header",
-    "unresolved_reference",
-    "forbidden_conclusion",
-    "prohibited_backflow",
-  ];
-
-  for (const fixtureId of fixtureIds) {
-    const fixture = expected.fixtures.find(
-      (candidate) => candidate.id === fixtureId,
-    );
-    assert(fixture, `missing diagnostic fixture ${fixtureId}`);
+  for (const fixture of expected.fixtures) {
     const result = validateBootstrapInput(readInput(fixture.path));
-    assert.equal(result.valid, false, fixtureId);
+    assert.equal(result.valid, false, fixture.id);
     assertResultSchema(result);
     assert.deepEqual(
       result.diagnostics.map(diagnosticContract),
       fixture.diagnostics,
-      fixtureId,
+      fixture.id,
     );
   }
 });
@@ -295,7 +292,7 @@ test("byte decoding, CRLF, final newline, and diagnostic limits are explicit", (
   assert.equal(first.diagnostics.length, 1);
 });
 
-test("bootstrap syntax recovery skips malformed indentation and its subtree", () => {
+test("syntax recovery skips malformed indentation and its subtree", () => {
   const malformed = Buffer.from(
     [
       "llmrecog 0.1",
@@ -323,10 +320,152 @@ test("bootstrap syntax recovery skips malformed indentation and its subtree", ()
   );
 });
 
-test("later declarations fail as an explicit private bootstrap scope boundary", () => {
-  assert.throws(
-    () => validateBootstrapInput(readInput("docs/examples/minimal.recog")),
-    BootstrapScopeError,
+test("the complete Phase 2 model accepts every frozen valid fixture", () => {
+  const manifest = readJson<ContractFixtureManifest>(
+    `${fixtureRoot}/manifest.json`,
+  );
+  for (const fixture of manifest.fixtures.filter(
+    (candidate) => candidate.expectation === "valid",
+  )) {
+    const result = validateBootstrapInput(readInput(fixture.path));
+    assert.equal(result.valid, true, fixture.id);
+    assert.equal(result.structural_valid, true, fixture.id);
+    assert.equal(result.semantic_valid, true, fixture.id);
+    assertResultSchema(result);
+  }
+});
+
+test("all declaration families cross the real AST and semantic seam", () => {
+  const result = validateBootstrapInput(
+    readInput(`${fixtureRoot}/valid/all-declarations.recog`),
+  );
+  assert.equal(result.valid, true);
+  assertResultSchema(result);
+  const normalization = result.ast?.declarations
+    .find((declaration) => declaration.id === "R_PROPERTY")
+    ?.fields.find((field) => field.name === "normalization");
+  assert.equal(normalization?.value.kind, "block");
+  if (normalization?.value.kind === "block") {
+    assert.deepEqual(
+      normalization.value.fields.map((field) => field.name),
+      ["surface", "rule", "grounded_in", "anchors"],
+    );
+  }
+  assert.deepEqual(
+    result.document?.observations.map((observation) => observation.id),
+    ["O_ALPHA"],
+  );
+  assert.deepEqual(
+    result.document?.recognitions
+      .filter((recognition) => recognition.declaration_kind === "constraint")
+      .map((constraint) => constraint.constraint_kind),
+    ["one_of", "requires", "excludes", "same_as", "distinct_from"],
+  );
+  const normalized = result.document?.recognitions.find(
+    (recognition) => recognition.id === "R_NORMALIZED",
+  );
+  assert(
+    normalized?.declaration_kind === "record" &&
+      normalized.record_kind === "normalized_value",
+  );
+  assert.equal(normalized.normalization.rule, "symbol.lower-snake.v1");
+});
+
+test("candidate and constraint validation remains declarative", () => {
+  const source = fs.readFileSync(
+    absolutePath(`${fixtureRoot}/valid/all-declarations.recog`),
+    "utf8",
+  );
+  const cases = [
+    {
+      id: "candidate_value_type",
+      text: source.replace(
+        "candidate C_MODE_DESIRE in V_MODE:\n  value desire",
+        "candidate C_MODE_DESIRE in V_MODE:\n  value E_ALPHA",
+      ),
+      expectedCode: "RCG-VALUE-002",
+    },
+    {
+      id: "candidate_parent",
+      text: source.replace(
+        "candidate C_MODE_DESIRE in V_MODE:",
+        "candidate C_MODE_DESIRE in V_ACTOR:",
+      ),
+      expectedCode: "RCG-CANDIDATE-001",
+    },
+    {
+      id: "one_of_membership",
+      text: source.replace(
+        "members [C_ACTOR_ALPHA, C_ACTOR_BETA]",
+        "members [C_ACTOR_ALPHA, C_MODE_DESIRE]",
+      ),
+      expectedCode: "RCG-CONSTRAINT-004",
+    },
+    {
+      id: "constraint_operand_kind",
+      text: source.replace(
+        "left C_ACTOR_BETA\n  right C_MODE_WEAK",
+        "left V_ACTOR\n  right C_MODE_WEAK",
+      ),
+      expectedCode: "RCG-CONSTRAINT-005",
+    },
+  ];
+  for (const candidate of cases) {
+    const result = validateBootstrapInput({
+      bytes: Buffer.from(candidate.text, "utf8"),
+      path: `memory:${candidate.id}.recog`,
+    });
+    assert.equal(result.valid, false, candidate.id);
+    assert(
+      result.diagnostics.some(
+        (diagnostic) => diagnostic.code === candidate.expectedCode,
+      ),
+      candidate.id,
+    );
+  }
+});
+
+test("complete document and recognition projections match frozen goldens", () => {
+  const input = { ...readInput(minimalPath), toolVersion: "contract-fixture" };
+  const document = showBootstrapDocument(input);
+  const deadline = showBootstrapRecognition(input, "R_DEADLINE");
+  const missing = showBootstrapRecognition(input, "R_MISSING");
+  assert.deepEqual(
+    document,
+    readJson(`${fixtureRoot}/expected/minimal.document-show.json`),
+  );
+  assert.deepEqual(
+    deadline,
+    readJson(`${fixtureRoot}/expected/minimal-deadline.recognition-show.json`),
+  );
+  assert.deepEqual(
+    missing,
+    readJson(`${fixtureRoot}/expected/minimal-missing.recognition-show.json`),
+  );
+  assert.equal(
+    renderBootstrapText(document),
+    fs.readFileSync(
+      absolutePath(`${fixtureRoot}/expected/minimal.document-show.txt`),
+      "utf8",
+    ),
+  );
+  assert.equal(
+    renderBootstrapText(deadline),
+    fs.readFileSync(
+      absolutePath(
+        `${fixtureRoot}/expected/minimal-deadline.recognition-show.txt`,
+      ),
+      "utf8",
+    ),
+  );
+  assert.equal(
+    renderBootstrapText(missing),
+    fs.readFileSync(
+      absolutePath(
+        `${fixtureRoot}/expected/minimal-missing.recognition-show.txt`,
+      ),
+      "utf8",
+    ),
   );
 });
 
@@ -345,13 +484,13 @@ test("text is a deterministic projection of the same typed results", () => {
 });
 
 test("the private CLI is read-only and byte-deterministic for dogfood routes", () => {
-  const beforeDigest = digest(explicitFactPath);
+  const beforeDigest = digest(minimalPath);
   const cases = [
-    ["document", "validate", explicitFactPath, "--format", "json"],
-    ["document", "show", explicitFactPath, "--format", "json"],
-    ["document", "show", explicitFactPath, "--format", "text"],
-    ["recognition", "show", "R_STATUS", explicitFactPath, "--format", "json"],
-    ["recognition", "show", "R_STATUS", explicitFactPath, "--format", "text"],
+    ["document", "validate", minimalPath, "--format", "json"],
+    ["document", "show", minimalPath, "--format", "json"],
+    ["document", "show", minimalPath, "--format", "text"],
+    ["recognition", "show", "R_DEADLINE", minimalPath, "--format", "json"],
+    ["recognition", "show", "R_DEADLINE", minimalPath, "--format", "text"],
   ] as const;
 
   for (const args of cases) {
@@ -367,29 +506,18 @@ test("the private CLI is read-only and byte-deterministic for dogfood routes", (
       assert(first.stdout.includes("Llmrecog."));
     }
   }
-  assert.equal(digest(explicitFactPath), beforeDigest);
+  assert.equal(digest(minimalPath), beforeDigest);
 
   const missing = runPrivateCli([
     "recognition",
     "show",
     "R_MISSING",
-    explicitFactPath,
+    minimalPath,
     "--format",
     "json",
   ]);
   assert.equal(missing.status, 1);
   assertResultSchema(JSON.parse(missing.stdout) as BootstrapReadResult);
-
-  const laterScope = runPrivateCli([
-    "document",
-    "validate",
-    "docs/examples/minimal.recog",
-    "--format",
-    "json",
-  ]);
-  assert.equal(laterScope.status, 3);
-  assert.equal(laterScope.stdout, "");
-  assert.match(laterScope.stderr, /bootstrap scope error/u);
 });
 
 test("the private CLI reports encoding failures on stderr with status 3", () => {
@@ -408,10 +536,7 @@ test("the private CLI reports encoding failures on stderr with status 3", () => 
     ]);
     assert.equal(result.status, 3);
     assert.equal(result.stdout, "");
-    assert.equal(
-      result.stderr,
-      "llmrecog bootstrap input error: RCG-SYNTAX-001\n",
-    );
+    assert.equal(result.stderr, "llmrecog input error: RCG-SYNTAX-001\n");
   } finally {
     fs.rmSync(temporaryDirectory, { recursive: true, force: true });
   }

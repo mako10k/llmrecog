@@ -1,6 +1,6 @@
 # Design index
 
-This directory is the design authority for the pre-implementation phase.
+This directory is the design and implementation-contract authority.
 
 | Document | Authority |
 | --- | --- |

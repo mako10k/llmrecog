@@ -107,6 +107,7 @@ task IMPLEMENT_COMPLETE_PHASE_2_READ_PATH GRAMMAR_DOGFOOD_REVIEWED -> COMPLETE_R
   description |
     Extend the real scanner, recovered AST, typed model, reference resolution, validation, and read-only projections across observation, normalization, variable, candidate, and all five constraint declarations. Validate declaration registries, grounding, candidate membership, and operand shapes without evaluating CSP viability. Make all Phase 1 success and failure fixtures pass with exact stable diagnostics and schema-valid deterministic text/JSON projections.
   duration 21p
+  status done
   priority 50
   requires:
     IMPLEMENTER 1
@@ -235,3 +236,17 @@ work_event FINISH_APPLY_GRAMMAR_DOGFOOD_FEEDBACK_20260814:
   kind finish
   occurred_at 2026-08-14T11:38:19+09:00
   effort 0.0405555556ph
+
+work_event START_IMPLEMENT_COMPLETE_PHASE_2_READ_PATH_20260814:
+  model 1
+  task IMPLEMENT_COMPLETE_PHASE_2_READ_PATH
+  kind start
+  occurred_at 2026-08-14T11:39:04+09:00
+  planned_value 21p
+
+work_event FINISH_IMPLEMENT_COMPLETE_PHASE_2_READ_PATH_20260814:
+  model 1
+  task IMPLEMENT_COMPLETE_PHASE_2_READ_PATH
+  kind finish
+  occurred_at 2026-08-14T11:59:03+09:00
+  effort 0.3330555556ph

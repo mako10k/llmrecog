@@ -34,8 +34,8 @@ npm run check:docs
 npm run build
 ```
 
-During the private Phase 2 bootstrap only, the unreleased read path is invoked
-through:
+During Phase 2, the complete but unreleased read path is invoked through the
+private dogfood adapter:
 
 ```sh
 npm run dogfood:cli -- document validate <file.recog> --format json
@@ -70,6 +70,10 @@ llmrecog/
   plans/                  perttool-managed coarse roadmap
   schemas/                versioned JSON machine contracts
   scripts/                repository checks, not product semantics
+  src/core/               parser, typed model, and semantic validation
+  src/application/        shared validate/show result construction
+  src/presentation/       deterministic text projection
+  src/adapters/           private dogfood command adapter
   src/index.ts            intentionally minimal public library entrypoint
   test/                   Node test-runner TypeScript tests
   AGENTS.md               canonical repository guidance
@@ -77,9 +81,10 @@ llmrecog/
   tsconfig.json           strict NodeNext TypeScript contract
 ```
 
-Schema and contract-fixture directories now exist as Phase 1 artifacts. They
-do not authorize parser, solver, CLI, formatter, or adapter directories before
-the corresponding accepted phase and first test-backed behavior.
+Schema and contract-fixture directories are Phase 1 artifacts; the current
+core/application/presentation/private-adapter modules are the test-backed Phase
+2 read path. Neither authorizes a solver, formatter, public CLI, or later
+adapter before its corresponding accepted phase and first test-backed behavior.
 
 ## Runtime and package boundary
 
@@ -90,7 +95,7 @@ the corresponding accepted phase and first test-backed behavior.
 - Production dependencies: none
 - Schema-test dependencies: Ajv 8 and ajv-formats, development-only
 - Publication: disabled by `private: true`
-- CLI binary: intentionally absent until the first CLI implementation contract
+- CLI binary: intentionally absent until a public package/CLI acceptance
 
 npm 11 records one exact install-script approval for `esbuild@0.28.2`, the
 transitive binary helper used by `tsx`. When the lockfile changes, run

@@ -7,7 +7,6 @@ import {
   type BootstrapReadInput,
   type BootstrapReadResult,
 } from "../application/bootstrap-read-path.js";
-import { BootstrapScopeError } from "../core/bootstrap-parser.js";
 import { renderBootstrapText } from "../presentation/bootstrap-text.js";
 
 type OutputFormat = "text" | "json";
@@ -62,7 +61,7 @@ function parseOptions(
     } else if (option === "--verify-sources") {
       if (!allowVerification || value !== "none") {
         throw new UsageError(
-          "The bootstrap read path accepts only --verify-sources none on validate.",
+          "The Phase 2 read path accepts only --verify-sources none on validate.",
         );
       }
     } else {
@@ -153,29 +152,21 @@ function main(args: readonly string[]): number {
     const command = parseCommand(args);
     const result = execute(command);
     if (isEncodingFailure(result)) {
-      process.stderr.write("llmrecog bootstrap input error: RCG-SYNTAX-001\n");
+      process.stderr.write("llmrecog input error: RCG-SYNTAX-001\n");
       return 3;
     }
     writeResult(result, command.format);
     return exitStatus(result);
   } catch (error) {
     if (error instanceof UsageError) {
-      process.stderr.write(
-        `llmrecog bootstrap usage error: ${error.message}\n`,
-      );
+      process.stderr.write(`llmrecog usage error: ${error.message}\n`);
       return 2;
-    }
-    if (error instanceof BootstrapScopeError) {
-      process.stderr.write(
-        `llmrecog bootstrap scope error: ${error.message}\n`,
-      );
-      return 3;
     }
     const code =
       error !== null && typeof error === "object" && "code" in error
         ? String(error.code)
         : "UNKNOWN";
-    process.stderr.write(`llmrecog bootstrap input error: ${code}\n`);
+    process.stderr.write(`llmrecog input error: ${code}\n`);
     return 3;
   }
 }

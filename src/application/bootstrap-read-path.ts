@@ -3,12 +3,12 @@ import crypto from "node:crypto";
 import { validateBootstrapCore } from "../core/bootstrap-model.js";
 import type {
   AstDocument,
-  BootstrapRecognition,
   Diagnostic,
+  Recognition,
   SemanticDocument,
 } from "../core/types.js";
 
-export const bootstrapToolVersion = "0.0.0-bootstrap";
+export const phase2ToolVersion = "0.0.0-phase2";
 
 interface ResultInput {
   readonly path: string;
@@ -51,14 +51,19 @@ export interface DocumentResult extends ResultBase {
       readonly observations: number;
       readonly entities: number;
       readonly records: number;
-      readonly variables: 0;
-      readonly candidates: 0;
-      readonly constraints: 0;
+      readonly variables: number;
+      readonly candidates: number;
+      readonly constraints: number;
     };
     readonly source_ids: readonly string[];
     readonly recognition_ids: readonly string[];
-    readonly variables: readonly [];
-    readonly constraint_ids: readonly [];
+    readonly variables: readonly {
+      readonly id: string;
+      readonly value_type: "entity_ref" | "symbol" | "string";
+      readonly candidate_ids: readonly string[];
+      readonly domain: "open" | "closed";
+    }[];
+    readonly constraint_ids: readonly string[];
   };
 }
 
@@ -67,9 +72,9 @@ export interface RecognitionResult extends ResultBase {
   readonly found: boolean;
   readonly target: {
     readonly id: string;
-    readonly declaration_kind: BootstrapRecognition["declaration_kind"] | null;
+    readonly declaration_kind: Recognition["declaration_kind"] | null;
   };
-  readonly recognition: BootstrapRecognition | null;
+  readonly recognition: Recognition | null;
 }
 
 export type BootstrapReadResult =
@@ -113,7 +118,7 @@ export function validateBootstrapInput(
   return {
     schema: "Llmrecog.ValidationResult.v1",
     semantic_version: "0.1",
-    tool_version: input.toolVersion ?? bootstrapToolVersion,
+    tool_version: input.toolVersion ?? phase2ToolVersion,
     input: inputIdentity(input, documentId),
     complete: validation.complete,
     truncated: validation.truncated,
@@ -133,6 +138,12 @@ export function showBootstrapDocument(
   const validation = validateBootstrapInput(input);
   if (!validation.valid || validation.document === null) return validation;
   const document = validation.document;
+  const variables = document.recognitions.filter(
+    (recognition) => recognition.declaration_kind === "variable",
+  );
+  const constraints = document.recognitions.filter(
+    (recognition) => recognition.declaration_kind === "constraint",
+  );
   return {
     schema: "Llmrecog.DocumentResult.v1",
     semantic_version: "0.1",
@@ -147,23 +158,36 @@ export function showBootstrapDocument(
       counts: {
         sources: document.sources.length,
         spans: document.spans.length,
-        observations: 0,
+        observations: document.observations.length,
         entities: document.recognitions.filter(
           (recognition) => recognition.declaration_kind === "entity",
         ).length,
         records: document.recognitions.filter(
           (recognition) => recognition.declaration_kind === "record",
         ).length,
-        variables: 0,
-        candidates: 0,
-        constraints: 0,
+        variables: variables.length,
+        candidates: document.recognitions.filter(
+          (recognition) => recognition.declaration_kind === "candidate",
+        ).length,
+        constraints: constraints.length,
       },
       source_ids: document.sources.map((source) => source.id),
       recognition_ids: document.recognitions.map(
         (recognition) => recognition.id,
       ),
-      variables: [],
-      constraint_ids: [],
+      variables: variables.map((variable) => ({
+        id: variable.id,
+        value_type: variable.value_type,
+        candidate_ids: variable.candidate_ids,
+        domain: constraints.some(
+          (constraint) =>
+            constraint.constraint_kind === "one_of" &&
+            constraint.variable_id === variable.id,
+        )
+          ? "closed"
+          : "open",
+      })),
+      constraint_ids: constraints.map((constraint) => constraint.id),
     },
     diagnostics: validation.diagnostics,
   };

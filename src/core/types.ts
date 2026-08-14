@@ -18,7 +18,8 @@ export type AstValue =
       readonly start: { readonly line: number; readonly column: number };
       readonly end: { readonly line: number; readonly column: number };
     }
-  | { readonly kind: "identifier_list"; readonly items: readonly string[] };
+  | { readonly kind: "identifier_list"; readonly items: readonly string[] }
+  | { readonly kind: "block"; readonly fields: readonly AstField[] };
 
 export interface AstField {
   readonly name: string;
@@ -27,11 +28,19 @@ export interface AstField {
   readonly recovered: boolean;
 }
 
-export type BootstrapDeclarationKind =
-  "document" | "source" | "span" | "entity" | "record";
+export type DeclarationKind =
+  | "document"
+  | "source"
+  | "span"
+  | "observation"
+  | "entity"
+  | "record"
+  | "variable"
+  | "candidate"
+  | "constraint";
 
 export interface AstDeclaration {
-  readonly kind: BootstrapDeclarationKind;
+  readonly kind: DeclarationKind;
   readonly id: string;
   readonly header_arguments: readonly string[];
   readonly fields: readonly AstField[];
@@ -96,6 +105,12 @@ export interface SpanRecord {
   readonly quote?: string;
 }
 
+export interface ObservationRecord {
+  readonly id: string;
+  readonly surface: string;
+  readonly grounded_in: readonly GroundingReference[];
+}
+
 export type SemanticValue =
   | { readonly kind: "reference"; readonly id: string }
   | { readonly kind: "symbol"; readonly value: string }
@@ -107,6 +122,13 @@ interface RecognitionBase {
   readonly support?: SupportRecord;
 }
 
+export interface NormalizationRecord {
+  readonly surface: string;
+  readonly rule: string;
+  readonly grounded_in: readonly GroundingReference[];
+  readonly anchors: readonly GroundingReference[];
+}
+
 export interface EntityRecognition extends RecognitionBase {
   readonly declaration_kind: "entity";
   readonly type: string;
@@ -116,6 +138,7 @@ export interface EntityRecognition extends RecognitionBase {
 interface RecordRecognitionBase extends RecognitionBase {
   readonly declaration_kind: "record";
   readonly subject_id?: string;
+  readonly normalization?: NormalizationRecord;
 }
 
 export interface RelationRecognition extends RecordRecognitionBase {
@@ -144,12 +167,62 @@ export interface AliasRecognition extends RecordRecognitionBase {
   readonly object: SemanticValue;
 }
 
-export type BootstrapRecognition =
+export interface NormalizedValueRecognition extends RecordRecognitionBase {
+  readonly record_kind: "normalized_value";
+  readonly value: SemanticValue;
+  readonly normalization: NormalizationRecord;
+}
+
+export interface VariableRecognition extends RecognitionBase {
+  readonly declaration_kind: "variable";
+  readonly value_type: "entity_ref" | "symbol" | "string";
+  readonly candidate_ids: readonly string[];
+}
+
+export interface CandidateRecognition extends RecognitionBase {
+  readonly declaration_kind: "candidate";
+  readonly variable_id: string;
+  readonly value: SemanticValue;
+}
+
+interface ConstraintRecognitionBase extends RecognitionBase {
+  readonly declaration_kind: "constraint";
+  readonly support: SupportRecord;
+}
+
+export interface OneOfConstraintRecognition extends ConstraintRecognitionBase {
+  readonly constraint_kind: "one_of";
+  readonly variable_id: string;
+  readonly member_ids: readonly string[];
+}
+
+export interface RequiresConstraintRecognition extends ConstraintRecognitionBase {
+  readonly constraint_kind: "requires";
+  readonly antecedent_id: string;
+  readonly consequent_id: string;
+}
+
+export interface BinaryConstraintRecognition extends ConstraintRecognitionBase {
+  readonly constraint_kind: "excludes" | "same_as" | "distinct_from";
+  readonly left_id: string;
+  readonly right_id: string;
+}
+
+export type ConstraintRecognition =
+  | OneOfConstraintRecognition
+  | RequiresConstraintRecognition
+  | BinaryConstraintRecognition;
+
+export type Recognition =
   | EntityRecognition
   | RelationRecognition
   | PropertyRecognition
   | SubjectValueRecognition
-  | AliasRecognition;
+  | AliasRecognition
+  | NormalizedValueRecognition
+  | VariableRecognition
+  | CandidateRecognition
+  | ConstraintRecognition;
 
 export interface SemanticDocument {
   readonly schema: "Llmrecog.SemanticDocument.v1";
@@ -158,8 +231,8 @@ export interface SemanticDocument {
   readonly title: string;
   readonly sources: readonly SourceRecord[];
   readonly spans: readonly SpanRecord[];
-  readonly observations: readonly [];
-  readonly recognitions: readonly BootstrapRecognition[];
+  readonly observations: readonly ObservationRecord[];
+  readonly recognitions: readonly Recognition[];
 }
 
 export interface CoreValidation {
