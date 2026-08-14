@@ -95,12 +95,13 @@ task APPLY_AMBIGUITY_DOGFOOD_FEEDBACK AMBIGUITY_DOGFOOD_OBSERVED -> AMBIGUITY_DO
   description |
     Classify every first-round finding as contract or semantic issue, implementation defect, diagnostic or presentation issue, documentation issue, or out-of-scope reasoning request. Record accepted, rejected, and deferred decisions; update an ADR first for any accepted semantic or public-contract change; revise remaining point estimates and fixtures before excludes implementation begins.
   duration 2p
+  status done
   priority 60
   requires:
     IMPLEMENTER 1
     SEMANTIC_REVIEWER 1
 
-task IMPLEMENT_EXCLUDES_AND_FOCUSED_AUDIT AMBIGUITY_DOGFOOD_REVIEWED -> EXCLUDES_AUDIT_ACCEPTED:
+task IMPLEMENT_EXCLUDES_AND_FOCUSED_AUDIT TYPED_EXPLAIN_TARGET_ACCEPTED -> EXCLUDES_AUDIT_ACCEPTED:
   title "Implement finite excludes, constraint explain, and focused audit"
   description |
     Add fixtures first, then extend the same pure scoped engine with symmetric excludes, deterministic minimal public exclusion chains, supported-plus-excluded conflict projection, closed empty-domain detection, constraint explanation, and only the document audit rules needed by this slice. Preserve grounded relationship requirements, joint-witness semantics, unknown reasons for deferred or incomplete operands, result ordering, bounds, no locator I/O, and no persisted derivation or materialization state.
@@ -111,9 +112,8 @@ task IMPLEMENT_EXCLUDES_AND_FOCUSED_AUDIT AMBIGUITY_DOGFOOD_REVIEWED -> EXCLUDES
 
 task RUN_EXCLUSION_CONFLICT_DOGFOOD EXCLUDES_AUDIT_ACCEPTED -> EXCLUSION_DOGFOOD_OBSERVED:
   title "Dogfood exclusion, conflict, and constraint explanations"
-  description |
-    Rerun the versioned corpus through the complete Phase 3 route and answer the frozen exclusion, supported-plus-excluded conflict, unknown, grounding, and constraint-chain questions. Prove the minimal Sato and Tanaka commitment example end to end, capture deterministic receipts, and inspect whether explain or audit encourages unsupported inference, hidden closure, or persisted solver output.
-  duration 3p
+  description "After finite excludes and focused audit are accepted, create the next immutable protocol corpus version so accepted status corrections do not alter the completed Round 3a identity. Then rerun the bounded corpus through the complete Phase 3 route and answer the frozen exclusion, supported-plus-excluded conflict, unknown, grounding, limit, and constraint-chain questions. Prove the minimal Sato and Tanaka commitment example end to end, capture deterministic receipts, and inspect whether explain or audit encourages unsupported inference, hidden closure, or persisted solver output."
+  duration 4p
   priority 40
   requires:
     IMPLEMENTER 1
@@ -137,6 +137,14 @@ task ACCEPT_PHASE_3_SLICE EXPLAIN_DOGFOOD_REVIEWED -> PHASE_3_ACCEPTED:
   requires:
     IMPLEMENTER 1
     SEMANTIC_REVIEWER 1
+
+task IMPLEMENT_TYPED_EXPLAIN_TARGET AMBIGUITY_DOGFOOD_REVIEWED -> TYPED_EXPLAIN_TARGET_ACCEPTED:
+  title "Implement typed ExplainResult v2 target projection"
+  description "Implement ADR 0009 fixture-first through the existing parser, semantic model, application, and private adapter seam. Add the required authored recognition projection without changing semantic version 0.1; freeze the v2 schema before code, update equivalent JSON and text goldens for every recognition kind, and prove excluded and unknown candidates retain parent variable and typed value without a witness. Keep ExplainResult v1 immutable and do not add excludes, audit behavior, a public CLI, or compatibility adapters in this task."
+  duration 3p
+  priority 55
+  requires:
+    IMPLEMENTER 1
 
 work_event START_FREEZE_PHASE_3_CONTRACT_20260814:
   model 1
@@ -193,3 +201,20 @@ work_event FINISH_RUN_AMBIGUITY_UNKNOWN_DOGFOOD_20260814:
   kind finish
   occurred_at 2026-08-14T14:21:17+09:00
   effort 0.14ph
+
+work_event START_APPLY_AMBIGUITY_DOGFOOD_FEEDBACK_20260814:
+  model 1
+  task APPLY_AMBIGUITY_DOGFOOD_FEEDBACK
+  kind start
+  occurred_at 2026-08-14T14:22:26+09:00
+  planned_value 2p
+
+milestone TYPED_EXPLAIN_TARGET_ACCEPTED:
+  title "Typed ExplainResult v2 target projection accepted"
+
+work_event FINISH_APPLY_AMBIGUITY_DOGFOOD_FEEDBACK_20260814:
+  model 1
+  task APPLY_AMBIGUITY_DOGFOOD_FEEDBACK
+  kind finish
+  occurred_at 2026-08-14T14:26:12+09:00
+  effort 0.0627777778ph

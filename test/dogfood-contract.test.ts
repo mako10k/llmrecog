@@ -23,6 +23,8 @@ const grammarFeedbackPath =
   "dogfood/runs/GRAMMAR_AUTHORING_20260814_01/feedback.json";
 const specificationFeedbackPath =
   "dogfood/runs/SPECIFICATION_AUTHORING_20260814_01/feedback.json";
+const ambiguityFeedbackPath =
+  "dogfood/runs/AMBIGUITY_EXPLAIN_20260814_01/feedback.json";
 
 interface ProtocolDocument {
   readonly id: string;
@@ -322,6 +324,7 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   const specificationFeedback = readJson<FeedbackExample>(
     specificationFeedbackPath,
   );
+  const ambiguityFeedback = readJson<FeedbackExample>(ambiguityFeedbackPath);
   const ajv = new Ajv2020({ allErrors: true, strict: true });
   addFormats(ajv);
 
@@ -359,6 +362,11 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   );
   assert.equal(
     validateFeedback(specificationFeedback),
+    true,
+    JSON.stringify(validateFeedback.errors, null, 2),
+  );
+  assert.equal(
+    validateFeedback(ambiguityFeedback),
     true,
     JSON.stringify(validateFeedback.errors, null, 2),
   );
@@ -441,5 +449,40 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
     specificationFeedback,
     specificationRunReceiptPath,
     specificationRun,
+  );
+  assert.equal(
+    ambiguityFeedback.feedback_id,
+    "AMBIGUITY_EXPLAIN_20260814_01_FEEDBACK_01",
+  );
+  assert.deepEqual(ambiguityFeedback.point_adjustments, [
+    {
+      plan_path: "plans/phase-3-explainable-csp.pert",
+      task_id: "IMPLEMENT_TYPED_EXPLAIN_TARGET",
+      previous_points: 0,
+      revised_points: 3,
+      rationale:
+        "Add the ADR 0009 schema, typed projection, JSON/text golden, and no-witness fixture gate discovered by actual Round 3a use.",
+    },
+    {
+      plan_path: "plans/phase-3-explainable-csp.pert",
+      task_id: "RUN_EXCLUSION_CONFLICT_DOGFOOD",
+      previous_points: 3,
+      revised_points: 4,
+      rationale:
+        "Reserve 1p to correct the two stale status documents and create a new immutable corpus protocol before Round 3b without changing the completed Round 3a identity.",
+    },
+    {
+      plan_path: "plans/dogfooding-roadmap.pert",
+      task_id: "IMPLEMENT_AND_DOGFOOD_EXPLAIN",
+      previous_points: 28,
+      revised_points: 32,
+      rationale:
+        "Synchronize the coarse Phase 3 slice with the detailed plan after adding the 3p typed-result gate and 1p Round 3b corpus rebaseline.",
+    },
+  ]);
+  assertFeedbackBindings(
+    ambiguityFeedback,
+    ambiguityRunReceiptPath,
+    ambiguityRun,
   );
 });

@@ -1,0 +1,59 @@
+{
+  "schema": "Llmrecog.Internal.DogfoodFeedback.v1",
+  "feedback_id": "AMBIGUITY_EXPLAIN_20260814_01_FEEDBACK_01",
+  "receipt": {
+    "path": "dogfood/runs/AMBIGUITY_EXPLAIN_20260814_01/receipt.json",
+    "digest": "sha256:9a3c1835d903ee4b5b689ee1c4f30ab8edb4b1e8e3f73d6b51fa97aa34987e0f"
+  },
+  "reviewed_at": "2026-08-14T14:25:00+09:00",
+  "reviewer": "codex",
+  "supersedes": null,
+  "entries": [
+    {
+      "observation_id": "OBS-EXPLAIN-001",
+      "disposition": "accepted",
+      "rationale": "Protocol v2 referenced the shared receipt schema but the schema admitted only Phase 2 bindings. The Round 3a change extended its path and round enums additively, retained validation of both legacy receipts, and added the actual ambiguity receipt to the same binding test. The observed 1p variance was consumed by the completed run and does not increase remaining work.",
+      "contract_change": "not_required",
+      "action_task_ids": ["RUN_AMBIGUITY_UNKNOWN_DOGFOOD"]
+    },
+    {
+      "observation_id": "OBS-EXPLAIN-002",
+      "disposition": "deferred",
+      "rationale": "Both status statements are stale, but implementation-phases.md and process/dogfooding.md are digest-bound inputs to the completed receipt and the still-unused protocol-v2 Round 3b definition. Changing them now would invalidate the active corpus identity, while updating them before excludes would immediately make the Phase 3 implementation status stale again. Preserve protocol v2, then correct the statuses after excludes acceptance and bind them in a new immutable protocol version before Round 3b.",
+      "contract_change": "deferred",
+      "action_task_ids": ["RUN_EXCLUSION_CONFLICT_DOGFOOD"]
+    },
+    {
+      "observation_id": "OBS-EXPLAIN-003",
+      "disposition": "accepted",
+      "rationale": "The actual result does not directly carry the candidate's authored typed value or parent variable even though the explainability authority requires them. ADR 0009 therefore supersedes only ADR 0008's successful result version and target-content shape: ExplainResult v2 adds the exact validated recognition alongside the lookup identity. A separate 3p fixture-first gate must implement and accept v2 before excludes so v1 is not widened and no-witness candidates remain self-describing.",
+      "contract_change": "required",
+      "action_task_ids": ["IMPLEMENT_TYPED_EXPLAIN_TARGET"]
+    }
+  ],
+  "point_adjustments": [
+    {
+      "plan_path": "plans/phase-3-explainable-csp.pert",
+      "task_id": "IMPLEMENT_TYPED_EXPLAIN_TARGET",
+      "previous_points": 0,
+      "revised_points": 3,
+      "rationale": "Add the ADR 0009 schema, typed projection, JSON/text golden, and no-witness fixture gate discovered by actual Round 3a use."
+    },
+    {
+      "plan_path": "plans/phase-3-explainable-csp.pert",
+      "task_id": "RUN_EXCLUSION_CONFLICT_DOGFOOD",
+      "previous_points": 3,
+      "revised_points": 4,
+      "rationale": "Reserve 1p to correct the two stale status documents and create a new immutable corpus protocol before Round 3b without changing the completed Round 3a identity."
+    },
+    {
+      "plan_path": "plans/dogfooding-roadmap.pert",
+      "task_id": "IMPLEMENT_AND_DOGFOOD_EXPLAIN",
+      "previous_points": 28,
+      "revised_points": 32,
+      "rationale": "Synchronize the coarse Phase 3 slice with the detailed plan after adding the 3p typed-result gate and 1p Round 3b corpus rebaseline."
+    }
+  ],
+  "round_complete": true,
+  "unresolved_observation_ids": []
+}
