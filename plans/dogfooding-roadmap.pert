@@ -75,7 +75,7 @@ task COMPLETE_AND_DOGFOOD_CORE EXPLAIN_DOGFOOD_REVIEWED -> CORE_DOGFOOD_REVIEWED
   title "Complete and dogfood the deterministic semantic core"
   description "Add requires, same_as, distinct_from, bounded query/materialization, limit behavior, and reason composition; use grounded-provenance and joint-witness questions, evaluate the compound allowed-plus-forbidden question, and disposition all evidence. The 35p duration remains the immutable start-event planning basis; the current detailed Phase 4 plan totals 37p after two dogfood-discovered replay points."
   duration 35p
-  status active
+  status done
   priority 80
   requires:
     IMPLEMENTER 1
@@ -164,3 +164,10 @@ work_event START_COMPLETE_AND_DOGFOOD_CORE_20260814:
   kind start
   occurred_at 2026-08-14T16:31:42+09:00
   planned_value 35p
+
+work_event FINISH_COMPLETE_AND_DOGFOOD_CORE_20260814:
+  model 1
+  task COMPLETE_AND_DOGFOOD_CORE
+  kind finish
+  occurred_at 2026-08-14T18:32:04+09:00
+  effort 1.8322222224ph

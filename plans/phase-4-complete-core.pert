@@ -149,6 +149,7 @@ task ACCEPT_PHASE_4_SLICE CORE_DOGFOOD_REVIEWED -> PHASE_4_ACCEPTED:
   description |
     Run schema and fixture checks, repeated deterministic explain/query/materialization cases, supported Node target validation, npm run check including jscpd, npm audit, and git diff --check. Review all five constraint truth tables, reason composition, joint witnesses, open and unsupported unknowns, query bounds, lazy materialization, require-complete behavior, dependency direction, no persistence, no locator I/O, and no provider or related-project runtime. Record unresolved work without starting Phase 5 or publishing, releasing, tagging, or pushing.
   duration 2p
+  status done
   priority 10
   requires:
     IMPLEMENTER 1
@@ -279,3 +280,17 @@ work_event FINISH_APPLY_CORE_DOGFOOD_FEEDBACK_20260814:
   kind finish
   occurred_at 2026-08-14T18:26:08+09:00
   effort 0.1488888889ph
+
+work_event START_ACCEPT_PHASE_4_SLICE_20260814:
+  model 1
+  task ACCEPT_PHASE_4_SLICE
+  kind start
+  occurred_at 2026-08-14T18:26:47+09:00
+  planned_value 2p
+
+work_event FINISH_ACCEPT_PHASE_4_SLICE_20260814:
+  model 1
+  task ACCEPT_PHASE_4_SLICE
+  kind finish
+  occurred_at 2026-08-14T18:32:04+09:00
+  effort 0.0880555556ph

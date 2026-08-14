@@ -1,6 +1,6 @@
 # llmrecog requirements
 
-- Status: Private Phase 4 deterministic semantic core and bounded-space dogfood reviewed; Phase 4 acceptance pending
+- Status: Private Phase 4 deterministic semantic core accepted locally; Phase 5 remains separately gated
 - Date: 2026-08-14
 - Provisional document extension: `.recog`
 - Product role: Recognition

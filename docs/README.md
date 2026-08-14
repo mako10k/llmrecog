@@ -21,6 +21,7 @@ This directory is the design and implementation-contract authority.
 | [implementation-phases.md](implementation-phases.md) | Small implementation phases after design acceptance |
 | [phase-2-acceptance.md](phase-2-acceptance.md) | Exact candidate evidence and Phase 2 acceptance boundary |
 | [phase-3-acceptance.md](phase-3-acceptance.md) | Exact candidate evidence and Phase 3 acceptance boundary |
+| [phase-4-acceptance.md](phase-4-acceptance.md) | Exact candidate evidence and Phase 4 acceptance boundary |
 | [../plans/initial-roadmap.pert](../plans/initial-roadmap.pert) | Original coarse roadmap and Phase 0/1 history |
 | [../plans/phase-2-parse-validate-show.pert](../plans/phase-2-parse-validate-show.pert) | Detailed perttool plan for the separately gated Phase 2 vertical slice |
 | [../plans/phase-3-explainable-csp.pert](../plans/phase-3-explainable-csp.pert) | Detailed dogfood-first plan for the separately gated Phase 3 explainable CSP slice |
@@ -53,9 +54,9 @@ ADR 0009 supersedes only the successful explain result version and typed
 target-content shape, requiring `Llmrecog.ExplainResult.v2` before the
 remaining Phase 3 implementation.
 ADR 0010 accepts all five contract-0.1 constraint semantics plus the private
-bounded query and materialization contracts. The relational explain/audit
-slice implements the five constraint meanings; the accepted `space` schemas
-and fixtures do not claim that either route exists.
+bounded query and materialization contracts. The accepted schemas and fixtures
+do not by themselves claim runtime existence; the exact private implementation
+accepted for local use is recorded in `phase-4-acceptance.md`.
 ADR 0011 corrects the relational ExplainResult v2 text golden to the existing
 complete deterministic projection without changing its JSON or semantic
 contract.

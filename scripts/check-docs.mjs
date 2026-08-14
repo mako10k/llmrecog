@@ -22,6 +22,7 @@ const requiredFiles = [
   "docs/development.md",
   "docs/phase-2-acceptance.md",
   "docs/phase-3-acceptance.md",
+  "docs/phase-4-acceptance.md",
   "docs/process/development-method.md",
   "docs/process/dogfooding.md",
   "dogfood/README.md",
