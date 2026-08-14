@@ -208,7 +208,7 @@
                 },
                 "quote": {
                   "state": "not_checked",
-                  "expected_digest": "sha256:2d711642b726b04401627ca9fbac32f5da7e5fb3c15b607fc62f03c3bf60aefe",
+                  "expected_digest": "sha256:2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
                   "actual_digest": null
                 }
               }

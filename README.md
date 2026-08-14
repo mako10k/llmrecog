@@ -98,9 +98,9 @@ back into an earlier layer.
 
 ## Current scope lock
 
-The current plan-gated work is the 3p Phase 5 digest-feedback and selector
-slice. Protocol v13 completed the minimal verifier dogfood; its feedback must
-be dispositioned before range and quote implementation. Network
+The next plan-gated work is the 2p complete Phase 5 local-source dogfood round.
+Protocol v13 feedback is dispositioned, the strict text selector slice is
+implemented, and protocol v14 covers its acceptance boundaries. Network
 access, automatic repair, provider-backed extraction, llmthink changes,
 sidecars, embeddings, ontologies, editor integrations, public packaging, and
 writes remain outside this slice.

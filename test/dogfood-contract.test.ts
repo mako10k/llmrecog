@@ -20,7 +20,8 @@ const phase4ProtocolV9Path = "dogfood/protocol-v9/protocol.json";
 const phase4ProtocolV10Path = "dogfood/protocol-v10/protocol.json";
 const phase5ProtocolV11Path = "dogfood/protocol-v11/protocol.json";
 const phase5ProtocolV12Path = "dogfood/protocol-v12/protocol.json";
-const activeProtocolPath = "dogfood/protocol-v13/protocol.json";
+const phase5ProtocolV13Path = "dogfood/protocol-v13/protocol.json";
+const activeProtocolPath = "dogfood/protocol-v14/protocol.json";
 const runExamplePath = "dogfood/protocol-v1/examples/run-receipt.example.json";
 const grammarRunReceiptPath =
   "dogfood/runs/GRAMMAR_AUTHORING_20260814_01/receipt.json";
@@ -58,6 +59,8 @@ const boundedSpaceFeedbackPath =
   "dogfood/runs/BOUNDED_SPACE_VIEWS_20260814_01/feedback.json";
 const boundedSpaceReplayFeedbackPath =
   "dogfood/runs/BOUNDED_SPACE_VIEWS_20260814_02/feedback.json";
+const localPathDigestFeedbackPath =
+  "dogfood/runs/LOCAL_PATH_DIGEST_20260814_01/feedback.json";
 
 interface ProtocolDocument {
   readonly id: string;
@@ -177,6 +180,7 @@ function sha256(relativePath: string): string {
 
 const protocol = readJson<DogfoodProtocol>(protocolPath);
 const activeProtocol = readJson<DogfoodProtocol>(activeProtocolPath);
+const minimalLocalProtocol = readJson<DogfoodProtocol>(phase5ProtocolV13Path);
 const relationalReplayProtocol =
   readJson<DogfoodProtocol>(phase4ProtocolV6Path);
 const boundedSpaceProtocolV9 = readJson<DogfoodProtocol>(phase4ProtocolV9Path);
@@ -385,17 +389,19 @@ function assertVersionSpecificProtocolCases(): void {
     ),
   );
   assert.deepEqual(
-    requiredCommandCase(activeProtocol, "LOCAL_DIGEST_VERIFIED_JSON")
+    requiredCommandCase(activeProtocol, "LOCAL_SELECTOR_VERIFIED_JSON")
       .required_option_names,
     ["--verification-root"],
   );
   assert(
     activeProtocol.rounds[0]?.command_case_ids.includes(
-      "LOCAL_STALE_DIGEST_JSON",
+      "LOCAL_INVALID_UTF8_JSON",
     ),
   );
   assert(
-    activeProtocol.rounds[0]?.command_case_ids.includes("LOCAL_SYMLINK_JSON"),
+    activeProtocol.rounds[0]?.command_case_ids.includes(
+      "LOCAL_MIXED_ORDER_JSON",
+    ),
   );
 }
 
@@ -449,18 +455,22 @@ test("the active dogfood protocol freezes corpus, questions, commands, and gates
     "sha256:a80e22379daeebf2c59e7fe41a518e75c669f89254c9a17e60b3e0e242f05b04",
   );
   assert.equal(
-    sha256(activeProtocolPath),
+    sha256(phase5ProtocolV13Path),
     "sha256:dbfb20b9eeaa060d0e2cc202d3b9e58a150b304cc498c090cd6d86c9b2dfcfb4",
   );
+  assert.equal(
+    sha256(activeProtocolPath),
+    "sha256:ed7be4fd98f5701dd303ba49a01a20bf0b07d32ba387157a83a5c8e61e7910ea",
+  );
   assert.equal(activeProtocol.schema, "Llmrecog.Internal.DogfoodProtocol.v1");
-  assert.equal(activeProtocol.protocol_version, 13);
+  assert.equal(activeProtocol.protocol_version, 14);
   assert.equal(activeProtocol.semantic_version, "0.1");
   assert.equal(activeProtocol.status, "active");
   assert.equal(activeProtocol.run_path_pattern, "dogfood/runs/<run-id>");
 
   assert.deepEqual(
     activeProtocol.rounds.map((round) => round.sequence),
-    [7],
+    [8],
   );
   assert.equal(
     new Set(activeProtocol.rounds.map((round) => round.id)).size,
@@ -565,13 +575,29 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   const boundedSpaceReplayFeedback = readJson<FeedbackExample>(
     boundedSpaceReplayFeedbackPath,
   );
+  const localPathDigestFeedback = readJson<FeedbackExample>(
+    localPathDigestFeedbackPath,
+  );
   const ajv = new Ajv2020({ allErrors: true, strict: true });
   addFormats(ajv);
 
   const validateRun = ajv.compile(runSchema);
   const validateFeedback = ajv.compile(feedbackSchema);
+  const activeReceiptCandidate = {
+    ...runExample,
+    round_id: activeProtocol.rounds[0]!.id,
+    protocol: {
+      path: activeProtocolPath,
+      digest: sha256(activeProtocolPath),
+    },
+  };
   assert.equal(
     validateRun(runExample),
+    true,
+    JSON.stringify(validateRun.errors, null, 2),
+  );
+  assert.equal(
+    validateRun(activeReceiptCandidate),
     true,
     JSON.stringify(validateRun.errors, null, 2),
   );
@@ -662,6 +688,11 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   );
   assert.equal(
     validateFeedback(boundedSpaceReplayFeedback),
+    true,
+    JSON.stringify(validateFeedback.errors, null, 2),
+  );
+  assert.equal(
+    validateFeedback(localPathDigestFeedback),
     true,
     JSON.stringify(validateFeedback.errors, null, 2),
   );
@@ -779,7 +810,26 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   assert.equal(localPathDigestRun.outcome, "completed");
   assert.equal(localPathDigestRun.complete, true);
   assert.equal(localPathDigestRun.truncated, false);
-  assertRunBindings(localPathDigestRun, activeProtocol, activeProtocolPath);
+  assertRunBindings(
+    localPathDigestRun,
+    minimalLocalProtocol,
+    phase5ProtocolV13Path,
+  );
+  assert.deepEqual(localPathDigestFeedback.point_adjustments, [
+    {
+      plan_path: "plans/phase-5-local-source-verification.pert",
+      task_id: "APPLY_DIGEST_FEEDBACK_AND_COMPLETE_VERIFIER",
+      previous_points: 3,
+      revised_points: 3,
+      rationale:
+        "The receipt-schema correction was completed within the dogfood slice, and the runtime evidence found no additional rooted-path or digest work; retain 3p for strict UTF-8, Unicode-scalar ranges, exact quotes, fixtures, and checks.",
+    },
+  ]);
+  assertFeedbackBindings(
+    localPathDigestFeedback,
+    localPathDigestReceiptPath,
+    localPathDigestRun,
+  );
 
   assert(feedbackExample.feedback_id.startsWith("EXAMPLE_"));
   assertFeedbackBindings(feedbackExample, runExamplePath, runExample);

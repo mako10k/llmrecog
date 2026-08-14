@@ -440,17 +440,23 @@ const localVerificationMessages: Readonly<Record<string, string>> = {
   "RCG-VERIFY-006": "The local source exceeds the per-source byte limit.",
   "RCG-VERIFY-007": "The local source has no declared digest.",
   "RCG-VERIFY-008": "The local source bytes do not match the declared digest.",
+  "RCG-VERIFY-009": "The local text source is not valid UTF-8.",
+  "RCG-VERIFY-010": "The local text source contains a bare carriage return.",
+  "RCG-VERIFY-011": "The source text range is out of bounds.",
+  "RCG-VERIFY-012": "The selected source text does not match the quote.",
 };
 
-function localSourceDiagnostic(
+function localVerificationDiagnostic(
   validation: ValidationResult,
-  sourceId: string,
+  declarationKind: "source" | "span",
+  entityId: string,
   code: string,
   reasonData: Readonly<Record<string, unknown>>,
-  fieldName: "locator" | "digest" | null,
+  fieldName: "locator" | "digest" | "range" | "quote" | null,
 ): Diagnostic {
   const declaration = validation.ast?.declarations.find(
-    (candidate) => candidate.kind === "source" && candidate.id === sourceId,
+    (candidate) =>
+      candidate.kind === declarationKind && candidate.id === entityId,
   );
   const span =
     fieldName === null
@@ -463,11 +469,45 @@ function localSourceDiagnostic(
     severity: "error",
     message:
       localVerificationMessages[code] ?? "Local source verification failed.",
-    entity_id: sourceId,
+    entity_id: entityId,
     span,
     reason_data: reasonData,
     related: [],
   };
+}
+
+function localSourceDiagnostic(
+  validation: ValidationResult,
+  sourceId: string,
+  code: string,
+  reasonData: Readonly<Record<string, unknown>>,
+  fieldName: "locator" | "digest" | null,
+): Diagnostic {
+  return localVerificationDiagnostic(
+    validation,
+    "source",
+    sourceId,
+    code,
+    reasonData,
+    fieldName,
+  );
+}
+
+function localSpanDiagnostic(
+  validation: ValidationResult,
+  spanId: string,
+  code: "RCG-VERIFY-011" | "RCG-VERIFY-012",
+  reasonData: Readonly<Record<string, unknown>>,
+  fieldName: "range" | "quote",
+): Diagnostic {
+  return localVerificationDiagnostic(
+    validation,
+    "span",
+    spanId,
+    code,
+    reasonData,
+    fieldName,
+  );
 }
 
 function uncheckedSpanVerification(
@@ -514,20 +554,194 @@ function failedReadEntry(
   };
 }
 
-function verifyLocalSourceDigest(
+interface TextLine {
+  readonly content: string;
+  readonly startOffset: number;
+}
+
+type RangeSelection =
+  | { readonly ok: true; readonly text: string }
+  | {
+      readonly ok: false;
+      readonly reason: "start_out_of_bounds" | "end_out_of_bounds";
+    };
+
+interface LocalSourceOutcome {
+  readonly entry: LocalSourceVerificationEntry;
+  readonly diagnostics: readonly Diagnostic[];
+}
+
+interface LocalSpanOutcome {
+  readonly verification: LocalSourceSpanVerification;
+  readonly diagnostics: readonly Diagnostic[];
+}
+
+function textLines(text: string): readonly TextLine[] {
+  const lines: TextLine[] = [];
+  let startOffset = 0;
+  for (let index = 0; index < text.length; index += 1) {
+    if (text[index] !== "\n") continue;
+    const contentEnd =
+      index > 0 && text[index - 1] === "\r" ? index - 1 : index;
+    lines.push({ content: text.slice(startOffset, contentEnd), startOffset });
+    startOffset = index + 1;
+  }
+  if (startOffset < text.length) {
+    lines.push({ content: text.slice(startOffset), startOffset });
+  }
+  return lines;
+}
+
+function positionOffset(
+  lines: readonly TextLine[],
+  position: { readonly line: number; readonly column: number },
+): number | null {
+  const line = lines[position.line - 1];
+  if (line === undefined) return null;
+  const scalars = [...line.content];
+  if (position.column < 1 || position.column > scalars.length + 1) return null;
+  const prefix = scalars.slice(0, position.column - 1).join("");
+  return line.startOffset + prefix.length;
+}
+
+function selectRange(
+  text: string,
+  lines: readonly TextLine[],
+  range: SemanticDocument["spans"][number]["range"],
+): RangeSelection {
+  const startOffset = positionOffset(lines, range.start);
+  if (startOffset === null) return { ok: false, reason: "start_out_of_bounds" };
+  const endOffset = positionOffset(lines, range.end);
+  if (endOffset === null) return { ok: false, reason: "end_out_of_bounds" };
+  return { ok: true, text: text.slice(startOffset, endOffset) };
+}
+
+function uncheckedQuote(
+  quote: string | undefined,
+): LocalSourceSpanVerification["quote"] {
+  return quote === undefined
+    ? { state: "not_declared", expected_digest: null, actual_digest: null }
+    : {
+        state: "not_checked",
+        expected_digest: sha256(Buffer.from(quote, "utf8")),
+        actual_digest: null,
+      };
+}
+
+function verifyLocalSpan(
+  validation: ValidationResult,
+  sourceId: string,
+  text: string,
+  lines: readonly TextLine[],
+  span: SemanticDocument["spans"][number],
+): LocalSpanOutcome {
+  const selected = selectRange(text, lines, span.range);
+  if (!selected.ok) {
+    return {
+      verification: {
+        span_id: span.id,
+        state: "mismatch",
+        range: { state: "mismatch", selector: span.range },
+        quote: uncheckedQuote(span.quote),
+      },
+      diagnostics: [
+        localSpanDiagnostic(
+          validation,
+          span.id,
+          "RCG-VERIFY-011",
+          { source_id: sourceId, span_id: span.id, reason: selected.reason },
+          "range",
+        ),
+      ],
+    };
+  }
+
+  if (span.quote === undefined) {
+    return {
+      verification: {
+        span_id: span.id,
+        state: "verified",
+        range: { state: "verified", selector: span.range },
+        quote: {
+          state: "not_declared",
+          expected_digest: null,
+          actual_digest: null,
+        },
+      },
+      diagnostics: [],
+    };
+  }
+
+  const expectedDigest = sha256(Buffer.from(span.quote, "utf8"));
+  const actualDigest = sha256(Buffer.from(selected.text, "utf8"));
+  const quoteMatches = selected.text === span.quote;
+  return {
+    verification: {
+      span_id: span.id,
+      state: quoteMatches ? "verified" : "mismatch",
+      range: { state: "verified", selector: span.range },
+      quote: {
+        state: quoteMatches ? "verified" : "mismatch",
+        expected_digest: expectedDigest,
+        actual_digest: actualDigest,
+      },
+    },
+    diagnostics: quoteMatches
+      ? []
+      : [
+          localSpanDiagnostic(
+            validation,
+            span.id,
+            "RCG-VERIFY-012",
+            {
+              source_id: sourceId,
+              span_id: span.id,
+              expected_digest: expectedDigest,
+              actual_digest: actualDigest,
+            },
+            "quote",
+          ),
+        ],
+  };
+}
+
+function failedTextEntry(
+  source: SemanticDocument["sources"][number],
+  resolvedPath: string,
+  digest: LocalSourceDigestCheck,
+  spans: readonly LocalSourceSpanVerification[],
+): LocalSourceVerificationEntry {
+  return {
+    source_id: source.id,
+    locator: source.locator,
+    resolved_path: resolvedPath,
+    state: digest.state === "not_declared" ? "unverified" : "mismatch",
+    digest,
+    spans,
+  };
+}
+
+function decodeLocalText(bytes: Uint8Array): string | null {
+  try {
+    return new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(
+      bytes,
+    );
+  } catch {
+    return null;
+  }
+}
+
+function verifyLocalSource(
   validation: ValidationResult,
   source: SemanticDocument["sources"][number],
   resolver: LocalSourceResolver,
-): {
-  readonly entry: LocalSourceVerificationEntry;
-  readonly diagnostics: readonly Diagnostic[];
-} {
+): LocalSourceOutcome {
   const document = validation.document!;
-  const spans = uncheckedSpanVerification(document, source.id);
+  const uncheckedSpans = uncheckedSpanVerification(document, source.id);
   const read = resolver.read(source.id, source.locator);
   if (!read.ok) {
     return {
-      entry: failedReadEntry(source, spans, read),
+      entry: failedReadEntry(source, uncheckedSpans, read),
       diagnostics: [
         localSourceDiagnostic(
           validation,
@@ -541,91 +755,105 @@ function verifyLocalSourceDigest(
   }
 
   const actual = sha256(read.bytes);
+  const digestDiagnostics: Diagnostic[] = [];
+  let digest: LocalSourceDigestCheck;
   if (source.digest === undefined) {
+    digest = { state: "not_declared", expected: null, actual };
+    digestDiagnostics.push(
+      localSourceDiagnostic(
+        validation,
+        source.id,
+        "RCG-VERIFY-007",
+        { source_id: source.id },
+        null,
+      ),
+    );
+  } else {
+    const expected = source.digest as Sha256Digest;
+    if (actual !== expected) {
+      return {
+        entry: {
+          source_id: source.id,
+          locator: source.locator,
+          resolved_path: read.resolvedPath,
+          state: "mismatch",
+          digest: { state: "mismatch", expected, actual },
+          spans: uncheckedSpans,
+        },
+        diagnostics: [
+          localSourceDiagnostic(
+            validation,
+            source.id,
+            "RCG-VERIFY-008",
+            {
+              source_id: source.id,
+              expected_digest: expected,
+              actual_digest: actual,
+            },
+            "digest",
+          ),
+        ],
+      };
+    }
+    digest = { state: "verified", expected, actual };
+  }
+
+  const text = decodeLocalText(read.bytes);
+  if (text === null) {
     return {
-      entry: {
-        source_id: source.id,
-        locator: source.locator,
-        resolved_path: read.resolvedPath,
-        state: "unverified",
-        digest: { state: "not_declared", expected: null, actual },
-        spans,
-      },
+      entry: failedTextEntry(source, read.resolvedPath, digest, uncheckedSpans),
       diagnostics: [
+        ...digestDiagnostics,
         localSourceDiagnostic(
           validation,
           source.id,
-          "RCG-VERIFY-007",
+          "RCG-VERIFY-009",
           { source_id: source.id },
-          null,
-        ),
-      ],
-    };
-  }
-
-  const expected = source.digest as Sha256Digest;
-  if (actual !== expected) {
-    return {
-      entry: {
-        source_id: source.id,
-        locator: source.locator,
-        resolved_path: read.resolvedPath,
-        state: "mismatch",
-        digest: { state: "mismatch", expected, actual },
-        spans,
-      },
-      diagnostics: [
-        localSourceDiagnostic(
-          validation,
-          source.id,
-          "RCG-VERIFY-008",
-          {
-            source_id: source.id,
-            expected_digest: expected,
-            actual_digest: actual,
-          },
-          "digest",
-        ),
-      ],
-    };
-  }
-
-  if (spans.length > 0) {
-    return {
-      entry: {
-        source_id: source.id,
-        locator: source.locator,
-        resolved_path: read.resolvedPath,
-        state: "unavailable",
-        digest: { state: "verified", expected, actual },
-        spans,
-      },
-      diagnostics: [
-        localSourceDiagnostic(
-          validation,
-          source.id,
-          "RCG-VERIFY-004",
-          {
-            source_id: source.id,
-            locator: source.locator,
-            cause: "policy_unavailable",
-          },
           "locator",
         ),
       ],
     };
   }
 
+  if (/\r(?!\n)/u.test(text)) {
+    return {
+      entry: failedTextEntry(source, read.resolvedPath, digest, uncheckedSpans),
+      diagnostics: [
+        ...digestDiagnostics,
+        localSourceDiagnostic(
+          validation,
+          source.id,
+          "RCG-VERIFY-010",
+          { source_id: source.id },
+          "locator",
+        ),
+      ],
+    };
+  }
+
+  const lines = textLines(text);
+  const spanOutcomes = document.spans
+    .filter((span) => span.source_id === source.id)
+    .map((span) => verifyLocalSpan(validation, source.id, text, lines, span));
+  const spans = spanOutcomes.map((outcome) => outcome.verification);
+  const selectorsMatch = spans.every((span) => span.state === "verified");
+  const sealed = digest.state === "verified";
+  let sourceState: LocalSourceVerificationEntry["state"] = "unverified";
+  if (sealed) sourceState = selectorsMatch ? "verified" : "mismatch";
+
   return {
     entry: {
       source_id: source.id,
       locator: source.locator,
       resolved_path: read.resolvedPath,
-      state: "verified",
-      digest: { state: "verified", expected, actual },
+      state: sourceState,
+      digest,
       spans,
     },
-    diagnostics: [],
+    diagnostics: [
+      ...digestDiagnostics,
+      ...spanOutcomes.flatMap((outcome) => outcome.diagnostics),
+    ],
   };
 }
 
@@ -658,7 +886,7 @@ export function validateBootstrapInputWithLocalSources(
   }
 
   const outcomes = validation.document.sources.map((source) =>
-    verifyLocalSourceDigest(validation, source, resolver),
+    verifyLocalSource(validation, source, resolver),
   );
   const verificationDiagnostics = outcomes.flatMap(
     (outcome) => outcome.diagnostics,

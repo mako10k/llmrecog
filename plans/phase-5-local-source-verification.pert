@@ -73,6 +73,7 @@ task APPLY_DIGEST_FEEDBACK_AND_COMPLETE_VERIFIER DIGEST_DOGFOOD_OBSERVED -> COMP
   title "Apply early feedback and complete range and quote verification"
   description "Disposition every early path and digest observation, revise remaining points, update an ADR before any accepted contract change, then implement UTF-8 decoding, Unicode-scalar line and column ranges, exact selected text and quote checks, bounded mismatch diagnostics, and aggregate source-verification status through the same resolver port. Preserve fail-closed behavior and never repair a span or quote automatically."
   duration 3p
+  status done
   priority 40
   requires:
     IMPLEMENTER 1
@@ -146,3 +147,17 @@ work_event WE-f7cbc0a8553376334f5c7f1265a2f582a55e9c5967d44da6e6064b9191fdc91b:
   kind finish
   occurred_at 2026-08-14T19:35:33+09:00
   effort 0.1256430556ph
+
+work_event WE-fa103c3125c3f376236f6ccf703e2b2f1f2222bf2d3d7d11e02a37e050037bc6:
+  model 1
+  task APPLY_DIGEST_FEEDBACK_AND_COMPLETE_VERIFIER
+  kind start
+  occurred_at 2026-08-14T19:36:27+09:00
+  planned_value 3p
+
+work_event WE-4b74121ae630e13861e07245c9890a333d2de80cacf2307dccd183f8c7c79929:
+  model 1
+  task APPLY_DIGEST_FEEDBACK_AND_COMPLETE_VERIFIER
+  kind finish
+  occurred_at 2026-08-14T19:46:07+09:00
+  effort 0.1612713889ph

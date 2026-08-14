@@ -41,7 +41,8 @@
         "bounded_space_views_v8",
         "bounded_space_views_v9",
         "bounded_space_views_v10",
-        "local_path_digest_v13"
+        "local_path_digest_v13",
+        "local_source_verification_v14"
       ]
     },
     "started_at": { "type": "string", "format": "date-time" },
@@ -84,7 +85,8 @@
             "dogfood/protocol-v8/protocol.json",
             "dogfood/protocol-v9/protocol.json",
             "dogfood/protocol-v10/protocol.json",
-            "dogfood/protocol-v13/protocol.json"
+            "dogfood/protocol-v13/protocol.json",
+            "dogfood/protocol-v14/protocol.json"
           ]
         },
         "digest": { "$ref": "#/$defs/sha256" }

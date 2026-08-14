@@ -1,0 +1,297 @@
+{
+  "schema": "Llmrecog.Internal.DogfoodProtocol.v1",
+  "protocol_version": 14,
+  "semantic_version": "0.1",
+  "status": "active",
+  "supersedes": {
+    "path": "dogfood/protocol-v13/protocol.json",
+    "digest": "sha256:dbfb20b9eeaa060d0e2cc202d3b9e58a150b304cc498c090cd6d86c9b2dfcfb4",
+    "reason": "Freeze complete text-source verification dogfood after minimal-verifier feedback disposition."
+  },
+  "receipt_schema": "dogfood/schemas/Llmrecog.Internal.DogfoodRunReceipt.v1.schema.json",
+  "feedback_schema": "dogfood/schemas/Llmrecog.Internal.DogfoodFeedback.v1.schema.json",
+  "run_path_pattern": "dogfood/runs/<run-id>",
+  "rounds": [
+    {
+      "id": "local_source_verification_v14",
+      "sequence": 8,
+      "earliest_gate": "COMPLETE_LOCAL_VERIFIER_ACCEPTED",
+      "documents": [
+        {
+          "id": "r8v14_local_verification_adr",
+          "path": "docs/adr/0012-phase-5-fail-closed-local-source-verification.md",
+          "digest": "sha256:6b3a51cb2647ecd6a78a872b8dd005e3409b48185c7cb3bcac32df97b4ad17bc",
+          "authority": "accepted_local_verification_decision"
+        },
+        {
+          "id": "r8v14_cli_contract",
+          "path": "docs/cli-contract.md",
+          "digest": "sha256:853579d25c5fce15e1e354ef0f8f292d7bc0d0eb677fc9dfdd97ed1cfd74e440",
+          "authority": "accepted_private_local_validation_contract"
+        },
+        {
+          "id": "r8v14_implementation_sequence",
+          "path": "docs/implementation-phases.md",
+          "digest": "sha256:7c0c70779435b71e5c5f14cc2a05349e83b2fcbbd334421ee8bd637b699c3da7",
+          "authority": "implementation_sequence"
+        },
+        {
+          "id": "r8v14_dogfood_process",
+          "path": "docs/process/dogfooding.md",
+          "digest": "sha256:79062172869e2ff04b8aed71926f4bd9277665512cf06eeb6c7df65686473075",
+          "authority": "dogfood_sequence_and_feedback_gates"
+        },
+        {
+          "id": "r8v14_source_verification_schema",
+          "path": "schemas/Llmrecog.SourceVerification.v1.schema.json",
+          "digest": "sha256:ad7fb3db10cf5789bf12612a0877b13f9f5b09d28d6116a71c21e75d0d1419a8",
+          "authority": "normative_source_verification_projection"
+        },
+        {
+          "id": "r8v14_validation_schema",
+          "path": "schemas/Llmrecog.ValidationResult.v2.schema.json",
+          "digest": "sha256:563cd290c730a1c8f2d772c3f22a68ec7c0efe3bda201c1306a8a20069d24b61",
+          "authority": "normative_local_validation_result"
+        },
+        {
+          "id": "r8v14_contract_cases",
+          "path": "test/fixtures/contracts/v0.1/source-verification/cases.json",
+          "digest": "sha256:af403589d12e0dc2af1190185f2c5fe811a451261a55fa0868b37f8a3f0fc8af",
+          "authority": "normative_local_verification_cases"
+        },
+        {
+          "id": "r8v14_minimal_receipt",
+          "path": "dogfood/runs/LOCAL_PATH_DIGEST_20260814_01/receipt.json",
+          "digest": "sha256:ec4c97e7a7d0b096ecd8f838dcc2befd60c0a05c3f72e13340b93ca186c0cebe",
+          "authority": "minimal_verifier_execution_evidence"
+        },
+        {
+          "id": "r8v14_minimal_feedback",
+          "path": "dogfood/runs/LOCAL_PATH_DIGEST_20260814_01/feedback.json",
+          "digest": "sha256:ec3a90eaab31f3945678b7d3a3bfb52e9dced0777edf5b7ae8da36b0a9215cc0",
+          "authority": "reviewed_minimal_verifier_feedback"
+        }
+      ],
+      "question_ids": [
+        "DGF-SOURCE-006",
+        "DGF-SOURCE-007",
+        "DGF-SOURCE-008",
+        "DGF-SOURCE-009",
+        "DGF-SOURCE-010"
+      ],
+      "required_declarations": ["document", "source", "span"],
+      "command_case_ids": [
+        "LOCAL_SELECTOR_VERIFIED_JSON",
+        "LOCAL_SELECTOR_VERIFIED_TEXT",
+        "LOCAL_RANGE_MISMATCH_JSON",
+        "LOCAL_QUOTE_MISMATCH_JSON",
+        "LOCAL_UNSEALED_JSON",
+        "LOCAL_INVALID_UTF8_JSON",
+        "LOCAL_BARE_CR_JSON",
+        "LOCAL_SIZE_LIMIT_JSON",
+        "LOCAL_MIXED_ORDER_JSON"
+      ],
+      "next_gate": "LOCAL_SOURCE_DOGFOOD_OBSERVED"
+    }
+  ],
+  "questions": [
+    {
+      "id": "DGF-SOURCE-006",
+      "round_id": "local_source_verification_v14",
+      "prompt": "Do strict UTF-8, BOM content, LF and CRLF boundaries, and Unicode-scalar columns select exact source text without normalization?",
+      "required_evidence": "Verified and rejected encoding cases, non-BMP and cross-line selectors, exact quote digests, and status boundaries",
+      "non_goal": "Stripping BOM, replacing invalid bytes, normalizing line endings, or counting UTF-16 code units as columns"
+    },
+    {
+      "id": "DGF-SOURCE-007",
+      "round_id": "local_source_verification_v14",
+      "prompt": "Do stale ranges and quotes fail independently while an unsealed source remains distinct from a selector mismatch?",
+      "required_evidence": "RCG-VERIFY-007, 011, and 012 results with typed digest, range, quote, source, and span states",
+      "non_goal": "Repairing selectors, searching for quote text, or treating missing identity as a matching digest"
+    },
+    {
+      "id": "DGF-SOURCE-008",
+      "round_id": "local_source_verification_v14",
+      "prompt": "Do size and earlier rooted-path protections still fail before hashing or selector checks?",
+      "required_evidence": "Over-limit, escape, symlink, non-regular, and missing prerequisites retain null actual digests and not-checked spans",
+      "non_goal": "Partial hashing, following a link, reading a device, network fallback, or automatic retry with a broader root"
+    },
+    {
+      "id": "DGF-SOURCE-009",
+      "round_id": "local_source_verification_v14",
+      "prompt": "Are mixed-source results source-ordered and fully evaluated even when the emitted diagnostic prefix is truncated?",
+      "required_evidence": "Two repeated executions, ordered source and span IDs, complete verification projection, diagnostic prefix, result completeness, and exit status",
+      "non_goal": "Stopping source reads at the diagnostic limit or reordering failures by code"
+    },
+    {
+      "id": "DGF-SOURCE-010",
+      "round_id": "local_source_verification_v14",
+      "prompt": "What complete-verifier friction must change producer-contract design or remaining point estimates?",
+      "required_evidence": "Reproducible observations bound to protocol v14 with explicit product boundary and point impact",
+      "non_goal": "Starting producer, provider, network, release, or related-repository work"
+    }
+  ],
+  "command_cases": [
+    {
+      "id": "LOCAL_SELECTOR_VERIFIED_JSON",
+      "route": ["document", "validate"],
+      "format": "json",
+      "repeat_count": 2,
+      "fixture_case_id": "local_verified",
+      "required_options": [
+        "--verify-sources",
+        "local",
+        "--max-source-bytes",
+        "1048576"
+      ],
+      "required_option_names": ["--verification-root"]
+    },
+    {
+      "id": "LOCAL_SELECTOR_VERIFIED_TEXT",
+      "route": ["document", "validate"],
+      "format": "text",
+      "repeat_count": 2,
+      "fixture_case_id": "local_verified",
+      "required_options": [
+        "--verify-sources",
+        "local",
+        "--max-source-bytes",
+        "1048576"
+      ],
+      "required_option_names": ["--verification-root"]
+    },
+    {
+      "id": "LOCAL_RANGE_MISMATCH_JSON",
+      "route": ["document", "validate"],
+      "format": "json",
+      "repeat_count": 2,
+      "fixture_case_id": "local_range_mismatch",
+      "required_options": [
+        "--verify-sources",
+        "local",
+        "--max-source-bytes",
+        "1048576"
+      ],
+      "required_option_names": ["--verification-root"]
+    },
+    {
+      "id": "LOCAL_QUOTE_MISMATCH_JSON",
+      "route": ["document", "validate"],
+      "format": "json",
+      "repeat_count": 2,
+      "fixture_case_id": "local_quote_mismatch",
+      "required_options": [
+        "--verify-sources",
+        "local",
+        "--max-source-bytes",
+        "1048576"
+      ],
+      "required_option_names": ["--verification-root"]
+    },
+    {
+      "id": "LOCAL_UNSEALED_JSON",
+      "route": ["document", "validate"],
+      "format": "json",
+      "repeat_count": 2,
+      "fixture_case_id": "local_unsealed",
+      "required_options": [
+        "--verify-sources",
+        "local",
+        "--max-source-bytes",
+        "1048576"
+      ],
+      "required_option_names": ["--verification-root"]
+    },
+    {
+      "id": "LOCAL_INVALID_UTF8_JSON",
+      "route": ["document", "validate"],
+      "format": "json",
+      "repeat_count": 2,
+      "fixture_setup": "copy_verified_and_replace_source_with_digest-matched_invalid_utf8",
+      "required_options": [
+        "--verify-sources",
+        "local",
+        "--max-source-bytes",
+        "1048576"
+      ],
+      "required_option_names": ["--verification-root"]
+    },
+    {
+      "id": "LOCAL_BARE_CR_JSON",
+      "route": ["document", "validate"],
+      "format": "json",
+      "repeat_count": 2,
+      "fixture_setup": "copy_verified_and_replace_source_with_digest-matched_bare_cr",
+      "required_options": [
+        "--verify-sources",
+        "local",
+        "--max-source-bytes",
+        "1048576"
+      ],
+      "required_option_names": ["--verification-root"]
+    },
+    {
+      "id": "LOCAL_SIZE_LIMIT_JSON",
+      "route": ["document", "validate"],
+      "format": "json",
+      "repeat_count": 2,
+      "fixture_case_id": "local_verified",
+      "required_options": [
+        "--verify-sources",
+        "local",
+        "--max-source-bytes",
+        "1"
+      ],
+      "required_option_names": ["--verification-root"]
+    },
+    {
+      "id": "LOCAL_MIXED_ORDER_JSON",
+      "route": ["document", "validate"],
+      "format": "json",
+      "repeat_count": 2,
+      "fixture_setup": "create_two-source_digest-and-quote-mismatch_with_max-diagnostics_1",
+      "required_options": [
+        "--verify-sources",
+        "local",
+        "--max-source-bytes",
+        "1048576",
+        "--max-diagnostics",
+        "1"
+      ],
+      "required_option_names": ["--verification-root"]
+    }
+  ],
+  "observation_categories": [
+    "contract_semantic",
+    "implementation",
+    "diagnostics_presentation",
+    "documentation",
+    "product_boundary"
+  ],
+  "feedback_dispositions": ["accepted", "rejected", "deferred"],
+  "acceptance": {
+    "receipt_immutable": true,
+    "feedback_binds_receipt_digest": true,
+    "all_questions_answered_or_blocked": true,
+    "all_observations_dispositioned_before_next_implementation": true,
+    "contract_change_requires_adr": true,
+    "unfinished_work_reestimated_in_points": true,
+    "elapsed_time_forecast_requires_stable_velocity": true,
+    "verification_root_is_explicit": true,
+    "document_relative_resolution_is_preserved": true,
+    "symlinks_and_nonregular_files_fail_closed": true,
+    "digest_uses_exact_source_bytes": true,
+    "selector_checks_are_not_claimed_by_minimal_slice": true,
+    "source_contents_are_not_emitted": true,
+    "semantic_validity_remains_separate": true,
+    "no_network_or_writes": true,
+    "range_and_quote_implementation_waits_for_feedback": true,
+    "minimal_feedback_is_bound": true,
+    "strict_utf8_and_bom_content_are_explicit": true,
+    "lf_and_crlf_selection_are_exact": true,
+    "unicode_scalar_columns_are_preserved": true,
+    "range_and_quote_mismatches_are_independent": true,
+    "mixed_sources_are_fully_verified_before_diagnostic_truncation": true,
+    "producer_work_remains_gated": true
+  }
+}

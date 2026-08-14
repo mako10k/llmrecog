@@ -68,9 +68,10 @@ completed replay. Protocol v11 froze a selector-bearing success case that the
 minimal digest slice could not honestly mark verified. It was superseded
 before execution and remains immutable. Protocol v12 replaced only that case
 with a digest-only source but omitted its own receipt values from the process
-schema, so it also remains immutable without a run. Active protocol v13 fixes
-that pre-run evidence boundary in
-[`dogfood/protocol-v13/protocol.json`](../../dogfood/protocol-v13/protocol.json).
+schema, so it also remains immutable without a run. Protocol v13 fixed that
+pre-run evidence boundary and is bound to completed minimal-verifier evidence
+and reviewed feedback. Active protocol v14 freezes the complete-verifier round
+in [`dogfood/protocol-v14/protocol.json`](../../dogfood/protocol-v14/protocol.json).
 The process-only receipt and feedback schemas are under
 [`dogfood/schemas/`](../../dogfood/schemas/), and the evidence layout and
 immutability rules are in [`dogfood/README.md`](../../dogfood/README.md).

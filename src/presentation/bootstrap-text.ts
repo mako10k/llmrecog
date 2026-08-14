@@ -66,10 +66,7 @@ function renderOptionalDigest(value: string | null): string {
 
 function renderLocalSpan(span: LocalSourceSpanVerification): string {
   const { start, end } = span.range.selector;
-  return [
-    `    span ${span.span_id} ${span.state} range=${span.range.state} selector=${start.line}:${start.column}..${end.line}:${end.column} quote=${span.quote.state}`,
-    `      quote_digest expected=${renderOptionalDigest(span.quote.expected_digest)} actual=${renderOptionalDigest(span.quote.actual_digest)}`,
-  ].join("\n");
+  return `    span ${span.span_id} ${span.state} range=${span.range.state} selector=${start.line}:${start.column}..${end.line}:${end.column} quote=${span.quote.state} expected=${renderOptionalDigest(span.quote.expected_digest)} actual=${renderOptionalDigest(span.quote.actual_digest)}`;
 }
 
 function renderLocalValidation(result: LocalValidationResult): string {

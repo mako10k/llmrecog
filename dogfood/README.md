@@ -4,8 +4,10 @@ This directory contains the versioned, process-only dogfood protocol and later
 run evidence. It is not part of the public llmrecog semantic or CLI contract.
 
 The active Phase 5 protocol is
-[`protocol-v13/protocol.json`](protocol-v13/protocol.json). It enables a
-schema-valid receipt after immutable
+[`protocol-v14/protocol.json`](protocol-v14/protocol.json). It freezes complete
+UTF-8, range, quote, size, ordering, and mixed-source dogfood after
+[`protocol-v13/protocol.json`](protocol-v13/protocol.json) enabled a
+schema-valid receipt following immutable
 [`protocol-v12/protocol.json`](protocol-v12/protocol.json) omitted its own
 round and path values from the process receipt schema. Protocol v12 replaced
 the selector-bearing success case in immutable
@@ -15,7 +17,7 @@ claiming that unimplemented range and quote checks ran. Both protocols precede
 runtime dogfood evidence and have no bound run. Protocol v13 is bound to
 completed path-and-digest evidence in
 [`runs/LOCAL_PATH_DIGEST_20260814_01/receipt.json`](runs/LOCAL_PATH_DIGEST_20260814_01/receipt.json);
-its observation remains separately gated for feedback disposition. Immutable
+its observation is dispositioned by the bound `feedback.json`. Immutable
 [`protocol-v10/protocol.json`](protocol-v10/protocol.json) remains bound to the
 completed bounded-space replay, while
 [`protocol-v9/protocol.json`](protocol-v9/protocol.json) remains bound to its

@@ -218,6 +218,10 @@ function digest(relativePath: string): string {
     .digest("hex");
 }
 
+function byteDigest(bytes: Uint8Array): string {
+  return `sha256:${crypto.createHash("sha256").update(bytes).digest("hex")}`;
+}
+
 function buildSchemaValidator(): Ajv2020 {
   const ajv = new Ajv2020({ allErrors: true, strict: true });
   addFormats(ajv);
@@ -1677,28 +1681,231 @@ test("local verification blocks invalid documents before resolver access", () =>
   assertResultSchema(result);
 });
 
-test("the minimal Phase 5 slice rejects unsupported selectors and invalid options", () => {
+test("complete Phase 5 selectors match frozen local projections", () => {
+  const fixtureSet = readJson<SourceVerificationFixtureSet>(
+    `${fixtureRoot}/source-verification/cases.json`,
+  );
+  const selectedIds = new Set([
+    "local_verified",
+    "local_stale_digest",
+    "local_range_mismatch",
+    "local_quote_mismatch",
+    "local_unsealed",
+  ]);
+  for (const fixture of fixtureSet.cases.filter((candidate) =>
+    selectedIds.has(candidate.id),
+  )) {
+    const result = parseLocalValidationResult(
+      runPrivateCli(localVerificationArgs(fixture, "json")),
+      fixture.expected_exit_status,
+    );
+    assert.deepEqual(result.source_verification, fixture.expected_verification);
+    assert.deepEqual(
+      result.diagnostics.map((diagnostic) => diagnostic.code),
+      fixture.expected_diagnostic_codes,
+    );
+  }
+
+  const verified = fixtureSet.cases.find(
+    (fixture) => fixture.id === "local_verified",
+  );
+  assert(verified?.expected_text_path);
+  const text = runPrivateCli(localVerificationArgs(verified, "text"));
+  assert.equal(text.status, 0);
+  const expectedComponent = fs.readFileSync(
+    absolutePath(verified.expected_text_path),
+    "utf8",
+  );
+  assert(text.stdout.includes(expectedComponent));
+});
+
+test("local text verification preserves encoding and line-ending boundaries", () => {
+  const temporaryDirectory = fs.mkdtempSync(
+    path.join(os.tmpdir(), "llmrecog-local-text-"),
+  );
+  const cases = [
+    {
+      id: "INVALID_UTF8",
+      bytes: Uint8Array.from([0xff]),
+      range: "1:1..1:2",
+      quote: "A",
+      status: 4,
+      code: "RCG-VERIFY-009",
+      sourceState: "mismatch",
+      spanState: "not_checked",
+    },
+    {
+      id: "BARE_CR",
+      bytes: Buffer.from("A\rB\n", "utf8"),
+      range: "1:1..1:2",
+      quote: "A",
+      status: 4,
+      code: "RCG-VERIFY-010",
+      sourceState: "mismatch",
+      spanState: "not_checked",
+    },
+    {
+      id: "BOM_CONTENT",
+      bytes: Buffer.from("\uFEFFA\n", "utf8"),
+      range: "1:1..1:2",
+      quote: "\\uFEFF",
+      status: 0,
+      code: null,
+      sourceState: "verified",
+      spanState: "verified",
+    },
+    {
+      id: "CRLF_SELECTION",
+      bytes: Buffer.from("Alpha\r\nSecond\r\n", "utf8"),
+      range: "1:1..2:7",
+      quote: "Alpha\\r\\nSecond",
+      status: 0,
+      code: null,
+      sourceState: "verified",
+      spanState: "verified",
+    },
+  ] as const;
+  try {
+    for (const fixture of cases) {
+      const root = path.join(temporaryDirectory, fixture.id);
+      fs.mkdirSync(root);
+      const sourcePath = path.join(root, "source.txt");
+      const documentPath = path.join(root, "document.recog");
+      fs.writeFileSync(sourcePath, fixture.bytes);
+      fs.writeFileSync(
+        documentPath,
+        [
+          "llmrecog 0.1",
+          "",
+          `document ${fixture.id}:`,
+          `  title "${fixture.id}"`,
+          "",
+          "source SRC:",
+          "  kind text",
+          '  locator "source.txt"',
+          `  digest "${byteDigest(fixture.bytes)}"`,
+          "",
+          "span SPAN:",
+          "  source SRC",
+          `  range ${fixture.range}`,
+          `  quote "${fixture.quote}"`,
+          "",
+        ].join("\n"),
+      );
+      const before = fs.readFileSync(sourcePath);
+      const command = runPrivateCli([
+        "document",
+        "validate",
+        documentPath,
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        root,
+        "--format",
+        "json",
+      ]);
+      const result = parseLocalValidationResult(command, fixture.status);
+      assert.equal(result.diagnostics[0]?.code ?? null, fixture.code);
+      assert.equal(
+        result.source_verification.sources[0]?.state,
+        fixture.sourceState,
+      );
+      assert.equal(
+        result.source_verification.sources[0]?.spans[0]?.state,
+        fixture.spanState,
+      );
+      assert.deepEqual(fs.readFileSync(sourcePath), before);
+    }
+  } finally {
+    fs.rmSync(temporaryDirectory, { recursive: true, force: true });
+  }
+});
+
+test("mixed-source verification preserves order beyond the diagnostic prefix", () => {
+  const temporaryDirectory = fs.mkdtempSync(
+    path.join(os.tmpdir(), "llmrecog-local-mixed-"),
+  );
+  const firstBytes = Buffer.from("first\n", "utf8");
+  const secondBytes = Buffer.from("B\n", "utf8");
+  const documentPath = path.join(temporaryDirectory, "document.recog");
+  try {
+    fs.writeFileSync(path.join(temporaryDirectory, "first.txt"), firstBytes);
+    fs.writeFileSync(path.join(temporaryDirectory, "second.txt"), secondBytes);
+    fs.writeFileSync(
+      documentPath,
+      [
+        "llmrecog 0.1",
+        "",
+        "document MIXED:",
+        '  title "Mixed source verification"',
+        "",
+        "source FIRST:",
+        "  kind text",
+        '  locator "first.txt"',
+        `  digest "sha256:${"0".repeat(64)}"`,
+        "",
+        "source SECOND:",
+        "  kind text",
+        '  locator "second.txt"',
+        `  digest "${byteDigest(secondBytes)}"`,
+        "",
+        "span SECOND_SPAN:",
+        "  source SECOND",
+        "  range 1:1..1:2",
+        '  quote "X"',
+        "",
+      ].join("\n"),
+    );
+    const result = parseLocalValidationResult(
+      runPrivateCli([
+        "document",
+        "validate",
+        documentPath,
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        temporaryDirectory,
+        "--max-diagnostics",
+        "1",
+        "--format",
+        "json",
+      ]),
+      1,
+    );
+    assert.equal(result.complete, false);
+    assert.equal(result.truncated, true);
+    assert.deepEqual(
+      result.source_verification.sources.map((source) => source.source_id),
+      ["FIRST", "SECOND"],
+    );
+    assert.deepEqual(
+      result.source_verification.sources.map((source) => source.state),
+      ["mismatch", "mismatch"],
+    );
+    assert.equal(
+      result.source_verification.sources[1]?.spans[0]?.quote.state,
+      "mismatch",
+    );
+    assert.deepEqual(
+      result.diagnostics.map((diagnostic) => diagnostic.code),
+      ["RCG-VERIFY-008"],
+    );
+    assert.equal(
+      byteDigest(firstBytes),
+      byteDigest(fs.readFileSync(path.join(temporaryDirectory, "first.txt"))),
+    );
+    assert.equal(
+      byteDigest(secondBytes),
+      byteDigest(fs.readFileSync(path.join(temporaryDirectory, "second.txt"))),
+    );
+  } finally {
+    fs.rmSync(temporaryDirectory, { recursive: true, force: true });
+  }
+});
+
+test("local verification options remain validate-only and mode-gated", () => {
   const selectorPath = `${fixtureRoot}/source-verification/verified/document.recog`;
   const selectorRoot = `${fixtureRoot}/source-verification/verified`;
-  const selector = runPrivateCli([
-    "document",
-    "validate",
-    selectorPath,
-    "--verify-sources",
-    "local",
-    "--verification-root",
-    selectorRoot,
-    "--format",
-    "json",
-  ]);
-  const selectorResult = parseLocalValidationResult(selector, 4);
-  assert.equal(selectorResult.diagnostics[0]?.code, "RCG-VERIFY-004");
-  assert(
-    selectorResult.source_verification.sources[0]?.spans.every(
-      (span) => span.state === "not_checked",
-    ),
-  );
-
   for (const args of [
     ["--verify-sources", "local"],
     ["--verification-root", selectorRoot],
