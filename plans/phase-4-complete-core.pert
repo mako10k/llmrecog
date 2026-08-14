@@ -119,13 +119,14 @@ task IMPLEMENT_BOUNDED_MATERIALIZATION BOUNDED_QUERY_ACCEPTED -> BOUNDED_MATERIA
   description |
     Implement mandatory explicit scope and positive limit, deterministic satisfying-assignment enumeration, open/unbound projection without invented candidates, exact complete/truncated behavior, and require-complete exit status 5. Keep materialized worlds as non-persisted derived views with no support status, ranking, choice, cache, write path, or ambient input. Run focused checks and npm run check including jscpd.
   duration 4p
+  status done
   priority 40
   requires:
     IMPLEMENTER 1
 
 task RUN_SPACE_VIEW_DOGFOOD BOUNDED_MATERIALIZATION_ACCEPTED -> SPACE_DOGFOOD_OBSERVED:
   title "Dogfood bounded query and materialization"
-  description "Run active protocol v8 grounded-provenance filters, compound target discovery, joint-witness, open-domain, ordering, low-limit, truncation, and require-complete cases through the actual private routes. Capture immutable command, artifact, output, and replay identities; inspect whether the views imply preference, silently close domains, fabricate source support, hide incomplete scopes, or encourage persisted world state."
+  description "Run active protocol v9 grounded-provenance filters, compound target discovery, joint-witness, open-domain, ordering, low-limit, truncation, and require-complete cases through the actual private routes. Capture immutable command, artifact, output, and replay identities; inspect whether the views imply preference, silently close domains, fabricate source support, hide incomplete scopes, or encourage persisted world state."
   duration 2p
   priority 30
   requires:
@@ -235,3 +236,17 @@ work_event FINISH_IMPLEMENT_BOUNDED_QUERY_20260814:
   kind finish
   occurred_at 2026-08-14T17:58:54+09:00
   effort 0.3061111111ph
+
+work_event START_IMPLEMENT_BOUNDED_MATERIALIZATION_20260814:
+  model 1
+  task IMPLEMENT_BOUNDED_MATERIALIZATION
+  kind start
+  occurred_at 2026-08-14T17:59:50+09:00
+  planned_value 4p
+
+work_event FINISH_IMPLEMENT_BOUNDED_MATERIALIZATION_20260814:
+  model 1
+  task IMPLEMENT_BOUNDED_MATERIALIZATION
+  kind finish
+  occurred_at 2026-08-14T18:08:43+09:00
+  effort 0.1480555556ph

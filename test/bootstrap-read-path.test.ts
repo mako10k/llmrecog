@@ -11,9 +11,11 @@ import addFormats from "ajv-formats";
 
 import {
   ExplainInputError,
+  MaterializationInputError,
   QueryInputError,
   auditBootstrapDocument,
   explainBootstrapRecognition,
+  materializeBootstrapSpace,
   queryBootstrapRecognitions,
   showBootstrapDocument,
   showBootstrapRecognition,
@@ -21,6 +23,7 @@ import {
   type BootstrapReadInput,
   type BootstrapReadResult,
   type ExplainOptions,
+  type MaterializationOptions,
   type QueryOptions,
 } from "../src/application/bootstrap-read-path.js";
 import type { Diagnostic } from "../src/core/types.js";
@@ -39,6 +42,7 @@ const closedConflictPath = `${fixtureRoot}/valid/closed-conflict.recog`;
 const limitUnknownPath = `${fixtureRoot}/valid/limit-unknown.recog`;
 const allDeclarationsPath = `${fixtureRoot}/valid/all-declarations.recog`;
 const relationalConflictPath = `${fixtureRoot}/valid/relational-conflict.recog`;
+const relationalCorePath = `${fixtureRoot}/valid/relational-core.recog`;
 const relationalOpenPath = `${fixtureRoot}/valid/relational-open.recog`;
 const relationalIdentitiesPath = `${fixtureRoot}/valid/relational-identities.recog`;
 
@@ -53,6 +57,7 @@ const schemaPaths = [
   "schemas/Llmrecog.ExplainResult.v2.schema.json",
   "schemas/Llmrecog.AuditResult.v1.schema.json",
   "schemas/Llmrecog.QueryResult.v1.schema.json",
+  "schemas/Llmrecog.MaterializationResult.v1.schema.json",
 ];
 
 const resultSchemaIds: Readonly<Record<BootstrapReadResult["schema"], string>> =
@@ -67,6 +72,8 @@ const resultSchemaIds: Readonly<Record<BootstrapReadResult["schema"], string>> =
       "https://mako10k.github.io/llmrecog/schemas/Llmrecog.ExplainResult.v2.schema.json",
     "Llmrecog.QueryResult.v1":
       "https://mako10k.github.io/llmrecog/schemas/Llmrecog.QueryResult.v1.schema.json",
+    "Llmrecog.MaterializationResult.v1":
+      "https://mako10k.github.io/llmrecog/schemas/Llmrecog.MaterializationResult.v1.schema.json",
     "Llmrecog.AuditResult.v1":
       "https://mako10k.github.io/llmrecog/schemas/Llmrecog.AuditResult.v1.schema.json",
   };
@@ -134,6 +141,13 @@ interface QueryGoldenCase {
   readonly options?: QueryOptions;
 }
 
+interface MaterializationGoldenCase {
+  readonly input: string;
+  readonly expected: string;
+  readonly text?: string;
+  readonly options: MaterializationOptions;
+}
+
 function assertResultGolden(
   result: BootstrapReadResult,
   expectedSchema: BootstrapReadResult["schema"],
@@ -165,6 +179,14 @@ function assertQueryGolden(fixture: QueryGoldenCase): void {
     fixture.options,
   );
   assertResultGolden(result, "Llmrecog.QueryResult.v1", fixture);
+}
+
+function assertMaterializationGolden(fixture: MaterializationGoldenCase): void {
+  const result = materializeBootstrapSpace(
+    contractInput(fixture.input),
+    fixture.options,
+  );
+  assertResultGolden(result, "Llmrecog.MaterializationResult.v1", fixture);
 }
 
 function digest(relativePath: string): string {
@@ -845,6 +867,77 @@ test("bounded query matches filters, ordering, grounding, and limit contracts", 
   );
 });
 
+test("bounded materialization matches worlds, open branches, and exact limits", () => {
+  assertMaterializationGolden({
+    input: `${fixtureRoot}/valid/relational-core.recog`,
+    expected: `${fixtureRoot}/expected/relational-core.materialization.json`,
+    text: `${fixtureRoot}/expected/relational-core.materialization.txt`,
+    options: { requestedVariableIds: ["V_TRIGGER"], limit: 4 },
+  });
+  assertMaterializationGolden({
+    input: `${fixtureRoot}/valid/relational-core.recog`,
+    expected: `${fixtureRoot}/expected/relational-core-require-complete.materialization.json`,
+    text: `${fixtureRoot}/expected/relational-core-require-complete.materialization.txt`,
+    options: {
+      requestedVariableIds: ["V_TRIGGER"],
+      limit: 2,
+      requireComplete: true,
+    },
+  });
+  assertMaterializationGolden({
+    input: relationalOpenPath,
+    expected: `${fixtureRoot}/expected/relational-open.materialization.json`,
+    text: `${fixtureRoot}/expected/relational-open.materialization.txt`,
+    options: { requestedVariableIds: ["V_OPEN_LEFT"], limit: 2 },
+  });
+
+  const exactOpenLimit = materializeBootstrapSpace(readInput(openUnknownPath), {
+    requestedVariableIds: ["V_ACTOR"],
+    limit: 1,
+  });
+  assert.equal(exactOpenLimit.schema, "Llmrecog.MaterializationResult.v1");
+  if (exactOpenLimit.schema !== "Llmrecog.MaterializationResult.v1") return;
+  assert.equal(exactOpenLimit.complete, true);
+  assert.equal(exactOpenLimit.truncated, false);
+  assert.equal(exactOpenLimit.inspected_assignment_count, 1);
+  assert.deepEqual(exactOpenLimit.worlds, [
+    {
+      index: 1,
+      assignments: [],
+      open_variable_ids: ["V_ACTOR"],
+    },
+  ]);
+
+  assert.throws(
+    () =>
+      materializeBootstrapSpace(readInput(relationalOpenPath), { limit: 1 }),
+    MaterializationInputError,
+  );
+  assert.throws(
+    () =>
+      materializeBootstrapSpace(readInput(relationalOpenPath), {
+        requestedVariableIds: ["V_OPEN_LEFT"],
+      }),
+    MaterializationInputError,
+  );
+  assert.throws(
+    () =>
+      materializeBootstrapSpace(readInput(relationalOpenPath), {
+        requestedVariableIds: ["V_OPEN_LEFT", "V_OPEN_LEFT"],
+        limit: 2,
+      }),
+    MaterializationInputError,
+  );
+  assert.throws(
+    () =>
+      materializeBootstrapSpace(readInput(relationalOpenPath), {
+        requestedVariableIds: ["V_MISSING"],
+        limit: 2,
+      }),
+    MaterializationInputError,
+  );
+});
+
 test("relational identity edge cases use exact typed values and self semantics", () => {
   const input = readInput(relationalIdentitiesPath);
   const explain = (id: string) => {
@@ -983,6 +1076,7 @@ test("the private CLI is read-only and byte-deterministic for dogfood routes", (
   const beforeAuditDigest = digest(propagatedExclusionPath);
   const beforeRelationalDigest = digest(relationalConflictPath);
   const beforeQueryDigest = digest(relationalOpenPath);
+  const beforeMaterializationDigest = digest(relationalCorePath);
   const cases = [
     ["document", "validate", minimalPath, "--format", "json"],
     ["document", "show", minimalPath, "--format", "json"],
@@ -1064,14 +1158,76 @@ test("the private CLI is read-only and byte-deterministic for dogfood routes", (
       "text",
     ],
     ["space", "query", relationalOpenPath, "--limit", "1", "--format", "json"],
+    [
+      "space",
+      "materialize",
+      relationalCorePath,
+      "--scope",
+      "V_TRIGGER",
+      "--limit",
+      "4",
+      "--format",
+      "json",
+    ],
+    [
+      "space",
+      "materialize",
+      relationalCorePath,
+      "--scope",
+      "V_TRIGGER",
+      "--limit",
+      "4",
+      "--format",
+      "text",
+    ],
+    [
+      "space",
+      "materialize",
+      relationalCorePath,
+      "--scope",
+      "V_TRIGGER",
+      "--limit",
+      "2",
+      "--format",
+      "json",
+    ],
+    [
+      "space",
+      "materialize",
+      relationalCorePath,
+      "--scope",
+      "V_TRIGGER",
+      "--limit",
+      "2",
+      "--require-complete",
+      "--format",
+      "json",
+    ],
+    [
+      "space",
+      "materialize",
+      relationalOpenPath,
+      "--scope",
+      "V_OPEN_LEFT",
+      "--limit",
+      "2",
+      "--format",
+      "json",
+    ],
   ] as const;
 
   for (const args of cases) {
     const first = runPrivateCli(args);
     const second = runPrivateCli(args);
-    const expectedStatus = args.some((argument) => argument === "--limit")
-      ? 1
-      : 0;
+    const requireComplete = args.some(
+      (argument) => argument === "--require-complete",
+    );
+    const boundedNonMaterialization =
+      args.some((argument) => argument === "--limit") &&
+      !(args[0] === "space" && args[1] === "materialize");
+    let expectedStatus = 0;
+    if (requireComplete) expectedStatus = 5;
+    else if (boundedNonMaterialization) expectedStatus = 1;
     assert.equal(first.status, expectedStatus, first.stderr);
     assert.deepEqual(first, second);
     assert.equal(first.stderr, "");
@@ -1085,11 +1241,21 @@ test("the private CLI is read-only and byte-deterministic for dogfood routes", (
       assert(first.stdout.includes("RCG-RSN-203"));
       assert(first.stdout.includes("K_REQ_ON_REQUIRES_FAST"));
     }
+    if (
+      args[1] === "materialize" &&
+      args.includes(relationalCorePath) &&
+      args.includes("2")
+    ) {
+      const materialized = JSON.parse(first.stdout) as BootstrapReadResult;
+      assert.equal(materialized.complete, false);
+      assert.equal(materialized.truncated, true);
+    }
   }
   assert.equal(digest(minimalPath), beforeDigest);
   assert.equal(digest(propagatedExclusionPath), beforeAuditDigest);
   assert.equal(digest(relationalConflictPath), beforeRelationalDigest);
   assert.equal(digest(relationalOpenPath), beforeQueryDigest);
+  assert.equal(digest(relationalCorePath), beforeMaterializationDigest);
 
   const missing = runPrivateCli([
     "recognition",
@@ -1161,6 +1327,56 @@ test("the private CLI is read-only and byte-deterministic for dogfood routes", (
   assert.equal(repeatedQueryOption.status, 2);
   assert.equal(repeatedQueryOption.stdout, "");
   assert.match(repeatedQueryOption.stderr, /at most once/u);
+
+  const missingMaterializationScope = runPrivateCli([
+    "space",
+    "materialize",
+    relationalCorePath,
+    "--limit",
+    "4",
+  ]);
+  assert.equal(missingMaterializationScope.status, 2);
+  assert.equal(missingMaterializationScope.stdout, "");
+  assert.match(missingMaterializationScope.stderr, /requires --scope/u);
+
+  const missingMaterializationLimit = runPrivateCli([
+    "space",
+    "materialize",
+    relationalCorePath,
+    "--scope",
+    "V_TRIGGER",
+  ]);
+  assert.equal(missingMaterializationLimit.status, 2);
+  assert.equal(missingMaterializationLimit.stdout, "");
+  assert.match(missingMaterializationLimit.stderr, /requires --limit/u);
+
+  const invalidMaterializationScope = runPrivateCli([
+    "space",
+    "materialize",
+    relationalCorePath,
+    "--scope",
+    "V_MISSING",
+    "--limit",
+    "4",
+  ]);
+  assert.equal(invalidMaterializationScope.status, 2);
+  assert.equal(invalidMaterializationScope.stdout, "");
+  assert.match(invalidMaterializationScope.stderr, /existing variable/u);
+
+  const repeatedRequireComplete = runPrivateCli([
+    "space",
+    "materialize",
+    relationalCorePath,
+    "--scope",
+    "V_TRIGGER",
+    "--limit",
+    "2",
+    "--require-complete",
+    "--require-complete",
+  ]);
+  assert.equal(repeatedRequireComplete.status, 2);
+  assert.equal(repeatedRequireComplete.stdout, "");
+  assert.match(repeatedRequireComplete.stderr, /at most once/u);
 
   const warningThreshold = runPrivateCli([
     "document",

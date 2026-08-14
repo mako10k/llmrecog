@@ -59,10 +59,11 @@ immutable protocols v2 and v3. Protocol v4 retains the exact pre-implementation
 Phase 4 contract baseline. Protocol v5 remains bound to the blocked first
 relational run that exposed missing known-mismatch command evidence. Protocol
 v6 completed that round with repeated known-mismatch and
-compound-constraint explain cases. Active protocol v7 retains only the
-pre-query bounded-space baseline. Active protocol v8 rebinds the not-yet-run
-round to the implemented-query status in
-[`dogfood/protocol-v8/protocol.json`](../../dogfood/protocol-v8/protocol.json).
+compound-constraint explain cases. Protocol v7 retains the pre-query
+bounded-space baseline, and protocol v8 retains the pre-materialization
+baseline. Active protocol v9 rebinds the not-yet-run round to the implemented
+query-and-materialization status in
+[`dogfood/protocol-v9/protocol.json`](../../dogfood/protocol-v9/protocol.json).
 The process-only receipt and feedback schemas are under
 [`dogfood/schemas/`](../../dogfood/schemas/), and the evidence layout and
 immutability rules are in [`dogfood/README.md`](../../dogfood/README.md).

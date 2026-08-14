@@ -3,6 +3,7 @@ import type {
   BootstrapReadResult,
   DocumentResult,
   ExplainResult,
+  MaterializationResult,
   QueryResult,
   RecognitionResult,
   ValidationResult,
@@ -376,6 +377,38 @@ function renderQuery(result: QueryResult): string {
   ].join("\n");
 }
 
+function renderMaterializedWorld(
+  world: MaterializationResult["worlds"][number],
+): string {
+  const assignments = world.assignments
+    .map(
+      (assignment) =>
+        `${assignment.variable_id}=${assignment.candidate_id}(${renderCompactValue(assignment.value)})`,
+    )
+    .join(", ");
+  return `world ${String(world.index)}: ${assignments || "-"} open=${world.open_variable_ids.join(",") || "-"}`;
+}
+
+function renderMaterialization(result: MaterializationResult): string {
+  return [
+    result.schema,
+    `scope: requested=${result.requested_variable_ids.join(",")} effective=${result.effective_variable_ids.join(",")}`,
+    `limit: ${String(result.limit)}`,
+    `inspected_assignments: ${String(result.inspected_assignment_count)}`,
+    ...(result.worlds.length === 0
+      ? ["worlds: -"]
+      : result.worlds.map(renderMaterializedWorld)),
+    `indeterminate_assignments: ${String(result.indeterminate_assignment_count)}`,
+    `open_variables: ${result.open_variable_ids.join(", ") || "-"}`,
+    `unknown_reasons: ${result.unknown_reasons.join(", ") || "-"}`,
+    `constraints: ${result.relevant_constraint_ids.join(", ") || "-"}`,
+    `source_verification: ${result.source_verification.mode}/${result.source_verification.state}`,
+    `require_complete: ${String(result.require_complete)}`,
+    `complete: ${String(result.complete)}`,
+    `truncated: ${String(result.truncated)}`,
+  ].join("\n");
+}
+
 function renderAuditReasonData(
   reasonData: Readonly<Record<string, unknown>>,
 ): string {
@@ -431,6 +464,8 @@ export function renderBootstrapText(result: BootstrapReadResult): string {
       return `${renderExplain(result)}\n`;
     case "Llmrecog.QueryResult.v1":
       return `${renderQuery(result)}\n`;
+    case "Llmrecog.MaterializationResult.v1":
+      return `${renderMaterialization(result)}\n`;
     case "Llmrecog.AuditResult.v1":
       return `${renderAudit(result)}\n`;
   }

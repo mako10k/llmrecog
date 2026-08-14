@@ -1,6 +1,6 @@
 # llmrecog requirements
 
-- Status: Private Phase 4 relational and bounded-query slices implemented; materialization not implemented
+- Status: Private Phase 4 deterministic semantic core implemented; bounded-space dogfood pending
 - Date: 2026-08-14
 - Provisional document extension: `.recog`
 - Product role: Recognition

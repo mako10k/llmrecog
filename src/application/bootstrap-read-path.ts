@@ -3,12 +3,14 @@ import crypto from "node:crypto";
 import { validateBootstrapCore } from "../core/bootstrap-model.js";
 import {
   analyzeOneOfExplain,
+  materializeOneOfSpace,
   type CandidateViability,
   type ExplainScope,
   type OneOfExplainAnalysis,
   type PublicReason,
   type SkippedConstraint,
   type VariableResolution,
+  type Witness,
 } from "../core/one-of-explain.js";
 import type {
   AstDocument,
@@ -25,6 +27,7 @@ export const phase2ToolVersion = "0.0.0-phase2";
 export const phase3ToolVersion = "0.0.0-phase3";
 export const phase4RelationalToolVersion = "0.0.0-phase4-relational";
 export const phase4QueryToolVersion = "0.0.0-phase4-query";
+export const phase4MaterializationToolVersion = "0.0.0-phase4-materialization";
 
 interface ResultInput {
   readonly path: string;
@@ -185,12 +188,33 @@ export interface QueryResult extends ResultBase {
   readonly items: readonly QueryItem[];
 }
 
+interface MaterializedWorld {
+  readonly index: number;
+  readonly assignments: Witness["assignments"];
+  readonly open_variable_ids: Witness["open_variable_ids"];
+}
+
+export interface MaterializationResult extends ResultBase {
+  readonly schema: "Llmrecog.MaterializationResult.v1";
+  readonly require_complete: boolean;
+  readonly requested_variable_ids: readonly string[];
+  readonly effective_variable_ids: readonly string[];
+  readonly limit: number;
+  readonly inspected_assignment_count: number;
+  readonly worlds: readonly MaterializedWorld[];
+  readonly indeterminate_assignment_count: number;
+  readonly open_variable_ids: readonly string[];
+  readonly unknown_reasons: readonly string[];
+  readonly relevant_constraint_ids: readonly string[];
+}
+
 export type BootstrapReadResult =
   | ValidationResult
   | DocumentResult
   | RecognitionResult
   | ExplainResult
   | QueryResult
+  | MaterializationResult
   | AuditResult;
 
 export interface BootstrapReadInput {
@@ -218,6 +242,12 @@ export interface QueryOptions {
   readonly limit?: number;
 }
 
+export interface MaterializationOptions {
+  readonly requestedVariableIds?: readonly string[];
+  readonly limit?: number;
+  readonly requireComplete?: boolean;
+}
+
 export class ExplainInputError extends Error {
   constructor(message: string) {
     super(message);
@@ -229,6 +259,13 @@ export class QueryInputError extends Error {
   constructor(message: string) {
     super(message);
     this.name = "QueryInputError";
+  }
+}
+
+export class MaterializationInputError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "MaterializationInputError";
   }
 }
 
@@ -863,6 +900,86 @@ export function queryBootstrapRecognitions(
     assignment_limit: limit,
     matched_count: items.length,
     items,
+    source_verification: validation.source_verification,
+    diagnostics: validation.diagnostics,
+  };
+}
+
+function validatedMaterializationScope(
+  value: readonly string[] | undefined,
+): readonly string[] {
+  if (
+    value === undefined ||
+    value.length === 0 ||
+    value.some((id) => !/^[A-Za-z][A-Za-z0-9_.-]*$/u.test(id)) ||
+    new Set(value).size !== value.length
+  ) {
+    throw new MaterializationInputError(
+      "--scope is required and must be a duplicate-free variable ID list.",
+    );
+  }
+  return value;
+}
+
+function validatedMaterializationLimit(value: number | undefined): number {
+  if (value === undefined || !Number.isSafeInteger(value) || value < 1) {
+    throw new MaterializationInputError(
+      "--limit is required and must be a positive integer.",
+    );
+  }
+  return value;
+}
+
+export function materializeBootstrapSpace(
+  input: BootstrapReadInput,
+  options: MaterializationOptions = {},
+): ValidationResult | MaterializationResult {
+  const requestedVariableIds = validatedMaterializationScope(
+    options.requestedVariableIds,
+  );
+  const limit = validatedMaterializationLimit(options.limit);
+  const materializationInput: BootstrapReadInput = {
+    ...input,
+    toolVersion: input.toolVersion ?? phase4MaterializationToolVersion,
+  };
+  const validation = validateBootstrapInput(materializationInput);
+  if (!validation.valid || validation.document === null) return validation;
+
+  const materialized = materializeOneOfSpace(
+    validation.document,
+    requestedVariableIds,
+    limit,
+  );
+  if (!materialized.ok) {
+    throw new MaterializationInputError(
+      "--scope must name existing variable recognitions.",
+    );
+  }
+  const analysis = materialized.analysis;
+  const truncated = validation.truncated || analysis.truncated;
+  return {
+    schema: "Llmrecog.MaterializationResult.v1",
+    semantic_version: "0.1",
+    tool_version: validation.tool_version,
+    input: validation.input,
+    complete: validation.complete && analysis.complete,
+    truncated,
+    require_complete: options.requireComplete ?? false,
+    requested_variable_ids: analysis.requested_variable_ids,
+    effective_variable_ids: analysis.effective_variable_ids,
+    limit,
+    inspected_assignment_count: analysis.inspected_assignment_count,
+    worlds: analysis.worlds.map((world, index) => ({
+      index: index + 1,
+      assignments: world.assignments,
+      open_variable_ids: world.open_variable_ids,
+    })),
+    indeterminate_assignment_count: analysis.indeterminate_assignment_count,
+    open_variable_ids: analysis.open_variable_ids,
+    unknown_reasons: analysis.unknown_reasons,
+    relevant_constraint_ids: analysis.relevant_constraints.map(
+      (constraint) => constraint.id,
+    ),
     source_verification: validation.source_verification,
     diagnostics: validation.diagnostics,
   };

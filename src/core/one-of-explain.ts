@@ -93,6 +93,23 @@ export type OneOfExplainResult =
       readonly id: string;
     };
 
+export interface MaterializationSpaceAnalysis {
+  readonly complete: boolean;
+  readonly truncated: boolean;
+  readonly requested_variable_ids: readonly string[];
+  readonly effective_variable_ids: readonly string[];
+  readonly inspected_assignment_count: number;
+  readonly worlds: readonly Witness[];
+  readonly indeterminate_assignment_count: number;
+  readonly open_variable_ids: readonly string[];
+  readonly unknown_reasons: readonly string[];
+  readonly relevant_constraints: readonly ConstraintRecognition[];
+}
+
+export type MaterializationSpaceResult =
+  | { readonly ok: true; readonly analysis: MaterializationSpaceAnalysis }
+  | { readonly ok: false; readonly reason: "invalid_scope" };
+
 interface ScopeContext {
   readonly requested: readonly VariableRecognition[];
   readonly effective: readonly VariableRecognition[];
@@ -105,6 +122,7 @@ interface EnumerationResult {
   readonly blocker_derivations: readonly PublicReason[];
   readonly unknown_reasons: readonly string[];
   readonly inspected: number;
+  readonly indeterminate: number;
   readonly truncated: boolean;
 }
 
@@ -352,9 +370,9 @@ function witnessFromSelection(
             },
           ],
     ),
-    open_variable_ids: scope.effective
-      .filter((variable) => !isClosed(variable, scope))
-      .map((variable) => variable.id),
+    open_variable_ids: scope.effective.flatMap((variable, index) =>
+      selected[index] === null ? [variable.id] : [],
+    ),
   };
 }
 
@@ -551,6 +569,7 @@ function enumerateAssignments(
   const blockerKeys = new Set<string>();
   const unknownReasonCodes = new Set<string>();
   let inspected = 0;
+  let indeterminate = 0;
   for (const selected of assignments(scope, candidates, fixedTarget)) {
     if (inspected === limit) {
       return {
@@ -558,6 +577,7 @@ function enumerateAssignments(
         blocker_derivations: blockerDerivations,
         unknown_reasons: [...unknownReasonCodes],
         inspected,
+        indeterminate,
         truncated: true,
       };
     }
@@ -570,6 +590,7 @@ function enumerateAssignments(
     }
     if (evaluation.state === "indeterminate") {
       unknownReasonCodes.add(evaluation.reason_code);
+      indeterminate += 1;
       continue;
     }
     const blocker = evaluation.reason;
@@ -584,7 +605,53 @@ function enumerateAssignments(
     blocker_derivations: blockerDerivations,
     unknown_reasons: [...unknownReasonCodes],
     inspected,
+    indeterminate,
     truncated: false,
+  };
+}
+
+export function materializeOneOfSpace(
+  document: SemanticDocument,
+  requestedVariableIds: readonly string[],
+  limit: number,
+): MaterializationSpaceResult {
+  const target = document.recognitions.find(
+    (recognition) =>
+      recognition.id === requestedVariableIds[0] &&
+      recognition.declaration_kind === "variable",
+  );
+  if (target === undefined) return { ok: false, reason: "invalid_scope" };
+  const scope = buildScope(document, target, requestedVariableIds);
+  if (scope === null) return { ok: false, reason: "invalid_scope" };
+
+  const enumeration = enumerateAssignments(
+    scope,
+    candidatesById(document),
+    null,
+    limit,
+    false,
+  );
+  const unknownReasons = unique([
+    ...enumeration.unknown_reasons,
+    ...(scope.skipped.length === 0 ? [] : ["RCG-RSN-006"]),
+    ...(enumeration.truncated ? ["RCG-RSN-007"] : []),
+  ]);
+  return {
+    ok: true,
+    analysis: {
+      complete: !enumeration.truncated && scope.skipped.length === 0,
+      truncated: enumeration.truncated,
+      requested_variable_ids: scope.requested.map((variable) => variable.id),
+      effective_variable_ids: scope.effective.map((variable) => variable.id),
+      inspected_assignment_count: enumeration.inspected,
+      worlds: enumeration.satisfying,
+      indeterminate_assignment_count: enumeration.indeterminate,
+      open_variable_ids: scope.effective
+        .filter((variable) => !isClosed(variable, scope))
+        .map((variable) => variable.id),
+      unknown_reasons: unknownReasons,
+      relevant_constraints: scope.relevant,
+    },
   };
 }
 

@@ -126,7 +126,9 @@ protocol v4 accept this phase's contract. The first implementation slice now
 evaluates `requires`, `same_as`, and `distinct_from` through the private
 bounded explain and focused-audit seam. The second slice implements the
 accepted deterministic `space query` filters and projections through the same
-application/core seam. `space materialize` is not implemented.
+application/core seam. The third slice implements lazy bounded
+`space materialize`, including exact generator exhaustion, indeterminate open
+branches, and the `--require-complete` exit boundary, through that shared seam.
 
 Add:
 
@@ -218,10 +220,9 @@ authorized by accepting llmrecog core implementation.
 
 ## Current implementation frontier
 
-Implement the 4p bounded-materialization vertical slice against the unchanged
-accepted `Llmrecog.MaterializationResult.v1` contract. The bounded-query slice
-is implemented, the relational feedback is dispositioned, and active protocol
-v8 retains the later bounded-space dogfood round. Producer dogfood remains
+Run the 2p bounded-space dogfood round against active protocol v9 now that both
+read-only routes implement their accepted contracts. Phase 4 acceptance still
+requires this evidence and its feedback disposition. Producer dogfood remains
 gated on the accepted complete initial constraint semantics,
 fail-closed local source verification, a producer-contract ADR, and a
 separately approved adapter.

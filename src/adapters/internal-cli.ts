@@ -2,9 +2,11 @@ import fs from "node:fs";
 
 import {
   ExplainInputError,
+  MaterializationInputError,
   QueryInputError,
   auditBootstrapDocument,
   explainBootstrapRecognition,
+  materializeBootstrapSpace,
   queryBootstrapRecognitions,
   showBootstrapDocument,
   showBootstrapRecognition,
@@ -35,6 +37,7 @@ interface ParsedOptions extends CommonOptions {
   readonly support: QuerySupportState | undefined;
   readonly viability: QueryViabilityState | undefined;
   readonly groundedInSpanId: string | undefined;
+  readonly requireComplete: boolean;
 }
 
 interface OptionPolicy {
@@ -49,6 +52,7 @@ interface OptionPolicy {
   readonly support?: boolean;
   readonly viability?: boolean;
   readonly groundedIn?: boolean;
+  readonly requireComplete?: boolean;
 }
 
 type ParsedCommand =
@@ -77,7 +81,7 @@ type ParsedCommand =
     })
   | (ParsedOptions & {
       readonly resource: "space";
-      readonly action: "query";
+      readonly action: "query" | "materialize";
       readonly path: string;
     });
 
@@ -100,6 +104,7 @@ interface OptionState {
   support: QuerySupportState | undefined;
   viability: QueryViabilityState | undefined;
   groundedInSpanId: string | undefined;
+  requireComplete: boolean;
 }
 
 function positiveInteger(value: string, option: string): number {
@@ -279,18 +284,26 @@ function parseOptions(
     support: undefined,
     viability: undefined,
     groundedInSpanId: undefined,
+    requireComplete: false,
   };
   const seenOptions = new Set<string>();
-  for (let index = 0; index < args.length; index += 2) {
+  for (let index = 0; index < args.length;) {
     const option = args[index];
-    const value = args[index + 1];
-    if (value === undefined)
-      throw new UsageError(`Missing value for ${option}.`);
     if (option !== undefined && seenOptions.has(option)) {
       throw new UsageError(`${option} may occur at most once.`);
     }
     if (option !== undefined) seenOptions.add(option);
+    if (option === "--require-complete") {
+      requireAccepted(policy.requireComplete, "--require-complete");
+      state.requireComplete = true;
+      index += 1;
+      continue;
+    }
+    const value = args[index + 1];
+    if (value === undefined)
+      throw new UsageError(`Missing value for ${option}.`);
     applyOption(state, policy, option, value);
+    index += 2;
   }
   return state;
 }
@@ -307,6 +320,7 @@ const readOptions: OptionPolicy = {
   support: false,
   viability: false,
   groundedIn: false,
+  requireComplete: false,
 };
 
 function recognitionOperands(
@@ -398,18 +412,41 @@ function parseSpaceCommand(
   args: readonly string[],
   action: string | undefined,
 ): ParsedCommand {
-  if (action !== "query") {
-    throw new UsageError("Expected space query.");
+  if (action !== "query" && action !== "materialize") {
+    throw new UsageError("Expected space query|materialize.");
   }
   const path = args[2];
   if (path === undefined) {
-    throw new UsageError("space query requires a .recog file path.");
+    throw new UsageError(`space ${action} requires a .recog file path.`);
+  }
+  const optionArgs = args.slice(3);
+  if (action === "materialize") {
+    if (!optionArgs.includes("--scope")) {
+      throw new UsageError("space materialize requires --scope.");
+    }
+    if (!optionArgs.includes("--limit")) {
+      throw new UsageError("space materialize requires --limit.");
+    }
+    return {
+      resource: "space",
+      action,
+      path,
+      ...parseOptions(optionArgs, {
+        verification: false,
+        maximumDiagnostics: false,
+        scope: true,
+        limit: true,
+        profile: false,
+        failOn: false,
+        requireComplete: true,
+      }),
+    };
   }
   return {
     resource: "space",
     action,
     path,
-    ...parseOptions(args.slice(3), {
+    ...parseOptions(optionArgs, {
       verification: false,
       maximumDiagnostics: false,
       scope: false,
@@ -421,6 +458,7 @@ function parseSpaceCommand(
       support: true,
       viability: true,
       groundedIn: true,
+      requireComplete: false,
     }),
   };
 }
@@ -477,6 +515,15 @@ function executeSpace(
   input: BootstrapReadInput,
   command: SpaceCommand,
 ): BootstrapReadResult {
+  if (command.action === "materialize") {
+    return materializeBootstrapSpace(input, {
+      ...(command.requestedVariableIds === undefined
+        ? {}
+        : { requestedVariableIds: command.requestedVariableIds }),
+      limit: command.limit,
+      requireComplete: command.requireComplete,
+    });
+  }
   return queryBootstrapRecognitions(input, {
     ...(command.kind === undefined ? {} : { kind: command.kind }),
     ...(command.variableId === undefined
@@ -507,6 +554,16 @@ function execute(command: ParsedCommand): BootstrapReadResult {
   return executeSpace(input, command);
 }
 
+function materializationExitStatus(
+  result: Extract<
+    BootstrapReadResult,
+    { readonly schema: "Llmrecog.MaterializationResult.v1" }
+  >,
+): number {
+  if (result.complete) return 0;
+  return result.require_complete ? 5 : 0;
+}
+
 function exitStatus(result: BootstrapReadResult): number {
   if (result.schema === "Llmrecog.ValidationResult.v1") {
     return result.valid && result.complete ? 0 : 1;
@@ -515,6 +572,9 @@ function exitStatus(result: BootstrapReadResult): number {
     return 1;
   if (result.schema === "Llmrecog.AuditResult.v1") {
     return result.passed && result.complete ? 0 : 1;
+  }
+  if (result.schema === "Llmrecog.MaterializationResult.v1") {
+    return materializationExitStatus(result);
   }
   return result.complete ? 0 : 1;
 }
@@ -553,6 +613,10 @@ function main(args: readonly string[]): number {
       return 2;
     }
     if (error instanceof QueryInputError) {
+      process.stderr.write(`llmrecog usage error: ${error.message}\n`);
+      return 2;
+    }
+    if (error instanceof MaterializationInputError) {
       process.stderr.write(`llmrecog usage error: ${error.message}\n`);
       return 2;
     }

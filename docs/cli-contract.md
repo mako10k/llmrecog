@@ -5,10 +5,10 @@ ADR 0007 accepts the Phase 2 `document validate`, `document show`, and
 Phase 3 `recognition explain` and focused `document audit` contracts. ADR 0010
 accepts all five contract-0.1 constraint meanings and the Phase 4 bounded
 `space query` and `space materialize` routes. The private runtime now
-evaluates all five constraint kinds and implements `space query`;
-`space materialize` is not implemented. Accepted routes remain limited to an
-unreleased private dogfood adapter. Source verification and all producer
-routes remain provisional and separately gated.
+evaluates all five constraint kinds and implements both bounded space routes.
+Accepted routes remain limited to an unreleased private dogfood adapter.
+Source verification and all producer routes remain provisional and separately
+gated.
 
 ## 1. Design rules
 
