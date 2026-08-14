@@ -12,6 +12,8 @@ const protocolPath = "dogfood/protocol-v1/protocol.json";
 const runExamplePath = "dogfood/protocol-v1/examples/run-receipt.example.json";
 const grammarRunReceiptPath =
   "dogfood/runs/GRAMMAR_AUTHORING_20260814_01/receipt.json";
+const specificationRunReceiptPath =
+  "dogfood/runs/SPECIFICATION_AUTHORING_20260814_01/receipt.json";
 const feedbackExamplePath =
   "dogfood/protocol-v1/examples/feedback.example.json";
 const grammarFeedbackPath =
@@ -141,6 +143,21 @@ function assertRunBindings(run: RunExample): void {
     (candidate) => candidate.id === run.round_id,
   );
   assert(round);
+  const artifactText = fs.readFileSync(
+    path.join(repositoryRoot, run.artifact.path),
+    "utf8",
+  );
+  const declaredKinds = new Set(
+    artifactText.split("\n").flatMap((line) => {
+      if (line.startsWith(" ") || !line.endsWith(":")) return [];
+      const separator = line.indexOf(" ");
+      return separator === -1 ? [] : [line.slice(0, separator)];
+    }),
+  );
+  assert.deepEqual(
+    round.required_declarations.filter((kind) => !declaredKinds.has(kind)),
+    [],
+  );
   assert.deepEqual(
     run.question_results.map((result) => result.question_id).sort(),
     [...round.question_ids].sort(),
@@ -263,6 +280,7 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   );
   const runExample = readJson<RunExample>(runExamplePath);
   const grammarRun = readJson<RunExample>(grammarRunReceiptPath);
+  const specificationRun = readJson<RunExample>(specificationRunReceiptPath);
   const feedbackExample = readJson<FeedbackExample>(feedbackExamplePath);
   const grammarFeedback = readJson<FeedbackExample>(grammarFeedbackPath);
   const ajv = new Ajv2020({ allErrors: true, strict: true });
@@ -277,6 +295,11 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   );
   assert.equal(
     validateRun(grammarRun),
+    true,
+    JSON.stringify(validateRun.errors, null, 2),
+  );
+  assert.equal(
+    validateRun(specificationRun),
     true,
     JSON.stringify(validateRun.errors, null, 2),
   );
@@ -303,6 +326,17 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   assert.equal(grammarRun.complete, true);
   assert.equal(grammarRun.truncated, false);
   assertRunBindings(grammarRun);
+  assert.equal(specificationRun.run_id, "SPECIFICATION_AUTHORING_20260814_01");
+  assert(
+    specificationRun.question_results.every(
+      (result) => result.status === "answered",
+    ),
+  );
+  assert.notEqual(specificationRun.tool.repository_revision, "0".repeat(40));
+  assert.equal(specificationRun.outcome, "completed");
+  assert.equal(specificationRun.complete, true);
+  assert.equal(specificationRun.truncated, false);
+  assertRunBindings(specificationRun);
 
   assert(feedbackExample.feedback_id.startsWith("EXAMPLE_"));
   assertFeedbackBindings(feedbackExample, runExamplePath, runExample);

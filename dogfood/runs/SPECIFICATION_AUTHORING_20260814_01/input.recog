@@ -1,0 +1,313 @@
+llmrecog 0.1
+
+document SPECIFICATION_AUTHORING_20260814_01:
+  title "Requirements and architecture boundary recognition"
+
+source REQUIREMENTS_DOC:
+  kind text
+  locator "docs/requirements.md"
+  media_type "text/markdown"
+  digest "sha256:c6f7f7e37490f00abff22f6d67fc09014847ca427766dbf59a81780f349b0086"
+
+source TERMINOLOGY_DOC:
+  kind text
+  locator "docs/terminology.md"
+  media_type "text/markdown"
+  digest "sha256:0c36a1145bb41495d4b28a3c60b0e2c0687aab605b02713d2418a4e70ace7f0c"
+
+source ARCHITECTURE_DOC:
+  kind text
+  locator "docs/architecture.md"
+  media_type "text/markdown"
+  digest "sha256:33b1b346379ff1e643ed79c92547bf8d3c395c581e8b75698c0fc002205395bf"
+
+source IMPLEMENTATION_PHASES_DOC:
+  kind text
+  locator "docs/implementation-phases.md"
+  media_type "text/markdown"
+  digest "sha256:ce8895e47975269782b2801a5c655b97a32ddd1b5e07804f8c243221b76c94aa"
+
+span S_REQ_PURPOSE:
+  source REQUIREMENTS_DOC
+  range 13:1..23:1
+
+span S_REQ_EXCLUDED_OPERATIONS:
+  source REQUIREMENTS_DOC
+  range 48:1..60:1
+
+span S_REQ_GROUNDING:
+  source REQUIREMENTS_DOC
+  range 70:1..84:1
+
+span S_REQ_OPEN_WORLD:
+  source REQUIREMENTS_DOC
+  range 85:1..100:1
+
+span S_REQ_CONSTRAINTS:
+  source REQUIREMENTS_DOC
+  range 101:1..120:1
+
+span S_REQ_EXPLAIN:
+  source REQUIREMENTS_DOC
+  range 135:1..144:1
+
+span S_TERM_GROUNDING:
+  source TERMINOLOGY_DOC
+  range 23:1..28:1
+
+span S_TERM_RECOGNITION:
+  source TERMINOLOGY_DOC
+  range 35:1..40:1
+
+span S_TERM_SUPPORT_KIND:
+  source TERMINOLOGY_DOC
+  range 81:1..90:1
+
+span S_TERM_SUPPORT_STATE:
+  source TERMINOLOGY_DOC
+  range 97:1..107:1
+
+span S_TERM_VIABILITY:
+  source TERMINOLOGY_DOC
+  range 108:1..127:1
+
+span S_TERM_DOMAINS:
+  source TERMINOLOGY_DOC
+  range 128:1..135:1
+
+span S_TERM_BOUNDARIES:
+  source TERMINOLOGY_DOC
+  range 135:1..153:1
+
+span S_ARCH_LAYERS:
+  source ARCHITECTURE_DOC
+  range 5:1..16:1
+
+span S_ARCH_BOUNDARY_TEST:
+  source ARCHITECTURE_DOC
+  range 17:1..32:1
+
+span S_ARCH_AUTHORITIES:
+  source ARCHITECTURE_DOC
+  range 33:1..55:1
+
+span S_ARCH_COMPONENTS:
+  source ARCHITECTURE_DOC
+  range 81:1..122:1
+
+span S_ARCH_NO_REVERSE:
+  source ARCHITECTURE_DOC
+  range 171:1..178:1
+
+span S_PHASE2_SEQUENCE:
+  source IMPLEMENTATION_PHASES_DOC
+  range 60:1..89:1
+
+span S_PHASE3_BOUNDARY:
+  source IMPLEMENTATION_PHASES_DOC
+  range 90:1..114:1
+
+span S_PHASE_DOGFOOD_ORDER:
+  source IMPLEMENTATION_PHASES_DOC
+  range 199:1..207:1
+
+observation O_SUPPORTED_EXCLUDED:
+  surface "supported + excluded"
+  grounded_in [S_TERM_VIABILITY]
+
+observation O_UNKNOWN:
+  surface "unknown"
+  grounded_in [S_REQ_OPEN_WORLD, S_TERM_VIABILITY, S_TERM_BOUNDARIES]
+
+observation O_PHASE2_SPEC_DOGFOOD:
+  surface "Dogfood requirements, terminology, architecture, and implementation phases"
+  grounded_in [S_PHASE2_SEQUENCE]
+
+entity E_LLMRECOG:
+  type product_layer
+  label "llmrecog recognition layer"
+  grounded_in [S_ARCH_LAYERS, S_TERM_RECOGNITION]
+  support explicit
+
+entity E_LLMTHINK:
+  type product_layer
+  label "llmthink reasoning layer"
+  grounded_in [S_REQ_PURPOSE, S_ARCH_LAYERS, S_ARCH_BOUNDARY_TEST]
+  support explicit
+
+entity E_PERTTOOL:
+  type product_layer
+  label "perttool realization layer"
+  grounded_in [S_REQ_EXCLUDED_OPERATIONS, S_ARCH_LAYERS, S_ARCH_BOUNDARY_TEST]
+  support explicit
+
+entity E_PHASE2:
+  type implementation_phase
+  label "Phase 2 parse and validate vertical slice"
+  grounded_in [S_PHASE2_SEQUENCE]
+  support explicit
+
+record R_LLMRECOG_ROLE:
+  kind property
+  subject E_LLMRECOG
+  predicate governing_question
+  value "What meaning does the input support?"
+  grounded_in [S_REQ_PURPOSE, S_ARCH_LAYERS]
+  support explicit
+
+record R_GROUNDING_NOT_TRUTH:
+  kind property
+  subject E_LLMRECOG
+  predicate grounding_meaning
+  value "Source support for a recognition is not certification of world truth"
+  grounded_in [S_REQ_PURPOSE, S_TERM_GROUNDING]
+  support explicit
+
+record R_AMBIGUITY_PRESERVED:
+  kind property
+  subject E_LLMRECOG
+  predicate ambiguity_policy
+  value "Preserve multiple plausible readings and keep variables open by default"
+  grounded_in [S_REQ_OPEN_WORLD, S_TERM_DOMAINS]
+  support explicit
+
+record R_CONSTRAINT_GROUNDING:
+  kind property
+  subject E_LLMRECOG
+  predicate constraint_policy
+  value "A constraint that excludes a candidate requires grounding for the relationship itself"
+  grounded_in [S_REQ_GROUNDING, S_REQ_CONSTRAINTS]
+  support explicit
+
+record R_SUPPORT_VIABILITY_ORTHOGONAL:
+  kind property
+  subject E_LLMRECOG
+  predicate state_axes
+  value "Support and viability are orthogonal"
+  grounded_in [O_SUPPORTED_EXCLUDED, S_TERM_SUPPORT_STATE, S_TERM_VIABILITY]
+  support explicit
+
+record R_SUPPORTED_EXCLUDED_CONFLICT:
+  kind property
+  subject E_LLMRECOG
+  predicate conflict_policy
+  value "A source-supported candidate excluded by grounded constraints must be shown as conflict"
+  grounded_in [O_SUPPORTED_EXCLUDED, S_REQ_CONSTRAINTS, S_TERM_VIABILITY]
+  support explicit
+
+record R_LLMTHINK_BOUNDARY:
+  kind property
+  subject E_LLMTHINK
+  predicate owns_operation
+  value "Derive, choose, or conclude a new proposition from recognized content"
+  grounded_in [S_REQ_PURPOSE, S_REQ_EXCLUDED_OPERATIONS, S_ARCH_BOUNDARY_TEST, S_TERM_BOUNDARIES]
+  support explicit
+
+record R_PERTTOOL_BOUNDARY:
+  kind property
+  subject E_PERTTOOL
+  predicate owns_operation
+  value "Create milestones, tasks, dependencies, resources, estimates, acceptance, or execution state"
+  grounded_in [S_REQ_EXCLUDED_OPERATIONS, S_ARCH_BOUNDARY_TEST, S_TERM_BOUNDARIES]
+  support explicit
+
+record R_PHASE2_PRODUCT:
+  kind relation
+  subject E_PHASE2
+  predicate implements_read_path_for
+  object E_LLMRECOG
+  grounded_in [S_ARCH_COMPONENTS, S_PHASE2_SEQUENCE]
+  support explicit
+
+record R_PHASE2_PRIVATE_BOUNDARY:
+  kind property
+  subject E_PHASE2
+  predicate command_boundary
+  value "Private read-only validate and show with no locator I/O or writes"
+  grounded_in [S_PHASE2_SEQUENCE]
+  support explicit
+
+record R_PHASE3_DEFERRED:
+  kind property
+  subject E_PHASE2
+  predicate later_phase_boundary
+  value "Candidate viability, exclusion chains, unknown reasons, and explain belong to Phase 3"
+  grounded_in [S_REQ_EXPLAIN, S_PHASE3_BOUNDARY]
+  support explicit
+
+record R_PHASE2_DOGFOOD_NORMALIZED:
+  kind normalized_value
+  value specification_authoring_dogfood
+  grounded_in [O_PHASE2_SPEC_DOGFOOD]
+  support normalized
+  normalization:
+    surface "Dogfood requirements, terminology, architecture, and implementation phases"
+    rule symbol.lower-snake.v1
+    grounded_in [S_PHASE2_SEQUENCE]
+
+variable V_SUPPORT_KIND:
+  value_type symbol
+  candidates [C_KIND_EXPLICIT, C_KIND_LINGUISTIC, C_KIND_NORMALIZED, C_KIND_AMBIGUOUS]
+  grounded_in [S_TERM_SUPPORT_KIND]
+
+candidate C_KIND_EXPLICIT in V_SUPPORT_KIND:
+  value explicit
+  grounded_in [S_TERM_SUPPORT_KIND]
+
+candidate C_KIND_LINGUISTIC in V_SUPPORT_KIND:
+  value linguistic
+  grounded_in [S_TERM_SUPPORT_KIND]
+
+candidate C_KIND_NORMALIZED in V_SUPPORT_KIND:
+  value normalized
+  grounded_in [S_TERM_SUPPORT_KIND]
+
+candidate C_KIND_AMBIGUOUS in V_SUPPORT_KIND:
+  value ambiguous
+  grounded_in [S_TERM_SUPPORT_KIND]
+
+variable V_SUPPORT_STATE:
+  value_type symbol
+  candidates [C_SUPPORT_SUPPORTED, C_SUPPORT_UNSUPPORTED, C_SUPPORT_CONFLICTED]
+  grounded_in [S_TERM_SUPPORT_STATE]
+
+candidate C_SUPPORT_SUPPORTED in V_SUPPORT_STATE:
+  value supported
+  grounded_in [S_TERM_SUPPORT_STATE]
+
+candidate C_SUPPORT_UNSUPPORTED in V_SUPPORT_STATE:
+  value unsupported
+  grounded_in [S_TERM_SUPPORT_STATE]
+
+candidate C_SUPPORT_CONFLICTED in V_SUPPORT_STATE:
+  value conflicted
+  grounded_in [S_TERM_SUPPORT_STATE]
+
+variable V_VIABILITY_STATE:
+  value_type symbol
+  candidates [C_VIABILITY_ALLOWED, C_VIABILITY_EXCLUDED, C_VIABILITY_UNKNOWN]
+  grounded_in [S_TERM_VIABILITY]
+
+candidate C_VIABILITY_ALLOWED in V_VIABILITY_STATE:
+  value allowed
+  grounded_in [S_TERM_VIABILITY]
+
+candidate C_VIABILITY_EXCLUDED in V_VIABILITY_STATE:
+  value excluded
+  grounded_in [S_TERM_VIABILITY]
+
+candidate C_VIABILITY_UNKNOWN in V_VIABILITY_STATE:
+  value unknown
+  grounded_in [O_UNKNOWN, S_TERM_VIABILITY]
+
+variable V_OPEN_MEANING:
+  value_type string
+  candidates []
+  grounded_in [S_REQ_OPEN_WORLD, S_TERM_DOMAINS]
+
+constraint K_SUPPORT_KIND_ONE_OF:
+  kind one_of
+  variable V_SUPPORT_KIND
+  members [C_KIND_EXPLICIT, C_KIND_LINGUISTIC, C_KIND_NORMALIZED, C_KIND_AMBIGUOUS]
+  grounded_in [S_TERM_SUPPORT_KIND]
+  support explicit

@@ -1,0 +1,327 @@
+{
+  "schema": "Llmrecog.Internal.DogfoodRunReceipt.v1",
+  "run_id": "SPECIFICATION_AUTHORING_20260814_01",
+  "round_id": "specification_authoring_v1",
+  "started_at": "2026-08-14T12:04:58+09:00",
+  "finished_at": "2026-08-14T12:05:01+09:00",
+  "tool": {
+    "repository_revision": "eb6031f4e5b26e4d730552ab0294339efe6c9a77",
+    "semantic_version": "0.1",
+    "node_version": "v22.22.3",
+    "platform": "linux-x64",
+    "working_directory": "."
+  },
+  "protocol": {
+    "path": "dogfood/protocol-v1/protocol.json",
+    "digest": "sha256:d9cd79dfb7a614bf42c2966ee27535e99dbf9c9d2e5259b05317a306104f201f"
+  },
+  "question_results": [
+    {
+      "question_id": "DGF-SPEC-001",
+      "status": "answered",
+      "summary": "The corpus explicitly supports llmrecog's recognition role, source-grounding boundary, ambiguity policy, responsibility split, and Phase 2 implementation sequence; none of these recognitions certifies the cited statements as world truth.",
+      "evidence": [
+        "R_LLMRECOG_ROLE and R_GROUNDING_NOT_TRUTH cite S_REQ_PURPOSE, S_ARCH_LAYERS, and S_TERM_GROUNDING.",
+        "R_LLMTHINK_BOUNDARY, R_PERTTOOL_BOUNDARY, and R_PHASE2_PRODUCT retain the exact cross-document responsibility spans that support them."
+      ]
+    },
+    {
+      "question_id": "DGF-SPEC-002",
+      "status": "answered",
+      "summary": "Support state, viability state, and an empty meaning slot remain open because the corpus does not explicitly ground closure for them; the artifact neither selects a candidate nor turns missing data into an unspecified candidate.",
+      "evidence": [
+        "V_SUPPORT_STATE, V_VIABILITY_STATE, and V_OPEN_MEANING are grounded in S_TERM_SUPPORT_STATE, S_TERM_VIABILITY, S_REQ_OPEN_WORLD, and S_TERM_DOMAINS without a closure constraint.",
+        "Document show reports all three variables as domain=open while V_SUPPORT_KIND alone is closed by an explicit one_of."
+      ]
+    },
+    {
+      "question_id": "DGF-SPEC-003",
+      "status": "answered",
+      "summary": "Only the support-kind vocabulary is explicitly declared closed by this corpus, so K_SUPPORT_KIND_ONE_OF is the only authored closure relationship; bullet lists of support-state or viability definitions were not treated as sufficient closure evidence.",
+      "evidence": [
+        "K_SUPPORT_KIND_ONE_OF cites S_TERM_SUPPORT_KIND, whose source text names the initial closed vocabulary and its four members.",
+        "No constraint was authored for V_SUPPORT_STATE or V_VIABILITY_STATE merely to make their domains exhaustive."
+      ]
+    },
+    {
+      "question_id": "DGF-SPEC-004",
+      "status": "answered",
+      "summary": "Support and viability can be confused when a grounded candidate is assumed allowed, an allowed candidate is assumed supported, or unknown is treated as false; Phase 2 preserves the authored axes and closure only but does not classify viability.",
+      "evidence": [
+        "R_SUPPORT_VIABILITY_ORTHOGONAL and R_SUPPORTED_EXCLUDED_CONFLICT cite O_SUPPORTED_EXCLUDED plus the separate support and viability definition spans.",
+        "Recognition show reports the supported proposition and grounding IDs, while document show reports only open/closed domains; R_PHASE3_DEFERRED identifies viability and reason projection as later work."
+      ]
+    },
+    {
+      "question_id": "DGF-SPEC-005",
+      "status": "answered",
+      "summary": "Deriving, choosing, or concluding a new proposition from recognized content belongs to llmthink, even when the conclusion appears obvious.",
+      "evidence": [
+        "R_LLMTHINK_BOUNDARY cites S_REQ_PURPOSE, S_REQ_EXCLUDED_OPERATIONS, S_ARCH_BOUNDARY_TEST, and S_TERM_BOUNDARIES.",
+        "The artifact represents the boundary as a property of E_LLMTHINK and does not author an inference, conclusion, or decision record."
+      ]
+    },
+    {
+      "question_id": "DGF-SPEC-006",
+      "status": "answered",
+      "summary": "Creating milestones, tasks, dependencies, resources, estimates, acceptance, or execution state from an accepted result belongs to perttool.",
+      "evidence": [
+        "R_PERTTOOL_BOUNDARY cites S_REQ_EXCLUDED_OPERATIONS, S_ARCH_BOUNDARY_TEST, and S_TERM_BOUNDARIES.",
+        "R_PHASE2_PRODUCT links the implementation phase to llmrecog without encoding task or execution state as source meaning."
+      ]
+    }
+  ],
+  "artifact": {
+    "path": "dogfood/runs/SPECIFICATION_AUTHORING_20260814_01/input.recog",
+    "digest": "sha256:08d2481fa89efdd2be0ded7ba4b6a9809709b7022a5f72ecbae7565ebdfb0c0f"
+  },
+  "executions": [
+    {
+      "case_id": "DOCUMENT_VALIDATE_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "document",
+        "validate",
+        "dogfood/runs/SPECIFICATION_AUTHORING_20260814_01/input.recog",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:9fdfef2ff958abe4f3d1a22bb1381b15350c517ba20759b9f17747c5df97b6f7",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "DOCUMENT_VALIDATE_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "document",
+        "validate",
+        "dogfood/runs/SPECIFICATION_AUTHORING_20260814_01/input.recog",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:9fdfef2ff958abe4f3d1a22bb1381b15350c517ba20759b9f17747c5df97b6f7",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "DOCUMENT_SHOW_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "document",
+        "show",
+        "dogfood/runs/SPECIFICATION_AUTHORING_20260814_01/input.recog",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:77a22ba0b7861829704e1e56ac5c3c20b77b82ed0845f1795ec90064f68a227b",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "DOCUMENT_SHOW_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "document",
+        "show",
+        "dogfood/runs/SPECIFICATION_AUTHORING_20260814_01/input.recog",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:77a22ba0b7861829704e1e56ac5c3c20b77b82ed0845f1795ec90064f68a227b",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "DOCUMENT_SHOW_TEXT",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "document",
+        "show",
+        "dogfood/runs/SPECIFICATION_AUTHORING_20260814_01/input.recog",
+        "--format",
+        "text"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:fb20923498b274044d6245342d47f77c64bf0c1258d8199fd4df9eeb4c741afc",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "DOCUMENT_SHOW_TEXT",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "document",
+        "show",
+        "dogfood/runs/SPECIFICATION_AUTHORING_20260814_01/input.recog",
+        "--format",
+        "text"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:fb20923498b274044d6245342d47f77c64bf0c1258d8199fd4df9eeb4c741afc",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "RECOGNITION_SHOW_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "show",
+        "R_SUPPORT_VIABILITY_ORTHOGONAL",
+        "dogfood/runs/SPECIFICATION_AUTHORING_20260814_01/input.recog",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:ad9c69c0d2f27f258fb2d717c37d8e523ee60b7edb09406973df474bedec28fd",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "RECOGNITION_SHOW_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "show",
+        "R_SUPPORT_VIABILITY_ORTHOGONAL",
+        "dogfood/runs/SPECIFICATION_AUTHORING_20260814_01/input.recog",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:ad9c69c0d2f27f258fb2d717c37d8e523ee60b7edb09406973df474bedec28fd",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "RECOGNITION_SHOW_TEXT",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "show",
+        "R_SUPPORT_VIABILITY_ORTHOGONAL",
+        "dogfood/runs/SPECIFICATION_AUTHORING_20260814_01/input.recog",
+        "--format",
+        "text"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:274437d06e9c1a1d33c54dfb66dd32443238132cbc4f159e9918fcc06db5875b",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "RECOGNITION_SHOW_TEXT",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "show",
+        "R_SUPPORT_VIABILITY_ORTHOGONAL",
+        "dogfood/runs/SPECIFICATION_AUTHORING_20260814_01/input.recog",
+        "--format",
+        "text"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:274437d06e9c1a1d33c54dfb66dd32443238132cbc4f159e9918fcc06db5875b",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "outcome": "completed",
+  "complete": true,
+  "truncated": false,
+  "observations": [
+    {
+      "id": "OBS-SPEC-001",
+      "category": "contract_semantic",
+      "summary": "A closed-looking list is insufficient evidence for an authored one_of relationship.",
+      "evidence": "The initial authoring attempt closed both support state and viability from their definition lists. Re-reading the cited source showed that only support kind is explicitly called a closed vocabulary, so the final artifact retains only K_SUPPORT_KIND_ONE_OF and leaves V_SUPPORT_STATE and V_VIABILITY_STATE open.",
+      "reproduction_steps": [
+        "Read docs/terminology.md lines 81-90, 97-107, and 108-127 and distinguish the explicit closed-vocabulary phrase from ordinary definition lists.",
+        "Run npm run dogfood:cli -- document show dogfood/runs/SPECIFICATION_AUTHORING_20260814_01/input.recog --format text and observe one closed variable plus three open variables."
+      ],
+      "proposed_action": "During feedback review, evaluate a non-normative authoring example that contrasts explicit closure evidence with an enumerated but unclosed list; do not change one_of semantics.",
+      "affected_contracts": ["docs/dsl.md", "docs/examples/boundary-cases.md"],
+      "point_impact": 2
+    },
+    {
+      "id": "OBS-SPEC-002",
+      "category": "diagnostics_presentation",
+      "summary": "The complete document inventory still requires external grouping to review claims by question or grounding span.",
+      "evidence": "Document show reports 31 recognition IDs on one line and gives useful variable and constraint summaries, but it does not group recognitions by their 21 source spans or six frozen questions. Recognition show expands one exact ID and exposes grounding IDs without expanding the referenced observation or spans.",
+      "reproduction_steps": [
+        "Run npm run dogfood:cli -- document show dogfood/runs/SPECIFICATION_AUTHORING_20260814_01/input.recog --format text.",
+        "Run npm run dogfood:cli -- recognition show R_SUPPORT_VIABILITY_ORTHOGONAL dogfood/runs/SPECIFICATION_AUTHORING_20260814_01/input.recog --format text."
+      ],
+      "proposed_action": "Use the 2p already reserved in APPLY_SPECIFICATION_DOGFOOD_FEEDBACK to decide whether a compact grounded-summary or filter is justified; require an ADR before changing a public result contract.",
+      "affected_contracts": [
+        "Llmrecog.DocumentResult.v1",
+        "Llmrecog.RecognitionResult.v1"
+      ],
+      "point_impact": 0
+    },
+    {
+      "id": "OBS-SPEC-003",
+      "category": "documentation",
+      "summary": "The requirements status still says runtime not implemented after the private Phase 2 read path exists.",
+      "evidence": "docs/requirements.md line 3 says 'Executable contract baseline 0.1; runtime not implemented', while the exact revision in this receipt successfully parsed, validated, and projected every Phase 2 declaration through the private adapter.",
+      "reproduction_steps": [
+        "Read docs/requirements.md lines 1-5.",
+        "Run npm run dogfood:cli -- document validate dogfood/runs/SPECIFICATION_AUTHORING_20260814_01/input.recog --format json and observe valid=true with a semantic document."
+      ],
+      "proposed_action": "During feedback review, decide whether to update the status and create a new dogfood protocol baseline because changing this corpus document changes its frozen digest.",
+      "affected_contracts": [
+        "docs/requirements.md",
+        "dogfood/protocol-v1/protocol.json"
+      ],
+      "point_impact": 2
+    },
+    {
+      "id": "OBS-SPEC-004",
+      "category": "product_boundary",
+      "summary": "The Phase 2 read path preserves closure and grounding without claiming support-state or viability results.",
+      "evidence": "Document show marks only V_SUPPORT_KIND closed, retains V_SUPPORT_STATE, V_VIABILITY_STATE, and V_OPEN_MEANING as open, and emits no allowed, excluded, selected, preferred, or solver-unknown projection. Recognition show reports the authored support/viability distinction rather than evaluating it.",
+      "reproduction_steps": [
+        "Run npm run dogfood:cli -- document show dogfood/runs/SPECIFICATION_AUTHORING_20260814_01/input.recog --format text.",
+        "Run npm run dogfood:cli -- recognition show R_SUPPORT_VIABILITY_ORTHOGONAL dogfood/runs/SPECIFICATION_AUTHORING_20260814_01/input.recog --format text."
+      ],
+      "proposed_action": "Keep viability, exclusion reasons, and unknown classification behind the Phase 3 gate; do not expand the Phase 2 read path.",
+      "affected_contracts": [],
+      "point_impact": 0
+    }
+  ]
+}

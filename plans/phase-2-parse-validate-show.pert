@@ -117,6 +117,7 @@ task RUN_SPECIFICATION_AUTHORING_DOGFOOD COMPLETE_READ_PATH_ACCEPTED -> SPEC_DOG
   description |
     Read requirements, terminology, architecture, and implementation phases; author bounded .recog documents for explicit claims, ambiguity, exclusions, and cross-document references; and exercise validate/show through the actual complete Phase 2 path. Record where supported, allowed, excluded, and unknown are easy to confuse, where the source does not ground a desired constraint, and where requested inference or execution planning belongs outside llmrecog.
   duration 8p
+  status done
   priority 40
   requires:
     IMPLEMENTER 1
@@ -250,3 +251,17 @@ work_event FINISH_IMPLEMENT_COMPLETE_PHASE_2_READ_PATH_20260814:
   kind finish
   occurred_at 2026-08-14T11:59:03+09:00
   effort 0.3330555556ph
+
+work_event START_RUN_SPECIFICATION_AUTHORING_DOGFOOD_20260814:
+  model 1
+  task RUN_SPECIFICATION_AUTHORING_DOGFOOD
+  kind start
+  occurred_at 2026-08-14T11:59:50+09:00
+  planned_value 8p
+
+work_event FINISH_RUN_SPECIFICATION_AUTHORING_DOGFOOD_20260814:
+  model 1
+  task RUN_SPECIFICATION_AUTHORING_DOGFOOD
+  kind finish
+  occurred_at 2026-08-14T12:08:25+09:00
+  effort 0.1430555556ph
