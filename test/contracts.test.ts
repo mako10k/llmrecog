@@ -246,6 +246,7 @@ test("all result goldens validate against the frozen JSON Schemas", () => {
     "schemas/Llmrecog.DocumentResult.v1.schema.json",
     "schemas/Llmrecog.RecognitionResult.v1.schema.json",
     "schemas/Llmrecog.ExplainResult.v1.schema.json",
+    "schemas/Llmrecog.ExplainResult.v2.schema.json",
     "schemas/Llmrecog.AuditResult.v1.schema.json",
   ];
   const schemas = schemaPaths.map((schemaPath) =>
@@ -263,6 +264,10 @@ test("all result goldens validate against the frozen JSON Schemas", () => {
     [
       "Llmrecog.ExplainResult.v1",
       "https://mako10k.github.io/llmrecog/schemas/Llmrecog.ExplainResult.v1.schema.json",
+    ],
+    [
+      "Llmrecog.ExplainResult.v2",
+      "https://mako10k.github.io/llmrecog/schemas/Llmrecog.ExplainResult.v2.schema.json",
     ],
     [
       "Llmrecog.DocumentResult.v1",
@@ -368,7 +373,7 @@ test("invalid fixture diagnostics freeze exact codes, typed data, and byte spans
 });
 
 test("accepted text result goldens use deterministic bytes", () => {
-  assert.equal(manifest.expected_text_results.length, 8);
+  assert.equal(manifest.expected_text_results.length, 11);
   for (const resultPath of manifest.expected_text_results) {
     const bytes = fs.readFileSync(path.join(repositoryRoot, resultPath));
     const text = bytes.toString("utf8");
@@ -471,6 +476,41 @@ test("Phase 3 goldens freeze joint witnesses, bounds, and focused audit", () => 
       .unknown_reasons,
     ["RCG-RSN-007"],
   );
+  const limitedRecognition = limited["recognition"] as {
+    readonly declaration_kind: string;
+    readonly variable_id: string;
+    readonly value: Readonly<Record<string, string>>;
+  };
+  assert.deepEqual(limitedRecognition, {
+    declaration_kind: "candidate",
+    id: "C_B1",
+    variable_id: "V_B",
+    value: { kind: "symbol", value: "b1" },
+    grounded_in: [{ id: "S1", kind: "span" }],
+    support: {
+      kind: "ambiguous",
+      grounded_in: [{ id: "S1", kind: "span" }],
+    },
+  });
+
+  const excluded = readJson<Record<string, unknown>>(
+    "test/fixtures/contracts/v0.1/expected/candidate-excluded.explain.json",
+  );
+  assert.equal(
+    (excluded["viability"] as { readonly witness: unknown }).witness,
+    null,
+  );
+  assert.deepEqual(excluded["recognition"], {
+    declaration_kind: "candidate",
+    id: "C_WEAK",
+    variable_id: "V_COMMITMENT",
+    value: { kind: "symbol", value: "weak_commitment" },
+    grounded_in: [{ id: "S1", kind: "span" }],
+    support: {
+      kind: "ambiguous",
+      grounded_in: [{ id: "S1", kind: "span" }],
+    },
+  });
 
   const audit = readJson<Record<string, unknown>>(
     "test/fixtures/contracts/v0.1/expected/closed-conflict.audit.json",

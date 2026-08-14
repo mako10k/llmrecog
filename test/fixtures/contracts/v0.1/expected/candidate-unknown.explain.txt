@@ -1,0 +1,26 @@
+Llmrecog.ExplainResult.v2 semantic=0.1 tool=contract-fixture
+input: test/fixtures/contracts/v0.1/valid/open-unknown.recog
+document: OPEN_UNKNOWN
+digest: sha256:dd37a67efd1e5e9b4a7dbc9913d1ee879eb0ff411e7604f46d68f919965152cc
+target: V_ACTOR kind=variable
+recognition:
+  declaration_kind: variable
+  value_type: entity_ref
+  candidates: -
+  grounded_in: S1
+  support: -
+support: unsupported
+support_records: -
+viability: -
+variable_resolution: unknown
+variable_unknown_reasons: RCG-RSN-001,RCG-RSN-002
+scope: requested=V_ACTOR effective=V_ACTOR limit=100
+provenance: grounded_in(V_ACTOR,S1)
+normalization: -
+source_verification: SRC none/not_requested
+constraints: -
+skipped_constraints: -
+derivations: -
+complete: true
+truncated: false
+diagnostics: 0

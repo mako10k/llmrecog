@@ -1,5 +1,5 @@
 {
-  "schema": "Llmrecog.ExplainResult.v1",
+  "schema": "Llmrecog.ExplainResult.v2",
   "semantic_version": "0.1",
   "tool_version": "contract-fixture",
   "input": {
@@ -12,6 +12,13 @@
   "target": {
     "id": "V_ACTOR",
     "declaration_kind": "variable"
+  },
+  "recognition": {
+    "declaration_kind": "variable",
+    "id": "V_ACTOR",
+    "value_type": "entity_ref",
+    "candidate_ids": [],
+    "grounded_in": [{ "id": "S1", "kind": "span" }]
   },
   "support": {
     "state": "unsupported",

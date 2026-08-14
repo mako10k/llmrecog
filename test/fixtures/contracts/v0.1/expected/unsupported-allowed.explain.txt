@@ -1,8 +1,14 @@
-Llmrecog.ExplainResult.v1 semantic=0.1 tool=contract-fixture
+Llmrecog.ExplainResult.v2 semantic=0.1 tool=contract-fixture
 input: test/fixtures/contracts/v0.1/valid/unsupported-allowed.recog
 document: UNSUPPORTED_ALLOWED
 digest: sha256:1860a1504d7ac16ae2538472022c4d8fe104be34b1db8a9d60bb1551bb550ae4
 target: C_SECONDARY kind=candidate
+recognition:
+  declaration_kind: candidate
+  variable: V_MODE
+  value: symbol secondary
+  grounded_in: S1
+  support: -
 support: unsupported
 support_records: -
 viability: allowed

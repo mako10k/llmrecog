@@ -303,6 +303,8 @@ function renderExplain(result: ExplainResult): string {
   return [
     ...renderBase(result),
     `target: ${result.target.id} kind=${result.target.declaration_kind}`,
+    "recognition:",
+    ...renderRecognitionDetails(result.recognition).map((line) => `  ${line}`),
     `support: ${result.support.state}`,
     `support_records: ${supportRecords || "-"}`,
     ...renderExplainViability(result.viability),
@@ -335,7 +337,7 @@ export function renderBootstrapText(result: BootstrapReadResult): string {
       return `${renderDocument(result)}\n`;
     case "Llmrecog.RecognitionResult.v1":
       return `${renderRecognition(result)}\n`;
-    case "Llmrecog.ExplainResult.v1":
+    case "Llmrecog.ExplainResult.v2":
       return `${renderExplain(result)}\n`;
   }
 }

@@ -1,8 +1,14 @@
-Llmrecog.ExplainResult.v1 semantic=0.1 tool=contract-fixture
+Llmrecog.ExplainResult.v2 semantic=0.1 tool=contract-fixture
 input: test/fixtures/contracts/v0.1/valid/limit-unknown.recog
 document: LIMIT_UNKNOWN
 digest: sha256:f67a6b1c2b214b907cee9611d9fce48440b77aa4c35c3cf94dc26963695e79c9
 target: C_B1 kind=candidate
+recognition:
+  declaration_kind: candidate
+  variable: V_B
+  value: symbol b1
+  grounded_in: S1
+  support: ambiguous grounded_in=S1
 support: supported
 support_records: ambiguous grounded_in=S1
 viability: unknown

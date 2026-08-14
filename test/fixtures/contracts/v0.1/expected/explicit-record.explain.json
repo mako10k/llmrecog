@@ -1,0 +1,53 @@
+{
+  "schema": "Llmrecog.ExplainResult.v2",
+  "semantic_version": "0.1",
+  "tool_version": "contract-fixture",
+  "input": {
+    "path": "test/fixtures/contracts/v0.1/valid/explicit-fact.recog",
+    "document_id": "EXPLICIT_FACT",
+    "digest": "sha256:50e5f549f8084d53ec348c7c1c42d908e42ecc7a2bb446f7e6fdc5ab503ad95d"
+  },
+  "complete": true,
+  "truncated": false,
+  "target": {
+    "id": "R_STATUS",
+    "declaration_kind": "record"
+  },
+  "recognition": {
+    "declaration_kind": "record",
+    "id": "R_STATUS",
+    "grounded_in": [{ "id": "S1", "kind": "span" }],
+    "support": {
+      "kind": "explicit",
+      "grounded_in": [{ "id": "S1", "kind": "span" }]
+    },
+    "record_kind": "property",
+    "subject_id": "E_DEPLOYMENT",
+    "predicate": "status",
+    "value": { "kind": "symbol", "value": "failed" }
+  },
+  "support": {
+    "state": "supported",
+    "records": [
+      {
+        "kind": "explicit",
+        "grounded_in": [{ "id": "S1", "kind": "span" }]
+      }
+    ]
+  },
+  "viability": null,
+  "variable_resolution": null,
+  "scope": null,
+  "provenance": [{ "kind": "grounded_in", "from": "R_STATUS", "to": "S1" }],
+  "normalization": null,
+  "source_verification": [
+    {
+      "source_id": "SRC",
+      "verification": { "mode": "none", "state": "not_requested" }
+    }
+  ],
+  "relevant_constraint_ids": [],
+  "skipped_constraints": [],
+  "derivations": [],
+  "diagnostics": []
+}

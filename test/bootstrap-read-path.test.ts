@@ -38,6 +38,7 @@ const schemaPaths = [
   "schemas/Llmrecog.DocumentResult.v1.schema.json",
   "schemas/Llmrecog.RecognitionResult.v1.schema.json",
   "schemas/Llmrecog.ExplainResult.v1.schema.json",
+  "schemas/Llmrecog.ExplainResult.v2.schema.json",
 ];
 
 const resultSchemaIds: Readonly<Record<BootstrapReadResult["schema"], string>> =
@@ -48,8 +49,8 @@ const resultSchemaIds: Readonly<Record<BootstrapReadResult["schema"], string>> =
       "https://mako10k.github.io/llmrecog/schemas/Llmrecog.DocumentResult.v1.schema.json",
     "Llmrecog.RecognitionResult.v1":
       "https://mako10k.github.io/llmrecog/schemas/Llmrecog.RecognitionResult.v1.schema.json",
-    "Llmrecog.ExplainResult.v1":
-      "https://mako10k.github.io/llmrecog/schemas/Llmrecog.ExplainResult.v1.schema.json",
+    "Llmrecog.ExplainResult.v2":
+      "https://mako10k.github.io/llmrecog/schemas/Llmrecog.ExplainResult.v2.schema.json",
   };
 
 interface ExpectedDiagnostic {
@@ -514,10 +515,10 @@ test("finite one_of explanation matches support, witness, and unknown contracts"
     contractInput(oneOfConflictPath),
     "C_A",
   );
-  assert.equal(unsupported.schema, "Llmrecog.ExplainResult.v1");
-  assert.equal(unknown.schema, "Llmrecog.ExplainResult.v1");
-  assert.equal(joint.schema, "Llmrecog.ExplainResult.v1");
-  assert.equal(conflict.schema, "Llmrecog.ExplainResult.v1");
+  assert.equal(unsupported.schema, "Llmrecog.ExplainResult.v2");
+  assert.equal(unknown.schema, "Llmrecog.ExplainResult.v2");
+  assert.equal(joint.schema, "Llmrecog.ExplainResult.v2");
+  assert.equal(conflict.schema, "Llmrecog.ExplainResult.v2");
   assertResultSchema(unsupported);
   assertResultSchema(unknown);
   assertResultSchema(joint);
@@ -547,13 +548,87 @@ test("finite one_of explanation matches support, witness, and unknown contracts"
   );
 });
 
+test("ExplainResult v2 projects typed authored targets without relying on witnesses", () => {
+  const contractInput = (relativePath: string): BootstrapReadInput => ({
+    ...readInput(relativePath),
+    toolVersion: "contract-fixture",
+  });
+  const cases = [
+    {
+      input: explicitFactPath,
+      id: "E_DEPLOYMENT",
+      json: `${fixtureRoot}/expected/explicit-entity.explain.json`,
+      text: `${fixtureRoot}/expected/explicit-entity.explain.txt`,
+    },
+    {
+      input: explicitFactPath,
+      id: "R_STATUS",
+      json: `${fixtureRoot}/expected/explicit-record.explain.json`,
+      text: `${fixtureRoot}/expected/explicit-record.explain.txt`,
+    },
+    {
+      input: openUnknownPath,
+      id: "V_ACTOR",
+      json: `${fixtureRoot}/expected/candidate-unknown.explain.json`,
+      text: `${fixtureRoot}/expected/candidate-unknown.explain.txt`,
+    },
+  ];
+  for (const fixture of cases) {
+    const result = explainBootstrapRecognition(
+      contractInput(fixture.input),
+      fixture.id,
+    );
+    assert.equal(result.schema, "Llmrecog.ExplainResult.v2");
+    assertResultSchema(result);
+    assert.deepEqual(result, readJson(fixture.json));
+    assert.equal(
+      renderBootstrapText(result),
+      fs.readFileSync(absolutePath(fixture.text), "utf8"),
+    );
+  }
+
+  const deferred = explainBootstrapRecognition(
+    contractInput(minimalPath),
+    "C_WEAK_COMMITMENT",
+  );
+  assert.equal(deferred.schema, "Llmrecog.ExplainResult.v2");
+  if (deferred.schema !== "Llmrecog.ExplainResult.v2") return;
+  assert.equal(deferred.viability?.witness, null);
+  assert.equal(deferred.recognition.declaration_kind, "candidate");
+  if (deferred.recognition.declaration_kind !== "candidate") return;
+  assert.equal(deferred.recognition.variable_id, "V_COMMITMENT");
+  assert.deepEqual(deferred.recognition.value, {
+    kind: "symbol",
+    value: "weak_commitment",
+  });
+  assert(
+    renderBootstrapText(deferred).includes(
+      "  variable: V_COMMITMENT\n  value: symbol weak_commitment\n",
+    ),
+  );
+
+  const constraint = explainBootstrapRecognition(
+    contractInput(unsupportedAllowedPath),
+    "K_MODE",
+  );
+  assert.equal(constraint.schema, "Llmrecog.ExplainResult.v2");
+  if (constraint.schema !== "Llmrecog.ExplainResult.v2") return;
+  assert.equal(constraint.recognition.declaration_kind, "constraint");
+  if (constraint.recognition.declaration_kind !== "constraint") return;
+  assert.equal(constraint.recognition.constraint_kind, "one_of");
+  assert.deepEqual(constraint.recognition.member_ids, [
+    "C_PRIMARY",
+    "C_SECONDARY",
+  ]);
+});
+
 test("the one_of slice exposes deferred constraints instead of inventing a witness", () => {
   const result = explainBootstrapRecognition(
     readInput(minimalPath),
     "C_WEAK_COMMITMENT",
   );
-  assert.equal(result.schema, "Llmrecog.ExplainResult.v1");
-  if (result.schema !== "Llmrecog.ExplainResult.v1") return;
+  assert.equal(result.schema, "Llmrecog.ExplainResult.v2");
+  if (result.schema !== "Llmrecog.ExplainResult.v2") return;
   assert.equal(result.complete, false);
   assert.equal(result.truncated, false);
   assert.deepEqual(result.viability, {

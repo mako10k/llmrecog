@@ -1,8 +1,15 @@
-Llmrecog.ExplainResult.v1 semantic=0.1 tool=contract-fixture
+Llmrecog.ExplainResult.v2 semantic=0.1 tool=contract-fixture
 input: docs/examples/minimal.recog
 document: MEETING_RECOG
 digest: sha256:87575b777def738ce3e69345d64053770d1e2fec5bd1e000162ca4b63a2afba2
 target: K_TANAKA_NOT_WEAK kind=constraint
+recognition:
+  declaration_kind: constraint
+  constraint_kind: excludes
+  left: C_ACTOR_TANAKA
+  right: C_WEAK_COMMITMENT
+  grounded_in: S4
+  support: explicit grounded_in=S4
 support: supported
 support_records: explicit grounded_in=S4
 viability: -

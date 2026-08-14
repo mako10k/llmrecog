@@ -1,5 +1,5 @@
 {
-  "schema": "Llmrecog.ExplainResult.v1",
+  "schema": "Llmrecog.ExplainResult.v2",
   "semantic_version": "0.1",
   "tool_version": "contract-fixture",
   "input": {
@@ -12,6 +12,17 @@
   "target": {
     "id": "C_B1",
     "declaration_kind": "candidate"
+  },
+  "recognition": {
+    "declaration_kind": "candidate",
+    "id": "C_B1",
+    "variable_id": "V_B",
+    "value": { "kind": "symbol", "value": "b1" },
+    "grounded_in": [{ "id": "S1", "kind": "span" }],
+    "support": {
+      "kind": "ambiguous",
+      "grounded_in": [{ "id": "S1", "kind": "span" }]
+    }
   },
   "support": {
     "state": "supported",

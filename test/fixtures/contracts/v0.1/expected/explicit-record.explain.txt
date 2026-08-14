@@ -1,0 +1,27 @@
+Llmrecog.ExplainResult.v2 semantic=0.1 tool=contract-fixture
+input: test/fixtures/contracts/v0.1/valid/explicit-fact.recog
+document: EXPLICIT_FACT
+digest: sha256:50e5f549f8084d53ec348c7c1c42d908e42ecc7a2bb446f7e6fdc5ab503ad95d
+target: R_STATUS kind=record
+recognition:
+  declaration_kind: record
+  record_kind: property
+  subject: E_DEPLOYMENT
+  predicate: status
+  value: symbol failed
+  grounded_in: S1
+  support: explicit grounded_in=S1
+support: supported
+support_records: explicit grounded_in=S1
+viability: -
+variable_resolution: -
+scope: -
+provenance: grounded_in(R_STATUS,S1)
+normalization: -
+source_verification: SRC none/not_requested
+constraints: -
+skipped_constraints: -
+derivations: -
+complete: true
+truncated: false
+diagnostics: 0

@@ -1,5 +1,5 @@
 {
-  "schema": "Llmrecog.ExplainResult.v1",
+  "schema": "Llmrecog.ExplainResult.v2",
   "semantic_version": "0.1",
   "tool_version": "contract-fixture",
   "input": {
@@ -12,6 +12,18 @@
   "target": {
     "id": "K_TANAKA_NOT_WEAK",
     "declaration_kind": "constraint"
+  },
+  "recognition": {
+    "declaration_kind": "constraint",
+    "id": "K_TANAKA_NOT_WEAK",
+    "grounded_in": [{ "id": "S4", "kind": "span" }],
+    "support": {
+      "kind": "explicit",
+      "grounded_in": [{ "id": "S4", "kind": "span" }]
+    },
+    "constraint_kind": "excludes",
+    "left_id": "C_ACTOR_TANAKA",
+    "right_id": "C_WEAK_COMMITMENT"
   },
   "support": {
     "state": "supported",

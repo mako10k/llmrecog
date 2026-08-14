@@ -109,7 +109,7 @@ interface ExplainSourceVerification {
 }
 
 export interface ExplainResult {
-  readonly schema: "Llmrecog.ExplainResult.v1";
+  readonly schema: "Llmrecog.ExplainResult.v2";
   readonly semantic_version: "0.1";
   readonly tool_version: string;
   readonly input: ResultInput;
@@ -119,6 +119,7 @@ export interface ExplainResult {
     readonly id: string;
     readonly declaration_kind: Recognition["declaration_kind"];
   };
+  readonly recognition: Recognition;
   readonly support: {
     readonly state: "supported" | "unsupported" | "conflicted";
     readonly records: readonly SupportRecord[];
@@ -447,7 +448,7 @@ export function explainBootstrapRecognition(
   }
   const result = analysis.analysis;
   return {
-    schema: "Llmrecog.ExplainResult.v1",
+    schema: "Llmrecog.ExplainResult.v2",
     semantic_version: "0.1",
     tool_version: validation.tool_version,
     input: validation.input,
@@ -457,6 +458,7 @@ export function explainBootstrapRecognition(
       id: result.target.id,
       declaration_kind: result.target.declaration_kind,
     },
+    recognition: result.target,
     support: result.support,
     viability: result.viability,
     variable_resolution: result.variable_resolution,

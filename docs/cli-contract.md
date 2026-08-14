@@ -115,7 +115,10 @@ Required result facts:
 - semantic version, scope, limit, completion, and truncation.
 
 JSON schema:
-[`Llmrecog.ExplainResult.v1`](../schemas/Llmrecog.ExplainResult.v1.schema.json).
+[`Llmrecog.ExplainResult.v2`](../schemas/Llmrecog.ExplainResult.v2.schema.json).
+The required `recognition` field carries the exact validated authored
+declaration selected by the compact `target` identity. Derived support,
+viability, resolution, scope, and reason projections remain separate fields.
 
 ### 2.4 Query
 
@@ -181,7 +184,7 @@ Every machine result contains at least:
 
 ```json
 {
-  "schema": "Llmrecog.ExplainResult.v1",
+  "schema": "Llmrecog.ExplainResult.v2",
   "semantic_version": "0.1",
   "tool_version": "...",
   "input": {

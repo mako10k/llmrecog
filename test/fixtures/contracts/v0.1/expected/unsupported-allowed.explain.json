@@ -1,5 +1,5 @@
 {
-  "schema": "Llmrecog.ExplainResult.v1",
+  "schema": "Llmrecog.ExplainResult.v2",
   "semantic_version": "0.1",
   "tool_version": "contract-fixture",
   "input": {
@@ -12,6 +12,13 @@
   "target": {
     "id": "C_SECONDARY",
     "declaration_kind": "candidate"
+  },
+  "recognition": {
+    "declaration_kind": "candidate",
+    "id": "C_SECONDARY",
+    "variable_id": "V_MODE",
+    "value": { "kind": "symbol", "value": "secondary" },
+    "grounded_in": [{ "id": "S1", "kind": "span" }]
   },
   "support": { "state": "unsupported", "records": [] },
   "viability": {

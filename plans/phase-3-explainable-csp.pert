@@ -142,6 +142,7 @@ task IMPLEMENT_TYPED_EXPLAIN_TARGET AMBIGUITY_DOGFOOD_REVIEWED -> TYPED_EXPLAIN_
   title "Implement typed ExplainResult v2 target projection"
   description "Implement ADR 0009 fixture-first through the existing parser, semantic model, application, and private adapter seam. Add the required authored recognition projection without changing semantic version 0.1; freeze the v2 schema before code, update equivalent JSON and text goldens for every recognition kind, and prove excluded and unknown candidates retain parent variable and typed value without a witness. Keep ExplainResult v1 immutable and do not add excludes, audit behavior, a public CLI, or compatibility adapters in this task."
   duration 3p
+  status done
   priority 55
   requires:
     IMPLEMENTER 1
@@ -218,3 +219,17 @@ work_event FINISH_APPLY_AMBIGUITY_DOGFOOD_FEEDBACK_20260814:
   kind finish
   occurred_at 2026-08-14T14:26:12+09:00
   effort 0.0627777778ph
+
+work_event START_IMPLEMENT_TYPED_EXPLAIN_TARGET_20260814:
+  model 1
+  task IMPLEMENT_TYPED_EXPLAIN_TARGET
+  kind start
+  occurred_at 2026-08-14T14:26:40+09:00
+  planned_value 3p
+
+work_event FINISH_IMPLEMENT_TYPED_EXPLAIN_TARGET_20260814:
+  model 1
+  task IMPLEMENT_TYPED_EXPLAIN_TARGET
+  kind finish
+  occurred_at 2026-08-14T14:33:47+09:00
+  effort 0.1186111111ph

@@ -1,8 +1,14 @@
-Llmrecog.ExplainResult.v1 semantic=0.1 tool=contract-fixture
+Llmrecog.ExplainResult.v2 semantic=0.1 tool=contract-fixture
 input: docs/examples/minimal.recog
 document: MEETING_RECOG
 digest: sha256:87575b777def738ce3e69345d64053770d1e2fec5bd1e000162ca4b63a2afba2
 target: C_WEAK_COMMITMENT kind=candidate
+recognition:
+  declaration_kind: candidate
+  variable: V_COMMITMENT
+  value: symbol weak_commitment
+  grounded_in: S1,S3
+  support: ambiguous grounded_in=S1,S3
 support: supported
 support_records: ambiguous grounded_in=S1,S3
 viability: allowed
