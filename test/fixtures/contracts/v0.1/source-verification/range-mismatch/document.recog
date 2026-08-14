@@ -1,0 +1,14 @@
+llmrecog 0.1
+
+document LOCAL_RANGE_MISMATCH:
+  title "Source range mismatch fixture"
+
+source SRC:
+  kind text
+  locator "source.txt"
+  digest "sha256:a7198b769d5ab02b693471bc4884128910132afd6e3ea48bfa058472f8a69b4b"
+
+span S_MISSING_LINE:
+  source SRC
+  range 3:1..3:2
+  quote "x"

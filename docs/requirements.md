@@ -1,6 +1,6 @@
 # llmrecog requirements
 
-- Status: Private Phase 4 deterministic semantic core accepted locally; Phase 5 remains separately gated
+- Status: Private Phase 4 core accepted; Phase 5 local-verification contract accepted and implementation separately gated
 - Date: 2026-08-14
 - Provisional document extension: `.recog`
 - Product role: Recognition
@@ -81,6 +81,14 @@ fact.
   by audit as unsupported; confidence alone is never grounding.
 - External knowledge May be used only after it is made an explicit additional
   source and a new recognition run is requested.
+- Explicit local source verification Must remain separate from structural and
+  semantic validity. A stale, unavailable, or unsealed source does not rewrite
+  source-supported content as false; it reports that current source evidence
+  was not established.
+- Local verification Must use an explicit containment root, resolve locators
+  relative to the `.recog` document, reject symlinks and non-regular files,
+  bound exact-byte reads, and fail closed without changing authored
+  provenance.
 
 ## 4. Ambiguity and open-world semantics
 
@@ -170,6 +178,8 @@ background service.
   source-of-truth document by default.
 - Relative source and reference paths Must resolve relative to the `.recog`
   document, not the process working directory.
+- A local resolver Must additionally keep the resolved document and sources
+  inside an explicit verification root. Network locators remain data.
 - Human-readable and JSON results Must carry equivalent semantic information.
 - Machine-readable contracts Must use stable schema names and typed reason
   codes rather than natural-language messages as authority.
@@ -230,6 +240,8 @@ Before the first public semantic contract is accepted, the project Must have:
 - tests proving missing information remains unknown;
 - tests proving `materialize --limit` is stable and reports truncation;
 - tests proving no core operation calls a provider or writes a source file;
+- tests for local root escape, symlink, non-regular file, size, digest, UTF-8,
+  line-ending, range, quote, ordering, and mixed-source failure behavior;
 - an audit showing that no `hypothesis`, `inference`, `conclusion`, `decision`,
   task, or execution concept became a first-class recognition record.
 

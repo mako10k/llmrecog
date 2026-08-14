@@ -14,7 +14,7 @@ This directory is the design and implementation-contract authority.
 | [grammar.md](grammar.md) | Normative scanner, EBNF, semantic-shape, and recovery contract |
 | [canonical-formatting.md](canonical-formatting.md) | Deterministic semantic rendering contract |
 | [diagnostics.md](diagnostics.md) | Stable diagnostic and derivation reason-code contract |
-| [cli-contract.md](cli-contract.md) | Accepted Phase 2/3 routes and Phase 4 private command contracts |
+| [cli-contract.md](cli-contract.md) | Accepted private read routes through Phase 5 local validation |
 | [integration-llmthink.md](integration-llmthink.md) | Optional one-way reasoning integration |
 | [llmthink-grounding-audit.md](llmthink-grounding-audit.md) | Optional recognition-aware premise/evidence audit |
 | [examples/boundary-cases.md](examples/boundary-cases.md) | Required boundary examples |
@@ -36,7 +36,7 @@ This directory is the design and implementation-contract authority.
 | [../dogfood/README.md](../dogfood/README.md) | Internal versioned dogfood protocol and evidence layout |
 | [adr/](adr/) | Accepted design decisions |
 | [../contracts/](../contracts/) | Versioned EBNF and diagnostic/reason registry |
-| [../schemas/](../schemas/) | Versioned AST, semantic, validation, show, explain, audit, query, and materialization JSON Schemas |
+| [../schemas/](../schemas/) | Versioned AST, semantic, validation, source-verification, show, explain, audit, query, and materialization JSON Schemas |
 
 Normative priority, if two documents disagree:
 
@@ -49,8 +49,9 @@ The text DSL, Phase 1 schemas, diagnostics, and fixtures are frozen by ADR
 0006. ADR 0007 additionally freezes the Phase 2 validate/show routes,
 DocumentResult and RecognitionResult schemas, and exact Phase 2 fixture
 expectations. ADR 0008 freezes the private Phase 3 explain and focused base
-audit routes. Later CLI routes remain provisional. Examples clarify intent but
-do not silently extend the grammar.
+audit routes. Examples clarify intent but do not silently extend the grammar.
+Subsequent ADRs below accept additional private routes without making a release
+or public-compatibility claim.
 ADR 0009 supersedes only the successful explain result version and typed
 target-content shape, requiring `Llmrecog.ExplainResult.v2` before the
 remaining Phase 3 implementation.
@@ -61,3 +62,7 @@ accepted for local use is recorded in `phase-4-acceptance.md`.
 ADR 0011 corrects the relational ExplainResult v2 text golden to the existing
 complete deterministic projection without changing its JSON or semantic
 contract.
+ADR 0012 accepts the separately bounded local source-verification contract,
+`Llmrecog.SourceVerification.v1`, and `Llmrecog.ValidationResult.v2`. Existing
+mode-none validation remains byte-identical v1 output; runtime implementation
+and dogfood remain plan-gated.

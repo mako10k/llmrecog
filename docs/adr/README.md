@@ -20,6 +20,7 @@ Current decisions:
 - [0009: Typed recognition projection in ExplainResult v2](0009-typed-explain-target-projection.md)
 - [0010: Phase 4 complete deterministic semantic-core contract](0010-phase-4-complete-core-contract.md)
 - [0011: Correct the relational explain text projection](0011-relational-explain-text-projection-correction.md)
+- [0012: Phase 5 fail-closed local source verification](0012-phase-5-fail-closed-local-source-verification.md)
 
 Future ADRs are required for changes to:
 

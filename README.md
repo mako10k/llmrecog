@@ -16,10 +16,11 @@ unstructured or weakly structured input
 
 The project has a design baseline, a frozen executable contract for text
 profile `0.1`, and a private read-only dogfood path for parse, validate, show,
-bounded explanation, and focused audit. Its deterministic core evaluates all
-five contract-0.1 constraint kinds. No formatter, public CLI, query or
-materialization runtime, package release, or compatibility release exists.
-The source extension is `.recog`.
+bounded explanation, focused audit, query, and materialization. Its
+deterministic core evaluates all five contract-0.1 constraint kinds. The Phase
+5 fail-closed local source-verification contract is accepted, but its runtime
+is not implemented. No formatter, public CLI, package release, or
+compatibility release exists. The source extension is `.recog`.
 
 ## Product boundary
 
@@ -81,6 +82,7 @@ back into an earlier layer.
 - [Diagnostics and reason codes](docs/diagnostics.md)
 - [JSON Schemas](schemas/)
 - [Contract fixture manifest](test/fixtures/contracts/v0.1/manifest.json)
+- [Local source-verification fixtures](test/fixtures/contracts/v0.1/source-verification/cases.json)
 - [CLI contract](docs/cli-contract.md)
 - [llmthink integration](docs/integration-llmthink.md)
 - [Recognition-aware llmthink grounding audit](docs/llmthink-grounding-audit.md)
@@ -96,12 +98,12 @@ back into an earlier layer.
 
 ## Current scope lock
 
-The next plan-gated work is the first protocol-v5 dogfood round over the
-implemented `requires`, `same_as`, and `distinct_from` explanation slice.
-Its feedback must be dispositioned before either accepted `space` route is
-implemented. LLM extraction, source verification, llmthink changes, sidecars,
-embeddings, ontologies, editor integrations, public packaging, and writes to
-external systems remain outside this slice.
+The next plan-gated work is the 3p minimal Phase 5 rooted path-and-digest
+verifier. Protocol v11 dogfood starts immediately after that slice and its
+feedback must be dispositioned before range and quote implementation. Network
+access, automatic repair, provider-backed extraction, llmthink changes,
+sidecars, embeddings, ontologies, editor integrations, public packaging, and
+writes remain outside this slice.
 
 ## Development
 

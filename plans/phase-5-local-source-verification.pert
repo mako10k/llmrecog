@@ -43,6 +43,7 @@ task FREEZE_PHASE_5_CONTRACT_AND_PROTOCOL PHASE_4_ACCEPTED -> PHASE_5_CONTRACT_A
   title "Freeze local source-verification contract and dogfood protocol"
   description "Accept an ADR first, then freeze explicit verification-root and relative-locator resolution, path and symlink policy, exact source-byte digest semantics, UTF-8 text range and quote semantics, result and diagnostic shapes, deterministic ordering and bounds, and the private --verify-sources local invocation. Add exact fixtures and a versioned dogfood protocol before runtime implementation. Preserve no network, no automatic repair, no ambient base directory, and no core filesystem dependency."
   duration 4p
+  status done
   priority 70
   requires:
     IMPLEMENTER 1
@@ -101,3 +102,17 @@ task ACCEPT_PHASE_5_SLICE LOCAL_SOURCE_DOGFOOD_REVIEWED -> PHASE_5_ACCEPTED:
   requires:
     IMPLEMENTER 1
     SECURITY_REVIEWER 1
+
+work_event WE-652bba1e55f508e622e747e855b01cb12f031dd1601f6d32869d6c2472def6f0:
+  model 1
+  task FREEZE_PHASE_5_CONTRACT_AND_PROTOCOL
+  kind start
+  occurred_at 2026-08-14T18:44:02+09:00
+  planned_value 4p
+
+work_event WE-1c5736955f7b0619bbf87c758985d44c59f536b36034fdf6e0899c84c5d6c667:
+  model 1
+  task FREEZE_PHASE_5_CONTRACT_AND_PROTOCOL
+  kind finish
+  occurred_at 2026-08-14T19:05:44+09:00
+  effort 0.3616666667ph

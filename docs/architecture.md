@@ -113,6 +113,8 @@ creates source support, or turns one satisfying assignment into a choice.
 
 A thin adapter for file resolution, arguments, output, exit status, and
 optional local source verification. It does not reimplement core semantics.
+Local verification calls an application service through an inward-owned
+read-only resolver port; filesystem types and path APIs do not enter the core.
 
 ### 4.7 Producer adapters
 
@@ -168,6 +170,17 @@ The initial CLI distinguishes:
 
 Failure to perform live verification is reported as unverified, never
 rewritten as disproven.
+
+The Phase 5 local profile adds an explicit verification root, document-
+relative resolution, no-symlink containment, regular-file and per-source byte
+bounds, exact-byte digest checks, and strict UTF-8 range/quote checks. The
+filesystem adapter supplies bytes and path-policy facts through an inward-owned
+port. The application service orders checks and constructs typed results; the
+semantic core remains filesystem-free.
+
+Verification is point-in-time evidence. It does not promise a transactional
+filesystem snapshot, fetch a remote locator, search for a moved quote, mutate
+the source, or change semantic validity.
 
 ## 8. No reverse authority
 

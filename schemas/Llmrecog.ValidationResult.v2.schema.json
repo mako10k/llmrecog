@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mako10k.github.io/llmrecog/schemas/Llmrecog.ValidationResult.v2.schema.json",
+  "title": "Llmrecog.ValidationResult.v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "semantic_version",
+    "tool_version",
+    "input",
+    "complete",
+    "truncated",
+    "valid",
+    "structural_valid",
+    "semantic_valid",
+    "source_verification",
+    "ast",
+    "document",
+    "diagnostics"
+  ],
+  "properties": {
+    "schema": { "const": "Llmrecog.ValidationResult.v2" },
+    "semantic_version": { "const": "0.1" },
+    "tool_version": { "type": "string", "minLength": 1 },
+    "input": {
+      "$ref": "Llmrecog.Common.v1.schema.json#/$defs/input"
+    },
+    "complete": { "type": "boolean" },
+    "truncated": { "type": "boolean" },
+    "valid": { "type": "boolean" },
+    "structural_valid": { "type": "boolean" },
+    "semantic_valid": { "type": "boolean" },
+    "source_verification": {
+      "allOf": [
+        { "$ref": "Llmrecog.SourceVerification.v1.schema.json" },
+        { "properties": { "mode": { "const": "local" } } }
+      ]
+    },
+    "ast": {
+      "oneOf": [{ "$ref": "Llmrecog.Ast.v1.schema.json" }, { "type": "null" }]
+    },
+    "document": {
+      "oneOf": [
+        { "$ref": "Llmrecog.SemanticDocument.v1.schema.json" },
+        { "type": "null" }
+      ]
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "$ref": "Llmrecog.Common.v1.schema.json#/$defs/diagnostic"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "valid": { "const": true } },
+        "required": ["valid"]
+      },
+      "then": {
+        "properties": {
+          "structural_valid": { "const": true },
+          "semantic_valid": { "const": true },
+          "ast": { "$ref": "Llmrecog.Ast.v1.schema.json" },
+          "document": { "$ref": "Llmrecog.SemanticDocument.v1.schema.json" },
+          "source_verification": {
+            "properties": { "state": { "enum": ["verified", "failed"] } }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "valid": { "const": false } },
+        "required": ["valid"]
+      },
+      "then": {
+        "properties": {
+          "source_verification": {
+            "properties": { "state": { "const": "blocked" } }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "structural_valid": { "const": false } },
+        "required": ["structural_valid"]
+      },
+      "then": { "properties": { "semantic_valid": { "const": false } } }
+    },
+    {
+      "if": {
+        "properties": { "truncated": { "const": true } },
+        "required": ["truncated"]
+      },
+      "then": { "properties": { "complete": { "const": false } } }
+    },
+    {
+      "if": {
+        "properties": { "complete": { "const": true } },
+        "required": ["complete"]
+      },
+      "then": { "properties": { "truncated": { "const": false } } }
+    }
+  ]
+}

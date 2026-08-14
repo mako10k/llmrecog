@@ -17,7 +17,8 @@ const phase4ProtocolV6Path = "dogfood/protocol-v6/protocol.json";
 const phase4ProtocolV7Path = "dogfood/protocol-v7/protocol.json";
 const phase4ProtocolV8Path = "dogfood/protocol-v8/protocol.json";
 const phase4ProtocolV9Path = "dogfood/protocol-v9/protocol.json";
-const activeProtocolPath = "dogfood/protocol-v10/protocol.json";
+const phase4ProtocolV10Path = "dogfood/protocol-v10/protocol.json";
+const activeProtocolPath = "dogfood/protocol-v11/protocol.json";
 const runExamplePath = "dogfood/protocol-v1/examples/run-receipt.example.json";
 const grammarRunReceiptPath =
   "dogfood/runs/GRAMMAR_AUTHORING_20260814_01/receipt.json";
@@ -86,6 +87,7 @@ interface CommandCase {
   readonly format: "json" | "text";
   readonly repeat_count: number;
   readonly required_options?: readonly string[];
+  readonly required_option_names?: readonly string[];
   readonly required_flags?: readonly string[];
 }
 
@@ -174,6 +176,9 @@ const activeProtocol = readJson<DogfoodProtocol>(activeProtocolPath);
 const relationalReplayProtocol =
   readJson<DogfoodProtocol>(phase4ProtocolV6Path);
 const boundedSpaceProtocolV9 = readJson<DogfoodProtocol>(phase4ProtocolV9Path);
+const boundedSpaceReplayProtocol = readJson<DogfoodProtocol>(
+  phase4ProtocolV10Path,
+);
 
 function requiredCommandCase(
   protocolDocument: DogfoodProtocol,
@@ -197,6 +202,24 @@ function assertRequiredOptions(
     assert.notEqual(optionIndex, -1);
     assert.equal(argv[optionIndex + 1], value);
   }
+}
+
+function assertRequiredOptionNames(
+  argv: readonly string[],
+  requiredOptionNames: readonly string[],
+): void {
+  for (const option of requiredOptionNames) {
+    const optionIndex = argv.indexOf(option);
+    assert.notEqual(optionIndex, -1);
+    assert((argv[optionIndex + 1] ?? "").length > 0);
+  }
+}
+
+function assertRequiredFlags(
+  argv: readonly string[],
+  requiredFlags: readonly string[],
+): void {
+  for (const flag of requiredFlags) assert(argv.includes(flag));
 }
 
 function assertCommandExecutionBindings(
@@ -225,9 +248,8 @@ function assertCommandExecutionBindings(
   assert.notEqual(formatIndex, -1);
   assert.equal(argv[formatIndex + 1], commandCase.format);
   assertRequiredOptions(argv, commandCase.required_options ?? []);
-  for (const flag of commandCase.required_flags ?? []) {
-    assert(argv.includes(flag));
-  }
+  assertRequiredOptionNames(argv, commandCase.required_option_names ?? []);
+  assertRequiredFlags(argv, commandCase.required_flags ?? []);
 }
 
 function assertExecutionBindings(
@@ -320,6 +342,57 @@ function assertProtocolCommand(command: CommandCase): void {
   if (command.required_flags !== undefined) {
     assert(Array.isArray(command.required_flags));
   }
+  if (command.required_option_names !== undefined) {
+    assert(Array.isArray(command.required_option_names));
+  }
+}
+
+function assertVersionSpecificProtocolCases(): void {
+  assert(
+    relationalReplayProtocol.rounds[0]?.command_case_ids.includes(
+      "REQUIRES_EXPLAIN_JSON",
+    ),
+  );
+  assert(
+    relationalReplayProtocol.rounds[0]?.command_case_ids.includes(
+      "SAME_AS_MISMATCH_EXPLAIN_JSON",
+    ),
+  );
+  assert(
+    relationalReplayProtocol.rounds[0]?.command_case_ids.includes(
+      "COMPOUND_CONSTRAINT_EXPLAIN_JSON",
+    ),
+  );
+  assert.deepEqual(
+    requiredCommandCase(
+      boundedSpaceReplayProtocol,
+      "SPACE_MATERIALIZE_REQUIRE_COMPLETE_JSON",
+    ).required_flags,
+    ["--require-complete"],
+  );
+  assert(
+    boundedSpaceReplayProtocol.rounds[0]?.command_case_ids.includes(
+      "SPACE_MATERIALIZE_REQUIRE_COMPLETE_JSON",
+    ),
+  );
+  assert(
+    boundedSpaceReplayProtocol.rounds[0]?.command_case_ids.includes(
+      "SPACE_MATERIALIZE_LOW_LIMIT_JSON",
+    ),
+  );
+  assert.deepEqual(
+    requiredCommandCase(activeProtocol, "LOCAL_VERIFIED_JSON")
+      .required_option_names,
+    ["--verification-root"],
+  );
+  assert(
+    activeProtocol.rounds[0]?.command_case_ids.includes(
+      "LOCAL_STALE_DIGEST_JSON",
+    ),
+  );
+  assert(
+    activeProtocol.rounds[0]?.command_case_ids.includes("LOCAL_SYMLINK_JSON"),
+  );
 }
 
 test("the active dogfood protocol freezes corpus, questions, commands, and gates", () => {
@@ -360,18 +433,22 @@ test("the active dogfood protocol freezes corpus, questions, commands, and gates
     "sha256:8ce28da57255e62dce10a0daf1bb599650c3b0388bf2fbdc3176a5e29b36522f",
   );
   assert.equal(
-    sha256(activeProtocolPath),
+    sha256(phase4ProtocolV10Path),
     "sha256:1e83c13dbb7d3e04e29d378ac6480a0cba417fae2c5238d99893c8df88c7b058",
   );
+  assert.equal(
+    sha256(activeProtocolPath),
+    "sha256:ad2d82912eccff4dc82b2091a5395dcabebd5ebc7b3ace325fce408d6bdbba42",
+  );
   assert.equal(activeProtocol.schema, "Llmrecog.Internal.DogfoodProtocol.v1");
-  assert.equal(activeProtocol.protocol_version, 10);
+  assert.equal(activeProtocol.protocol_version, 11);
   assert.equal(activeProtocol.semantic_version, "0.1");
   assert.equal(activeProtocol.status, "active");
   assert.equal(activeProtocol.run_path_pattern, "dogfood/runs/<run-id>");
 
   assert.deepEqual(
     activeProtocol.rounds.map((round) => round.sequence),
-    [6],
+    [7],
   );
   assert.equal(
     new Set(activeProtocol.rounds.map((round) => round.id)).size,
@@ -425,38 +502,7 @@ test("the active dogfood protocol freezes corpus, questions, commands, and gates
       ),
     );
   }
-  assert(
-    relationalReplayProtocol.rounds[0]?.command_case_ids.includes(
-      "REQUIRES_EXPLAIN_JSON",
-    ),
-  );
-  assert(
-    relationalReplayProtocol.rounds[0]?.command_case_ids.includes(
-      "SAME_AS_MISMATCH_EXPLAIN_JSON",
-    ),
-  );
-  assert(
-    relationalReplayProtocol.rounds[0]?.command_case_ids.includes(
-      "COMPOUND_CONSTRAINT_EXPLAIN_JSON",
-    ),
-  );
-  assert.deepEqual(
-    requiredCommandCase(
-      activeProtocol,
-      "SPACE_MATERIALIZE_REQUIRE_COMPLETE_JSON",
-    ).required_flags,
-    ["--require-complete"],
-  );
-  assert(
-    activeProtocol.rounds[0]?.command_case_ids.includes(
-      "SPACE_MATERIALIZE_REQUIRE_COMPLETE_JSON",
-    ),
-  );
-  assert(
-    activeProtocol.rounds[0]?.command_case_ids.includes(
-      "SPACE_MATERIALIZE_LOW_LIMIT_JSON",
-    ),
-  );
+  assertVersionSpecificProtocolCases();
 
   assert.deepEqual(activeProtocol.observation_categories, [
     "contract_semantic",
@@ -701,7 +747,11 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   assert.equal(boundedSpaceReplay.outcome, "completed");
   assert.equal(boundedSpaceReplay.complete, true);
   assert.equal(boundedSpaceReplay.truncated, false);
-  assertRunBindings(boundedSpaceReplay, activeProtocol, activeProtocolPath);
+  assertRunBindings(
+    boundedSpaceReplay,
+    boundedSpaceReplayProtocol,
+    phase4ProtocolV10Path,
+  );
 
   assert(feedbackExample.feedback_id.startsWith("EXAMPLE_"));
   assertFeedbackBindings(feedbackExample, runExamplePath, runExample);

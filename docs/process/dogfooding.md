@@ -1,6 +1,6 @@
 # Dogfooding workflow
 
-Status: active Phase 4 process; each implementation slice remains plan-gated
+Status: active Phase 5 process; each implementation slice remains plan-gated
 
 This workflow makes llmrecog consume evidence about its own specifications as
 soon as a real read path exists. Dogfooding is an input to design and planning;
@@ -63,9 +63,10 @@ compound-constraint explain cases. Protocol v7 retains the pre-query
 bounded-space baseline, and protocol v8 retains the pre-materialization
 baseline. Protocol v9 remains bound to the blocked first bounded-space run,
 which showed that its command set could not compare the same low-limit result
-with and without `--require-complete`. Active protocol v10 adds that missing
-no-flag case without changing the product contract in
-[`dogfood/protocol-v10/protocol.json`](../../dogfood/protocol-v10/protocol.json).
+with and without `--require-complete`. Protocol v10 remains bound to the
+completed replay. Active protocol v11 freezes the pre-implementation local
+path-and-digest round in
+[`dogfood/protocol-v11/protocol.json`](../../dogfood/protocol-v11/protocol.json).
 The process-only receipt and feedback schemas are under
 [`dogfood/schemas/`](../../dogfood/schemas/), and the evidence layout and
 immutability rules are in [`dogfood/README.md`](../../dogfood/README.md).
@@ -104,7 +105,8 @@ understanding objective.
 | 3b | Finite `excludes` and focused audit accepted | Ask exclusion-chain, supported-plus-excluded conflict, empty-domain, and limit questions | Phase 3 acceptance and remaining constraint semantics |
 | 4a | `requires`, `same_as`, and `distinct_from` slice accepted | Exercise implication, equality, inequality, open operands, joint witnesses, and the deferred compound-navigation question | Query and materialization implementation |
 | 4b | Bounded query and materialization accepted | Exercise filters, ordering, limits, open projections, truncation, and require-complete | Phase 4 acceptance and source-verification design |
-| 5 | Local source verification accepted | Detect stale digests, ranges, quotes, and changed source documents | Producer-contract design |
+| 5a | Minimal rooted path and digest verifier accepted | Detect unchanged bytes, stale digests, missing files, root escape, symlinks, and non-regular files | Range and quote implementation |
+| 5b | Complete local source verification accepted | Detect stale ranges, quotes, encoding, size, ordering, mixed outcomes, and changed sources | Producer-contract design |
 | 6 | One producer adapter separately accepted | Generate raw-document drafts, then validate, audit, explain, verify, and review them | llmthink handoff design |
 | 7 | Typed llmthink handoff prototype accepted | Pass accepted recognition references into a read-only reasoning audit | Any broader integration plan |
 

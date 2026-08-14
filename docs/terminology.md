@@ -30,6 +30,17 @@ These definitions are normative for semantic contract 0.1.
 : The complete trace of source identity, span, support kind, normalization,
   producer, and deterministic derivation steps.
 
+**Local source verification**
+: A bounded, read-only, point-in-time comparison of explicitly rooted local
+  source bytes with declared digest, range, and quote evidence. Verification
+  checks current evidence identity; it is not semantic validity, world-truth
+  certification, permanent freshness, or permission to repair provenance.
+
+**Verified source**
+: A local source whose exact bytes match its declared digest and whose declared
+  ranges and quotes all match under the accepted text profile. A source with no
+  digest remains unverified even when its current selectors match.
+
 ## Semantic records
 
 **Recognition**

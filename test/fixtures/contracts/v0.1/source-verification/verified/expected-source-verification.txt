@@ -1,0 +1,5 @@
+source_verification: local/verified root="test/fixtures/contracts/v0.1/source-verification/verified" max_source_bytes=1048576 complete=true
+  source SRC verified locator="source.txt" path="source.txt"
+    digest verified expected=sha256:a7198b769d5ab02b693471bc4884128910132afd6e3ea48bfa058472f8a69b4b actual=sha256:a7198b769d5ab02b693471bc4884128910132afd6e3ea48bfa058472f8a69b4b
+    span S_EMOJI verified range=verified selector=1:7..1:8 quote=verified expected=sha256:f0443a342c5ef54783a111b51ba56c938e474c32324d90c3a60c9c8e3a37e2d9 actual=sha256:f0443a342c5ef54783a111b51ba56c938e474c32324d90c3a60c9c8e3a37e2d9
+    span S_LINES verified range=verified selector=1:1..2:7 quote=verified expected=sha256:d1540791297f794957f941f3ff2f62e061e7c0acb1f777c60c53c947bd2d7820 actual=sha256:d1540791297f794957f941f3ff2f62e061e7c0acb1f777c60c53c947bd2d7820

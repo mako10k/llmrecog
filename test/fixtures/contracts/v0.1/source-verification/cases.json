@@ -1,0 +1,312 @@
+{
+  "schema": "Llmrecog.SourceVerificationFixtureSet.v1",
+  "semantic_version": "0.1",
+  "maximum_source_bytes": 1048576,
+  "cases": [
+    {
+      "id": "local_verified",
+      "document_path": "test/fixtures/contracts/v0.1/source-verification/verified/document.recog",
+      "document_digest": "sha256:9677e62e418bcf732c8e3d00b0ac330a49c1bf5619a2801afe2e3de244de5a55",
+      "verification_root": "test/fixtures/contracts/v0.1/source-verification/verified",
+      "expected_text_path": "test/fixtures/contracts/v0.1/source-verification/verified/expected-source-verification.txt",
+      "expected_exit_status": 0,
+      "expected_diagnostic_codes": [],
+      "expected_verification": {
+        "mode": "local",
+        "verification_root": "test/fixtures/contracts/v0.1/source-verification/verified",
+        "maximum_source_bytes": 1048576,
+        "complete": true,
+        "state": "verified",
+        "sources": [
+          {
+            "source_id": "SRC",
+            "locator": "source.txt",
+            "resolved_path": "source.txt",
+            "state": "verified",
+            "digest": {
+              "state": "verified",
+              "expected": "sha256:a7198b769d5ab02b693471bc4884128910132afd6e3ea48bfa058472f8a69b4b",
+              "actual": "sha256:a7198b769d5ab02b693471bc4884128910132afd6e3ea48bfa058472f8a69b4b"
+            },
+            "spans": [
+              {
+                "span_id": "S_EMOJI",
+                "state": "verified",
+                "range": {
+                  "state": "verified",
+                  "selector": {
+                    "start": { "line": 1, "column": 7 },
+                    "end": { "line": 1, "column": 8 }
+                  }
+                },
+                "quote": {
+                  "state": "verified",
+                  "expected_digest": "sha256:f0443a342c5ef54783a111b51ba56c938e474c32324d90c3a60c9c8e3a37e2d9",
+                  "actual_digest": "sha256:f0443a342c5ef54783a111b51ba56c938e474c32324d90c3a60c9c8e3a37e2d9"
+                }
+              },
+              {
+                "span_id": "S_LINES",
+                "state": "verified",
+                "range": {
+                  "state": "verified",
+                  "selector": {
+                    "start": { "line": 1, "column": 1 },
+                    "end": { "line": 2, "column": 7 }
+                  }
+                },
+                "quote": {
+                  "state": "verified",
+                  "expected_digest": "sha256:d1540791297f794957f941f3ff2f62e061e7c0acb1f777c60c53c947bd2d7820",
+                  "actual_digest": "sha256:d1540791297f794957f941f3ff2f62e061e7c0acb1f777c60c53c947bd2d7820"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "local_stale_digest",
+      "document_path": "test/fixtures/contracts/v0.1/source-verification/stale-digest/document.recog",
+      "document_digest": "sha256:e3f1245131601f37101a906d42b0d90b7300c5fbe1a82f0f0b362e07363ff854",
+      "verification_root": "test/fixtures/contracts/v0.1/source-verification/stale-digest",
+      "expected_exit_status": 4,
+      "expected_diagnostic_codes": ["RCG-VERIFY-008"],
+      "expected_verification": {
+        "mode": "local",
+        "verification_root": "test/fixtures/contracts/v0.1/source-verification/stale-digest",
+        "maximum_source_bytes": 1048576,
+        "complete": true,
+        "state": "failed",
+        "sources": [
+          {
+            "source_id": "SRC",
+            "locator": "source.txt",
+            "resolved_path": "source.txt",
+            "state": "mismatch",
+            "digest": {
+              "state": "mismatch",
+              "expected": "sha256:a7198b769d5ab02b693471bc4884128910132afd6e3ea48bfa058472f8a69b4b",
+              "actual": "sha256:ba972c035a242457d7ac60c9ee1480fb44445bb90d40889559b2e4f1c6976541"
+            },
+            "spans": [
+              {
+                "span_id": "S_EMOJI",
+                "state": "not_checked",
+                "range": {
+                  "state": "not_checked",
+                  "selector": {
+                    "start": { "line": 1, "column": 7 },
+                    "end": { "line": 1, "column": 8 }
+                  }
+                },
+                "quote": {
+                  "state": "not_checked",
+                  "expected_digest": "sha256:f0443a342c5ef54783a111b51ba56c938e474c32324d90c3a60c9c8e3a37e2d9",
+                  "actual_digest": null
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "local_range_mismatch",
+      "document_path": "test/fixtures/contracts/v0.1/source-verification/range-mismatch/document.recog",
+      "document_digest": "sha256:c3b66c05f741aa0f03bbe782d14a12e611abecee767f3c39b5b1f807ec8a3b02",
+      "verification_root": "test/fixtures/contracts/v0.1/source-verification/range-mismatch",
+      "expected_exit_status": 4,
+      "expected_diagnostic_codes": ["RCG-VERIFY-011"],
+      "expected_verification": {
+        "mode": "local",
+        "verification_root": "test/fixtures/contracts/v0.1/source-verification/range-mismatch",
+        "maximum_source_bytes": 1048576,
+        "complete": true,
+        "state": "failed",
+        "sources": [
+          {
+            "source_id": "SRC",
+            "locator": "source.txt",
+            "resolved_path": "source.txt",
+            "state": "mismatch",
+            "digest": {
+              "state": "verified",
+              "expected": "sha256:a7198b769d5ab02b693471bc4884128910132afd6e3ea48bfa058472f8a69b4b",
+              "actual": "sha256:a7198b769d5ab02b693471bc4884128910132afd6e3ea48bfa058472f8a69b4b"
+            },
+            "spans": [
+              {
+                "span_id": "S_MISSING_LINE",
+                "state": "mismatch",
+                "range": {
+                  "state": "mismatch",
+                  "selector": {
+                    "start": { "line": 3, "column": 1 },
+                    "end": { "line": 3, "column": 2 }
+                  }
+                },
+                "quote": {
+                  "state": "not_checked",
+                  "expected_digest": "sha256:2d711642b726b04401627ca9fbac32f5da7e5fb3c15b607fc62f03c3bf60aefe",
+                  "actual_digest": null
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "local_quote_mismatch",
+      "document_path": "test/fixtures/contracts/v0.1/source-verification/quote-mismatch/document.recog",
+      "document_digest": "sha256:575e8c256224099a2b6c4c8b6d8c5051295a3bd09c8a83ca411ff3de58cd4767",
+      "verification_root": "test/fixtures/contracts/v0.1/source-verification/quote-mismatch",
+      "expected_exit_status": 4,
+      "expected_diagnostic_codes": ["RCG-VERIFY-012"],
+      "expected_verification": {
+        "mode": "local",
+        "verification_root": "test/fixtures/contracts/v0.1/source-verification/quote-mismatch",
+        "maximum_source_bytes": 1048576,
+        "complete": true,
+        "state": "failed",
+        "sources": [
+          {
+            "source_id": "SRC",
+            "locator": "source.txt",
+            "resolved_path": "source.txt",
+            "state": "mismatch",
+            "digest": {
+              "state": "verified",
+              "expected": "sha256:a7198b769d5ab02b693471bc4884128910132afd6e3ea48bfa058472f8a69b4b",
+              "actual": "sha256:a7198b769d5ab02b693471bc4884128910132afd6e3ea48bfa058472f8a69b4b"
+            },
+            "spans": [
+              {
+                "span_id": "S_EMOJI",
+                "state": "mismatch",
+                "range": {
+                  "state": "verified",
+                  "selector": {
+                    "start": { "line": 1, "column": 7 },
+                    "end": { "line": 1, "column": 8 }
+                  }
+                },
+                "quote": {
+                  "state": "mismatch",
+                  "expected_digest": "sha256:4b68ab3847feda7d6c62c1fbcbeebfa35eab7351ed5e78f4ddadea5df64b8015",
+                  "actual_digest": "sha256:f0443a342c5ef54783a111b51ba56c938e474c32324d90c3a60c9c8e3a37e2d9"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "local_unsealed",
+      "document_path": "test/fixtures/contracts/v0.1/source-verification/unsealed/document.recog",
+      "document_digest": "sha256:893f71f6c010c2df49e5c97eb2818e61206a22665b1f0c9bd33c2d8bcd33aabb",
+      "verification_root": "test/fixtures/contracts/v0.1/source-verification/unsealed",
+      "expected_exit_status": 4,
+      "expected_diagnostic_codes": ["RCG-VERIFY-007"],
+      "expected_verification": {
+        "mode": "local",
+        "verification_root": "test/fixtures/contracts/v0.1/source-verification/unsealed",
+        "maximum_source_bytes": 1048576,
+        "complete": true,
+        "state": "failed",
+        "sources": [
+          {
+            "source_id": "SRC",
+            "locator": "source.txt",
+            "resolved_path": "source.txt",
+            "state": "unverified",
+            "digest": {
+              "state": "not_declared",
+              "expected": null,
+              "actual": "sha256:a7198b769d5ab02b693471bc4884128910132afd6e3ea48bfa058472f8a69b4b"
+            },
+            "spans": [
+              {
+                "span_id": "S_EMOJI",
+                "state": "verified",
+                "range": {
+                  "state": "verified",
+                  "selector": {
+                    "start": { "line": 1, "column": 7 },
+                    "end": { "line": 1, "column": 8 }
+                  }
+                },
+                "quote": {
+                  "state": "verified",
+                  "expected_digest": "sha256:f0443a342c5ef54783a111b51ba56c938e474c32324d90c3a60c9c8e3a37e2d9",
+                  "actual_digest": "sha256:f0443a342c5ef54783a111b51ba56c938e474c32324d90c3a60c9c8e3a37e2d9"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "local_missing",
+      "document_path": "test/fixtures/contracts/v0.1/source-verification/missing/document.recog",
+      "document_digest": "sha256:67cba641a6e16d57b02eebf345d66b93455404834d5973d76cdea89b24eef0d6",
+      "verification_root": "test/fixtures/contracts/v0.1/source-verification/missing",
+      "expected_exit_status": 4,
+      "expected_diagnostic_codes": ["RCG-VERIFY-004"],
+      "expected_verification": {
+        "mode": "local",
+        "verification_root": "test/fixtures/contracts/v0.1/source-verification/missing",
+        "maximum_source_bytes": 1048576,
+        "complete": true,
+        "state": "failed",
+        "sources": [
+          {
+            "source_id": "SRC",
+            "locator": "source.txt",
+            "resolved_path": "source.txt",
+            "state": "unavailable",
+            "digest": {
+              "state": "not_checked",
+              "expected": "sha256:a7198b769d5ab02b693471bc4884128910132afd6e3ea48bfa058472f8a69b4b",
+              "actual": null
+            },
+            "spans": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "local_root_escape",
+      "document_path": "test/fixtures/contracts/v0.1/source-verification/root-escape/document.recog",
+      "document_digest": "sha256:d6b280c05feb27fa779b6d507e35d6869eb44c19929574b53cc539ff6eb9e0eb",
+      "verification_root": "test/fixtures/contracts/v0.1/source-verification/root-escape",
+      "expected_exit_status": 4,
+      "expected_diagnostic_codes": ["RCG-VERIFY-002"],
+      "expected_verification": {
+        "mode": "local",
+        "verification_root": "test/fixtures/contracts/v0.1/source-verification/root-escape",
+        "maximum_source_bytes": 1048576,
+        "complete": true,
+        "state": "failed",
+        "sources": [
+          {
+            "source_id": "SRC",
+            "locator": "../outside.txt",
+            "resolved_path": null,
+            "state": "unavailable",
+            "digest": {
+              "state": "not_checked",
+              "expected": "sha256:a7198b769d5ab02b693471bc4884128910132afd6e3ea48bfa058472f8a69b4b",
+              "actual": null
+            },
+            "spans": []
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -54,6 +54,8 @@ Initial fields:
   process explicitly records a temporal anchor.
 
 `observed_at` is provenance, not permission to substitute the current clock.
+Local verification does not add fields to the semantic source declaration. It
+is a separate result projection over the declared locator, digest, and spans.
 
 ### 3.3 Span
 
@@ -61,6 +63,10 @@ Initial text spans use a start-inclusive, end-exclusive, 1-based
 `line:column` range and an optional exact quote. The quote provides durable
 review context; the range provides navigation. If a digest is present, it
 binds the selector to exact source bytes.
+
+Under explicit local verification, a missing digest leaves the source
+unverified even if its current range and quote match. Digest, range, and quote
+mismatches are verification facts and do not mutate this semantic model.
 
 ### 3.4 Observation
 

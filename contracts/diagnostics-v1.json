@@ -288,6 +288,90 @@
       "default_severity": "error",
       "phase": "audit",
       "meaning": "Producer confidence is used as a weight, exclusion, or ranking rule."
+    },
+    {
+      "code": "RCG-VERIFY-001",
+      "name": "unsupported_local_locator",
+      "default_severity": "error",
+      "phase": "verification",
+      "meaning": "A source locator is not supported by the local relative-path profile."
+    },
+    {
+      "code": "RCG-VERIFY-002",
+      "name": "verification_root_escape",
+      "default_severity": "error",
+      "phase": "verification",
+      "meaning": "A resolved local source would escape the explicit verification root."
+    },
+    {
+      "code": "RCG-VERIFY-003",
+      "name": "source_symlink_forbidden",
+      "default_severity": "error",
+      "phase": "verification",
+      "meaning": "A local source path contains a symbolic-link component."
+    },
+    {
+      "code": "RCG-VERIFY-004",
+      "name": "source_unavailable",
+      "default_severity": "error",
+      "phase": "verification",
+      "meaning": "A local source cannot be opened for bounded read-only verification."
+    },
+    {
+      "code": "RCG-VERIFY-005",
+      "name": "source_not_regular_file",
+      "default_severity": "error",
+      "phase": "verification",
+      "meaning": "A local source is not a regular file."
+    },
+    {
+      "code": "RCG-VERIFY-006",
+      "name": "source_too_large",
+      "default_severity": "error",
+      "phase": "verification",
+      "meaning": "A local source exceeds the explicit per-source byte limit."
+    },
+    {
+      "code": "RCG-VERIFY-007",
+      "name": "source_digest_missing",
+      "default_severity": "error",
+      "phase": "verification",
+      "meaning": "Local verification cannot establish exact source identity because the source has no declared digest."
+    },
+    {
+      "code": "RCG-VERIFY-008",
+      "name": "source_digest_mismatch",
+      "default_severity": "error",
+      "phase": "verification",
+      "meaning": "The exact local source bytes do not match the declared digest."
+    },
+    {
+      "code": "RCG-VERIFY-009",
+      "name": "source_invalid_utf8",
+      "default_severity": "error",
+      "phase": "verification",
+      "meaning": "A local text source is not valid UTF-8."
+    },
+    {
+      "code": "RCG-VERIFY-010",
+      "name": "source_line_ending_unsupported",
+      "default_severity": "error",
+      "phase": "verification",
+      "meaning": "A local text source contains a bare carriage return outside the accepted LF and CRLF profile."
+    },
+    {
+      "code": "RCG-VERIFY-011",
+      "name": "source_range_mismatch",
+      "default_severity": "error",
+      "phase": "verification",
+      "meaning": "A declared source text range is outside the current local source text."
+    },
+    {
+      "code": "RCG-VERIFY-012",
+      "name": "source_quote_mismatch",
+      "default_severity": "error",
+      "phase": "verification",
+      "meaning": "Text selected by a declared range does not exactly match its declared quote."
     }
   ],
   "reasons": [

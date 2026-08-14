@@ -1,0 +1,178 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mako10k.github.io/llmrecog/schemas/Llmrecog.SourceVerification.v1.schema.json",
+  "title": "Llmrecog.SourceVerification.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "mode",
+    "verification_root",
+    "maximum_source_bytes",
+    "complete",
+    "state",
+    "sources"
+  ],
+  "properties": {
+    "mode": { "enum": ["none", "local"] },
+    "verification_root": {
+      "oneOf": [{ "type": "string", "minLength": 1 }, { "type": "null" }]
+    },
+    "maximum_source_bytes": {
+      "oneOf": [{ "type": "integer", "minimum": 1 }, { "type": "null" }]
+    },
+    "complete": { "type": "boolean" },
+    "state": { "enum": ["not_requested", "blocked", "verified", "failed"] },
+    "sources": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/source" }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "mode": { "const": "none" } },
+        "required": ["mode"]
+      },
+      "then": {
+        "properties": {
+          "verification_root": { "type": "null" },
+          "maximum_source_bytes": { "type": "null" },
+          "complete": { "const": true },
+          "state": { "const": "not_requested" },
+          "sources": { "type": "array", "maxItems": 0 }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "mode": { "const": "local" } },
+        "required": ["mode"]
+      },
+      "then": {
+        "properties": {
+          "verification_root": { "type": "string", "minLength": 1 },
+          "maximum_source_bytes": { "type": "integer", "minimum": 1 },
+          "state": { "enum": ["blocked", "verified", "failed"] }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "state": { "const": "blocked" } },
+        "required": ["state"]
+      },
+      "then": {
+        "properties": {
+          "complete": { "const": false },
+          "sources": { "type": "array", "maxItems": 0 }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "state": { "enum": ["verified", "failed"] } },
+        "required": ["state"]
+      },
+      "then": { "properties": { "complete": { "const": true } } }
+    }
+  ],
+  "$defs": {
+    "digest_check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "expected", "actual"],
+      "properties": {
+        "state": {
+          "enum": ["not_declared", "not_checked", "verified", "mismatch"]
+        },
+        "expected": {
+          "oneOf": [
+            { "$ref": "Llmrecog.Common.v1.schema.json#/$defs/sha256" },
+            { "type": "null" }
+          ]
+        },
+        "actual": {
+          "oneOf": [
+            { "$ref": "Llmrecog.Common.v1.schema.json#/$defs/sha256" },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "range_check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "selector"],
+      "properties": {
+        "state": { "enum": ["not_checked", "verified", "mismatch"] },
+        "selector": {
+          "$ref": "Llmrecog.SemanticDocument.v1.schema.json#/$defs/text_range"
+        }
+      }
+    },
+    "quote_check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "expected_digest", "actual_digest"],
+      "properties": {
+        "state": {
+          "enum": ["not_declared", "not_checked", "verified", "mismatch"]
+        },
+        "expected_digest": {
+          "oneOf": [
+            { "$ref": "Llmrecog.Common.v1.schema.json#/$defs/sha256" },
+            { "type": "null" }
+          ]
+        },
+        "actual_digest": {
+          "oneOf": [
+            { "$ref": "Llmrecog.Common.v1.schema.json#/$defs/sha256" },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "span": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["span_id", "state", "range", "quote"],
+      "properties": {
+        "span_id": {
+          "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+        },
+        "state": { "enum": ["not_checked", "verified", "mismatch"] },
+        "range": { "$ref": "#/$defs/range_check" },
+        "quote": { "$ref": "#/$defs/quote_check" }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_id",
+        "locator",
+        "resolved_path",
+        "state",
+        "digest",
+        "spans"
+      ],
+      "properties": {
+        "source_id": {
+          "$ref": "Llmrecog.Common.v1.schema.json#/$defs/identifier"
+        },
+        "locator": { "type": "string", "minLength": 1 },
+        "resolved_path": {
+          "oneOf": [{ "type": "string", "minLength": 1 }, { "type": "null" }]
+        },
+        "state": {
+          "enum": ["verified", "unverified", "mismatch", "unavailable"]
+        },
+        "digest": { "$ref": "#/$defs/digest_check" },
+        "spans": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/span" }
+        }
+      }
+    }
+  }
+}

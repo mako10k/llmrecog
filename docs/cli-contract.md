@@ -6,9 +6,10 @@ Phase 3 `recognition explain` and focused `document audit` contracts. ADR 0010
 accepts all five contract-0.1 constraint meanings and the Phase 4 bounded
 `space query` and `space materialize` routes. The private runtime now
 evaluates all five constraint kinds and implements both bounded space routes.
-Accepted routes remain limited to an unreleased private dogfood adapter.
-Source verification and all producer routes remain provisional and separately
-gated.
+Accepted routes remain limited to an unreleased private dogfood adapter. ADR
+0012 accepts local source verification only on `document validate` as a
+separately bounded Phase 5 contract. Its runtime implementation and all
+producer routes remain separately gated.
 
 ## 1. Design rules
 
@@ -42,22 +43,40 @@ argument order: `llmrecog recognition explain R12 file.recog`.
 ```text
 llmrecog document validate <file.recog> [--format text|json]
   [--max-diagnostics <positive-integer>] [--verify-sources none]
+
+llmrecog document validate <file.recog> [--format text|json]
+  [--max-diagnostics <positive-integer>]
+  --verify-sources local
+  --verification-root <directory>
+  [--max-source-bytes <positive-integer>]
 ```
 
 Validates syntax, types, IDs, references, record shapes, candidate membership,
 constraint operands, and normalization requirements.
 
-`--verify-sources none` is the Phase 2 default and performs no locator I/O.
-`local` remains reserved for Phase 5 and is not accepted or silently ignored
-by the Phase 2 command. Structural validity and source verification status
-remain separate result fields.
+`--verify-sources none` remains the default, performs no locator I/O, and
+returns byte-identical `Llmrecog.ValidationResult.v1`. Explicit `local`
+requires `--verification-root`, returns `Llmrecog.ValidationResult.v2`, and
+uses a default per-source limit of 1,048,576 bytes. The root and byte-limit
+options are invalid without local mode.
+
+Local mode resolves each accepted relative locator from the `.recog`
+document's directory while enforcing the explicit root, no-symlink,
+regular-file, bounded-read, exact digest, strict UTF-8, LF/CRLF, Unicode-scalar
+range, and exact quote rules in ADR 0012. It performs no network access or
+repair. Invalid recognition documents block locator reads. Source failures are
+reported separately and do not make a structurally and semantically valid
+recognition document invalid.
 
 The default diagnostic limit is 100. Reaching the limit returns the
 deterministic diagnostic prefix, `complete: false`, and `truncated: true`; it
 never changes an invalid result to valid.
 
-JSON schema:
-[`Llmrecog.ValidationResult.v1`](../schemas/Llmrecog.ValidationResult.v1.schema.json).
+JSON schemas:
+
+- mode none: [`Llmrecog.ValidationResult.v1`](../schemas/Llmrecog.ValidationResult.v1.schema.json);
+- mode local: [`Llmrecog.ValidationResult.v2`](../schemas/Llmrecog.ValidationResult.v2.schema.json),
+  containing [`Llmrecog.SourceVerification.v1`](../schemas/Llmrecog.SourceVerification.v1.schema.json).
 
 ### 2.2 Show
 
@@ -241,7 +260,7 @@ one-based and columns count Unicode scalar values.
 | `1` | Document invalidity, missing recognition target, explain/query/diagnostic truncation, or configured audit threshold failure |
 | `2` | CLI usage error |
 | `3` | Input/output failure |
-| `4` | Required source/reference verification unavailable or mismatched |
+| `4` | Requested local source verification failed after valid document validation |
 | `5` | Complete result required but a declared scope/resource limit prevented it |
 
 An ordinary truncated materialization without `--require-complete` returns 0
@@ -273,7 +292,5 @@ The initial contract does not include `extract`, `generate`, `edit`, `set`,
 add a write, producer, or compatibility boundary and requires its own design
 and acceptance examples.
 
-Phase 4 accepts the `space` contracts, but neither route is implemented.
-`--verify-sources local`, the
-`strict-grounding` audit profile, producer routes, and every write remain
-deferred.
+The `strict-grounding` audit profile, local verification on routes other than
+`document validate`, producer routes, and every write remain deferred.

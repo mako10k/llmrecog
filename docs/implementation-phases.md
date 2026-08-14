@@ -118,7 +118,7 @@ Acceptance:
 - `supported + excluded` is reported as conflict;
 - no materialized result is persisted.
 
-## Phase 4: complete initial constraint set and bounded views
+## Phase 4: complete initial constraint set and bounded views — completed 2026-08-14
 
 ADR 0010, `Llmrecog.QueryResult.v1`,
 `Llmrecog.MaterializationResult.v1`, exact contract fixtures, and dogfood
@@ -161,19 +161,31 @@ an input to the Phase 5 source-verification design.
 
 ## Phase 5: local source verification
 
-Add the separately bounded `--verify-sources local` path:
+ADR 0012, `Llmrecog.SourceVerification.v1`,
+`Llmrecog.ValidationResult.v2`, exact fixtures, and protocol v11 accept this
+phase's contract. Implement the separately bounded `--verify-sources local`
+path in two feedback-separated slices:
 
-- relative locator resolution from the `.recog` document;
-- digest, text range, and quote verification;
-- fail-closed mismatch behavior;
-- no network or automatic span repair.
+1. Add the inward-owned read-only resolver port and private filesystem adapter
+   for explicit root containment, document-relative paths, no-symlink regular
+   files, the per-source byte limit, and exact digest comparison.
+2. Dogfood that minimal path immediately against unchanged repository sources
+   and copied stale, missing, escaping, symlink, and non-regular cases.
+3. Disposition every observation and revise the remaining point estimate before
+   implementing selector checks.
+4. Add strict UTF-8 and LF/CRLF decoding, Unicode-scalar ranges, and exact quote
+   comparison through the same application seam.
+5. Dogfood digest, range, quote, encoding, size, ordering, and mixed-source
+   outcomes, then disposition all evidence before Phase 5 acceptance.
 
 This phase is separated because it introduces filesystem I/O and source race
-questions absent from the pure core.
+questions absent from the pure core. It performs no network access, writes,
+automatic span repair, provider work, or semantic-validity change.
 
-Dogfood this path by verifying the repository corpus and deliberately changed
-copies. Digest, range, and quote mismatches must fail closed. Disposition the
-evidence before designing a provider-backed producer.
+Acceptance requires deterministic v2 JSON/text, all frozen path/byte/selector
+cases, supported Node targets, jscpd through `npm run check`, npm audit, and
+proof that the semantic core imports no filesystem API. Disposition the
+complete-verifier evidence before designing a provider-backed producer.
 
 ## Phase 6: provider-neutral producer and one adapter
 
@@ -223,21 +235,22 @@ authorized by accepting llmrecog core implementation.
 
 ## Current implementation frontier
 
-The bounded-space round is governed by active protocol v10, which adds the
-missing no-flag limit-2 comparison discovered by the immutable protocol-v9
-run. Phase 4 acceptance requires complete replay evidence and feedback
-disposition. Producer dogfood remains gated on the accepted complete initial
-constraint semantics,
-fail-closed local source verification, a producer-contract ADR, and a
-separately approved adapter.
+Phase 4 is accepted locally. Phase 5 contract and fixture work is accepted by
+ADR 0012, while runtime implementation remains at the minimal path-and-digest
+slice. Protocol v11 is the active pre-implementation baseline and requires the
+first local-source dogfood before range and quote implementation. Producer
+dogfood remains gated on accepted complete local verification, reviewed
+dogfood feedback, a producer-contract ADR, and a separately approved adapter.
 
 The current detailed execution order, relative effort, acceptance frontier,
 and explicit Non-goals are tracked in
-[`plans/phase-4-complete-core.pert`](../plans/phase-4-complete-core.pert).
-The completed Phase 2 and Phase 3 plans are retained in
+[`plans/phase-5-local-source-verification.pert`](../plans/phase-5-local-source-verification.pert).
+The completed Phase 2 through Phase 4 plans are retained in
 [`plans/phase-2-parse-validate-show.pert`](../plans/phase-2-parse-validate-show.pert)
 and
-[`plans/phase-3-explainable-csp.pert`](../plans/phase-3-explainable-csp.pert).
+[`plans/phase-3-explainable-csp.pert`](../plans/phase-3-explainable-csp.pert),
+and
+[`plans/phase-4-complete-core.pert`](../plans/phase-4-complete-core.pert).
 The point-based cross-phase order and repeated feedback gates are tracked in
 [`plans/dogfooding-roadmap.pert`](../plans/dogfooding-roadmap.pert), while the
 original [`plans/initial-roadmap.pert`](../plans/initial-roadmap.pert) remains

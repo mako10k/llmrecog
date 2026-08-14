@@ -17,10 +17,17 @@ be clarified without changing meaning.
 | `RCG-BOUNDARY` | recognition/reasoning/realization responsibility violations |
 | `RCG-OPEN`, `RCG-CSP` | open-world and possibility-space conflicts |
 | `RCG-NORM`, `RCG-CONF` | normalization and producer-confidence misuse |
+| `RCG-VERIFY` | explicit local path, byte, encoding, range, and quote verification |
 
 Diagnostics contain a stable code, severity, non-authoritative message,
 optional entity ID, optional source span, typed reason data, and related
 locations. Source order, code, and entity ID determine deterministic ordering.
+
+Verification diagnostics `RCG-VERIFY-001` through `RCG-VERIFY-012` are emitted
+only by explicit local verification. Their typed reason data identifies source
+and span IDs, path-policy reason, limits, or expected/actual digests as
+applicable; it never includes source or quote contents. They do not change
+structural or semantic validity.
 
 For `.recog` syntax positions, `offset` is a zero-based UTF-8 byte offset into
 the exact input bytes. Lines and columns are one-based; columns count Unicode

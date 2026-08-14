@@ -1,0 +1,13 @@
+llmrecog 0.1
+
+document LOCAL_UNSEALED:
+  title "Unsealed local source fixture"
+
+source SRC:
+  kind text
+  locator "source.txt"
+
+span S_EMOJI:
+  source SRC
+  range 1:7..1:8
+  quote "😀"

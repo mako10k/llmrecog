@@ -79,6 +79,31 @@ interface DiagnosticFixtureSet {
   readonly fixtures: readonly DiagnosticFixture[];
 }
 
+interface SourceVerificationFixtureCase {
+  readonly id: string;
+  readonly document_path: string;
+  readonly document_digest: string;
+  readonly verification_root: string;
+  readonly expected_text_path?: string;
+  readonly expected_exit_status: number;
+  readonly expected_diagnostic_codes: readonly string[];
+  readonly expected_verification: {
+    readonly state: string;
+    readonly sources: readonly {
+      readonly source_id: string;
+      readonly resolved_path: string | null;
+      readonly digest: { readonly actual: string | null };
+    }[];
+  };
+}
+
+interface SourceVerificationFixtureSet {
+  readonly schema: string;
+  readonly semantic_version: string;
+  readonly maximum_source_bytes: number;
+  readonly cases: readonly SourceVerificationFixtureCase[];
+}
+
 function readJson<T>(relativePath: string): T {
   return JSON.parse(
     fs.readFileSync(path.join(repositoryRoot, relativePath), "utf8"),
@@ -243,6 +268,8 @@ test("all result goldens validate against the frozen JSON Schemas", () => {
     "schemas/Llmrecog.Ast.v1.schema.json",
     "schemas/Llmrecog.SemanticDocument.v1.schema.json",
     "schemas/Llmrecog.ValidationResult.v1.schema.json",
+    "schemas/Llmrecog.SourceVerification.v1.schema.json",
+    "schemas/Llmrecog.ValidationResult.v2.schema.json",
     "schemas/Llmrecog.DocumentResult.v1.schema.json",
     "schemas/Llmrecog.RecognitionResult.v1.schema.json",
     "schemas/Llmrecog.ExplainResult.v1.schema.json",
@@ -262,6 +289,10 @@ test("all result goldens validate against the frozen JSON Schemas", () => {
     [
       "Llmrecog.ValidationResult.v1",
       "https://mako10k.github.io/llmrecog/schemas/Llmrecog.ValidationResult.v1.schema.json",
+    ],
+    [
+      "Llmrecog.ValidationResult.v2",
+      "https://mako10k.github.io/llmrecog/schemas/Llmrecog.ValidationResult.v2.schema.json",
     ],
     [
       "Llmrecog.ExplainResult.v1",
@@ -326,6 +357,83 @@ test("all result goldens validate against the frozen JSON Schemas", () => {
     );
     assertSyntaxSpansMatchInput(ast, expectedAst.input);
   }
+});
+
+test("Phase 5 fixtures freeze detailed local source-verification outcomes", () => {
+  const fixtureSet = readJson<SourceVerificationFixtureSet>(
+    "test/fixtures/contracts/v0.1/source-verification/cases.json",
+  );
+  assert.equal(fixtureSet.schema, "Llmrecog.SourceVerificationFixtureSet.v1");
+  assert.equal(fixtureSet.semantic_version, "0.1");
+  assert.equal(fixtureSet.maximum_source_bytes, 1_048_576);
+  assert.equal(
+    new Set(fixtureSet.cases.map((fixture) => fixture.id)).size,
+    fixtureSet.cases.length,
+  );
+
+  const ajv = new Ajv2020({ allErrors: true, strict: true });
+  addFormats(ajv);
+  for (const schemaPath of [
+    "schemas/Llmrecog.Common.v1.schema.json",
+    "schemas/Llmrecog.SemanticDocument.v1.schema.json",
+    "schemas/Llmrecog.SourceVerification.v1.schema.json",
+  ]) {
+    ajv.addSchema(readJson<Record<string, unknown>>(schemaPath));
+  }
+  const validate = ajv.getSchema(
+    "https://mako10k.github.io/llmrecog/schemas/Llmrecog.SourceVerification.v1.schema.json",
+  );
+  assert(validate);
+
+  const diagnosticCodes = new Set(
+    registry.diagnostics.map((entry) => entry.code),
+  );
+  const observedStates = new Set<string>();
+  for (const fixture of fixtureSet.cases) {
+    assert.equal(fixture.document_digest, sha256(fixture.document_path));
+    assert.equal(
+      validate(fixture.expected_verification),
+      true,
+      `${fixture.id}: ${JSON.stringify(validate.errors, null, 2)}`,
+    );
+    observedStates.add(fixture.expected_verification.state);
+    assert(
+      fixture.expected_diagnostic_codes.every((code) =>
+        diagnosticCodes.has(code),
+      ),
+    );
+    assert.equal(
+      fixture.expected_exit_status,
+      fixture.expected_verification.state === "verified" ? 0 : 4,
+    );
+    if (fixture.expected_text_path !== undefined) {
+      const expectedText = fs.readFileSync(
+        path.join(repositoryRoot, fixture.expected_text_path),
+        "utf8",
+      );
+      assert(expectedText.startsWith("source_verification: local/"));
+      assert(expectedText.endsWith("\n"));
+      assert(!expectedText.includes("\r"));
+      assert(!expectedText.includes("\t"));
+      for (const source of fixture.expected_verification.sources) {
+        assert(expectedText.includes(`source ${source.source_id}`));
+        if (source.digest.actual !== null) {
+          assert(expectedText.includes(source.digest.actual));
+        }
+      }
+    }
+    for (const source of fixture.expected_verification.sources) {
+      if (source.resolved_path === null || source.digest.actual === null) {
+        continue;
+      }
+      const sourcePath = path.join(
+        fixture.verification_root,
+        source.resolved_path,
+      );
+      assert.equal(source.digest.actual, sha256(sourcePath));
+    }
+  }
+  assert.deepEqual([...observedStates].sort(), ["failed", "verified"]);
 });
 
 function positionAtByteOffset(relativePath: string, offset: number) {

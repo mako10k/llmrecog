@@ -39,12 +39,20 @@ A source record should carry both:
 - a `sha256` digest when exact reproducibility matters.
 
 Without a digest, a span can still be useful, but audit reports it as
-`unsealed_source`. A quote mismatch or digest mismatch found during explicit
-source verification is an error and does not trigger automatic span repair.
+`unsealed_source`. Explicit local verification keeps such a source
+`unverified` even if current selectors match. A quote mismatch or digest
+mismatch is an error and never triggers automatic span repair.
 
-Relative locators resolve against the `.recog` file. Remote locators are data
-unless an explicitly authorized resolver is used; normal validation and
-explanation do not fetch them.
+Relative locators resolve against the `.recog` file and, for the Phase 5 local
+profile, must remain within the caller-supplied verification root. The profile
+rejects symlinks, non-regular files, over-limit bytes, invalid UTF-8, bare CR,
+out-of-range selectors, and exact quote mismatches. Remote locators remain
+data; normal validation, explanation, and every non-validation route perform
+no locator I/O.
+
+Local verification is a bounded point-in-time observation. A matching digest
+identifies bytes actually read; it does not certify the source's truth or
+promise that the path remains unchanged after the check.
 
 ## 4. Support
 

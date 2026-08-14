@@ -29,6 +29,7 @@ const requiredFiles = [
   "dogfood/protocol-v1/protocol.json",
   "dogfood/protocol-v4/protocol.json",
   "dogfood/protocol-v5/protocol.json",
+  "dogfood/protocol-v11/protocol.json",
   "dogfood/protocol-v1/examples/input.example.recog",
   "dogfood/protocol-v1/examples/run-receipt.example.json",
   "dogfood/protocol-v1/examples/feedback.example.json",
@@ -39,6 +40,7 @@ const requiredFiles = [
   "docs/adr/0007-phase-2-read-only-command-contract.md",
   "docs/adr/0010-phase-4-complete-core-contract.md",
   "docs/adr/0011-relational-explain-text-projection-correction.md",
+  "docs/adr/0012-phase-5-fail-closed-local-source-verification.md",
   "docs/examples/minimal.recog",
   "docs/examples/meeting.txt",
   "contracts/llmrecog-0.1.ebnf",
@@ -47,12 +49,15 @@ const requiredFiles = [
   "schemas/Llmrecog.Ast.v1.schema.json",
   "schemas/Llmrecog.SemanticDocument.v1.schema.json",
   "schemas/Llmrecog.ValidationResult.v1.schema.json",
+  "schemas/Llmrecog.SourceVerification.v1.schema.json",
+  "schemas/Llmrecog.ValidationResult.v2.schema.json",
   "schemas/Llmrecog.ExplainResult.v1.schema.json",
   "schemas/Llmrecog.DocumentResult.v1.schema.json",
   "schemas/Llmrecog.RecognitionResult.v1.schema.json",
   "schemas/Llmrecog.QueryResult.v1.schema.json",
   "schemas/Llmrecog.MaterializationResult.v1.schema.json",
   "test/fixtures/contracts/v0.1/manifest.json",
+  "test/fixtures/contracts/v0.1/source-verification/cases.json",
 ];
 
 function collectMarkdownFiles(directory) {
