@@ -81,7 +81,7 @@ task VERIFY_AND_DOGFOOD_LOCAL_SOURCES CORE_DOGFOOD_REVIEWED -> PROVENANCE_DOGFOO
   title "Implement and dogfood fail-closed local source verification"
   description "Keep Phase 5 at 16p: 4p to freeze the local-verification ADR, result and diagnostic contracts, fixtures, and dogfood protocol; 5p to implement the fail-closed relative resolver plus digest, range, and quote verification through an explicit filesystem port; 3p to dogfood unchanged and deliberately stale copied corpus sources; 2p to disposition and re-estimate producer work; and 2p for final audit and acceptance. No network, automatic repair, provider, publication, or release is authorized."
   duration 16p
-  status active
+  status done
   priority 70
   requires:
     IMPLEMENTER 1
@@ -175,3 +175,10 @@ work_event WE-47549607ead59bd428dbd932efda30c831db3277ece8a6c9d765a65389cef561:
   kind start
   occurred_at 2026-08-14T18:44:02+09:00
   planned_value 16p
+
+work_event WE-a3d9dc7b865058e22513abe6ac3c41e18b29fd4dfa4292f5c3afbf9d18aa95c3:
+  model 1
+  task VERIFY_AND_DOGFOOD_LOCAL_SOURCES
+  kind finish
+  occurred_at 2026-08-14T20:06:15+09:00
+  effort 1.2762783334ph

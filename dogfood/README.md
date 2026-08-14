@@ -17,7 +17,11 @@ claiming that unimplemented range and quote checks ran. Both protocols precede
 runtime dogfood evidence and have no bound run. Protocol v13 is bound to
 completed path-and-digest evidence in
 [`runs/LOCAL_PATH_DIGEST_20260814_01/receipt.json`](runs/LOCAL_PATH_DIGEST_20260814_01/receipt.json);
-its observation is dispositioned by the bound `feedback.json`. Immutable
+its observation is dispositioned by the bound `feedback.json`. Protocol v14 is
+bound to completed selector, encoding, size, ordering, and mixed-source
+evidence in
+[`runs/LOCAL_SOURCE_VERIFICATION_20260814_01/receipt.json`](runs/LOCAL_SOURCE_VERIFICATION_20260814_01/receipt.json),
+and its observation is dispositioned by the bound `feedback.json`. Immutable
 [`protocol-v10/protocol.json`](protocol-v10/protocol.json) remains bound to the
 completed bounded-space replay, while
 [`protocol-v9/protocol.json`](protocol-v9/protocol.json) remains bound to its

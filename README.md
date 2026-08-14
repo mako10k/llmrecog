@@ -16,11 +16,11 @@ unstructured or weakly structured input
 
 The project has a design baseline, a frozen executable contract for text
 profile `0.1`, and a private read-only dogfood path for parse, validate, show,
-bounded explanation, focused audit, query, and materialization. Its
-deterministic core evaluates all five contract-0.1 constraint kinds. The Phase
-5 fail-closed local source-verification contract is accepted, but its runtime
-is not implemented. No formatter, public CLI, package release, or
-compatibility release exists. The source extension is `.recog`.
+bounded explanation, focused audit, query, materialization, and fail-closed
+local source verification. Its deterministic core evaluates all five
+contract-0.1 constraint kinds, and the Phase 5 local-verification slice is
+accepted locally. No formatter, public CLI, package release, or compatibility
+release exists. The source extension is `.recog`.
 
 ## Product boundary
 
@@ -98,12 +98,12 @@ back into an earlier layer.
 
 ## Current scope lock
 
-The next plan-gated work is the 2p complete Phase 5 local-source dogfood round.
-Protocol v13 feedback is dispositioned, the strict text selector slice is
-implemented, and protocol v14 covers its acceptance boundaries. Network
-access, automatic repair, provider-backed extraction, llmthink changes,
-sidecars, embeddings, ontologies, editor integrations, public packaging, and
-writes remain outside this slice.
+Phase 5 is accepted locally. The next separately gated roadmap task is the 8p
+provider-neutral producer-contract design; it has not started and this
+acceptance does not authorize a provider adapter or live call. Network access,
+credentials, automatic repair, llmthink changes, sidecars, embeddings,
+ontologies, editor integrations, public packaging, and writes remain outside
+the accepted slice.
 
 ## Development
 

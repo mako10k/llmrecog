@@ -22,11 +22,12 @@ This directory is the design and implementation-contract authority.
 | [phase-2-acceptance.md](phase-2-acceptance.md) | Exact candidate evidence and Phase 2 acceptance boundary |
 | [phase-3-acceptance.md](phase-3-acceptance.md) | Exact candidate evidence and Phase 3 acceptance boundary |
 | [phase-4-acceptance.md](phase-4-acceptance.md) | Exact candidate evidence and Phase 4 acceptance boundary |
+| [phase-5-acceptance.md](phase-5-acceptance.md) | Exact candidate evidence and Phase 5 acceptance boundary |
 | [../plans/initial-roadmap.pert](../plans/initial-roadmap.pert) | Original coarse roadmap and Phase 0/1 history |
 | [../plans/phase-2-parse-validate-show.pert](../plans/phase-2-parse-validate-show.pert) | Detailed perttool plan for the separately gated Phase 2 vertical slice |
 | [../plans/phase-3-explainable-csp.pert](../plans/phase-3-explainable-csp.pert) | Detailed dogfood-first plan for the separately gated Phase 3 explainable CSP slice |
 | [../plans/phase-4-complete-core.pert](../plans/phase-4-complete-core.pert) | Detailed dogfood-first plan for the separately gated Phase 4 complete semantic core |
-| [../plans/phase-5-local-source-verification.pert](../plans/phase-5-local-source-verification.pert) | Active detailed dogfood-first plan for fail-closed local source verification |
+| [../plans/phase-5-local-source-verification.pert](../plans/phase-5-local-source-verification.pert) | Completed detailed dogfood-first plan for fail-closed local source verification |
 | [../plans/dogfooding-roadmap.pert](../plans/dogfooding-roadmap.pert) | Current point-based phase-selection roadmap with dogfood/replan gates |
 | [design-review.md](design-review.md) | Contradiction, overlap, and overdesign review |
 | [reference-review.md](reference-review.md) | Concepts evaluated from related projects |
@@ -64,5 +65,6 @@ complete deterministic projection without changing its JSON or semantic
 contract.
 ADR 0012 accepts the separately bounded local source-verification contract,
 `Llmrecog.SourceVerification.v1`, and `Llmrecog.ValidationResult.v2`. Existing
-mode-none validation remains byte-identical v1 output; runtime implementation
-and dogfood remain plan-gated.
+mode-none validation remains byte-identical v1 output; the exact private
+implementation and dogfood evidence accepted for local use are recorded in
+`phase-5-acceptance.md`.

@@ -1,6 +1,6 @@
 # llmrecog requirements
 
-- Status: Private Phase 4 core accepted; Phase 5 local-verification contract accepted and implementation separately gated
+- Status: Private Phase 5 fail-closed local source verification accepted locally; Phase 6 remains separately gated
 - Date: 2026-08-14
 - Provisional document extension: `.recog`
 - Product role: Recognition
