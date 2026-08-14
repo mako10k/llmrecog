@@ -1,0 +1,202 @@
+llmrecog 0.1
+
+document AMBIGUITY_EXPLAIN_20260814_01:
+  title "Support, closure, witness, and explain boundary recognition"
+
+source REQUIREMENTS_DOC:
+  kind text
+  locator "../../../docs/requirements.md"
+  media_type "text/markdown"
+  digest "sha256:973cd64ea58e9e9bb5c294dd25365c629dadff10fd46ccd7b7d87256e8b0f27d"
+
+source TERMINOLOGY_DOC:
+  kind text
+  locator "../../../docs/terminology.md"
+  media_type "text/markdown"
+  digest "sha256:0c36a1145bb41495d4b28a3c60b0e2c0687aab605b02713d2418a4e70ace7f0c"
+
+source ARCHITECTURE_DOC:
+  kind text
+  locator "../../../docs/architecture.md"
+  media_type "text/markdown"
+  digest "sha256:33b1b346379ff1e643ed79c92547bf8d3c395c581e8b75698c0fc002205395bf"
+
+source SEMANTIC_MODEL_DOC:
+  kind text
+  locator "../../../docs/semantic-model.md"
+  media_type "text/markdown"
+  digest "sha256:4dc66ad8364b79734f3740aa20ce503d3062c4e8d871fd3428458cbe31f359f3"
+
+source PROVENANCE_DOC:
+  kind text
+  locator "../../../docs/provenance-and-explainability.md"
+  media_type "text/markdown"
+  digest "sha256:b1105283685d3025fafeaaf1792c68693f66051e07817fa964fbe8f50fb1694c"
+
+source PHASE3_ADR_DOC:
+  kind text
+  locator "../../../docs/adr/0008-phase-3-explainable-csp-contract.md"
+  media_type "text/markdown"
+  digest "sha256:45a7e7b23a395a2d48e23ed09b738b8089f62de27d4e3fffbc96bbfa5dee1d1e"
+
+source IMPLEMENTATION_PHASES_DOC:
+  kind text
+  locator "../../../docs/implementation-phases.md"
+  media_type "text/markdown"
+  digest "sha256:bf63f238db66be4e4234ebe6589607de224cf0cb7e57f7e03b15899d0741b526"
+
+source DOGFOOD_PROCESS_DOC:
+  kind text
+  locator "../../../docs/process/dogfooding.md"
+  media_type "text/markdown"
+  digest "sha256:a772e87a5a87c5cc83f97ca3c5b4893f1611e40878ac2a27f94d502ef4e55025"
+
+span S_REQ_AMBIGUITY:
+  source REQUIREMENTS_DOC
+  range 85:1..100:1
+
+span S_REQ_EXPLAIN:
+  source REQUIREMENTS_DOC
+  range 121:1..144:1
+
+span S_TERM_SUPPORT_KIND:
+  source TERMINOLOGY_DOC
+  range 81:1..90:1
+
+span S_TERM_SUPPORT_VIABILITY:
+  source TERMINOLOGY_DOC
+  range 97:1..127:1
+
+span S_TERM_DOMAINS:
+  source TERMINOLOGY_DOC
+  range 128:1..145:1
+
+span S_ARCH_BOUNDARY:
+  source ARCHITECTURE_DOC
+  range 17:1..54:1
+
+span S_SEM_CANDIDATE:
+  source SEMANTIC_MODEL_DOC
+  range 136:1..162:1
+
+span S_PROV_EXPLAIN:
+  source PROVENANCE_DOC
+  range 116:1..164:1
+
+span S_ADR_EXPLAIN_SCOPE:
+  source PHASE3_ADR_DOC
+  range 38:1..102:1
+
+span S_PHASE3_STATUS:
+  source IMPLEMENTATION_PHASES_DOC
+  range 90:1..110:1
+
+span S_DOGFOOD_ROUND3A:
+  source DOGFOOD_PROCESS_DOC
+  range 84:1..101:1
+
+observation O_SUPPORT_VIABILITY_ORTHOGONAL:
+  surface "Support and viability are orthogonal"
+  grounded_in [S_TERM_SUPPORT_VIABILITY]
+
+observation O_DERIVED_NOT_PERSISTED:
+  surface "Derived reports and materialized worlds are not written into .recog by default"
+  grounded_in [S_ARCH_BOUNDARY]
+
+entity E_READING:
+  type semantic_slot
+  label "Source-supported reading"
+  grounded_in [S_REQ_AMBIGUITY, S_SEM_CANDIDATE]
+  support explicit
+
+entity E_EXPLAIN_PROJECTION:
+  type derived_projection
+  label "Deterministic explain result"
+  grounded_in [S_REQ_EXPLAIN, S_PROV_EXPLAIN, S_ADR_EXPLAIN_SCOPE]
+  support explicit
+
+record R_STATE_AXES:
+  kind property
+  subject E_READING
+  predicate classification_axes
+  value "Source support and CSP viability remain independent"
+  grounded_in [O_SUPPORT_VIABILITY_ORTHOGONAL, S_REQ_AMBIGUITY, S_SEM_CANDIDATE]
+  support explicit
+
+record R_EXPLAIN_AUTHORITY:
+  kind property
+  subject E_EXPLAIN_PROJECTION
+  predicate authority_role
+  value "Derived reproducible report, not persisted semantic authority"
+  grounded_in [O_DERIVED_NOT_PERSISTED, S_ARCH_BOUNDARY, S_PROV_EXPLAIN]
+  support explicit
+
+record R_ROUND3A_FEEDBACK_GATE:
+  kind property
+  subject E_EXPLAIN_PROJECTION
+  predicate feedback_boundary
+  value "Ambiguity explain findings are dispositioned before excludes and focused audit implementation"
+  grounded_in [S_DOGFOOD_ROUND3A, S_PHASE3_STATUS]
+  support explicit
+
+variable V_READING_SUPPORT_KIND:
+  value_type symbol
+  candidates [C_READING_EXPLICIT, C_READING_LINGUISTIC, C_READING_NORMALIZED, C_READING_AMBIGUOUS]
+  grounded_in [S_REQ_AMBIGUITY, S_TERM_SUPPORT_KIND]
+
+candidate C_READING_EXPLICIT in V_READING_SUPPORT_KIND:
+  value explicit
+  grounded_in [S_TERM_SUPPORT_KIND]
+
+candidate C_READING_LINGUISTIC in V_READING_SUPPORT_KIND:
+  value linguistic
+  grounded_in [S_TERM_SUPPORT_KIND]
+
+candidate C_READING_NORMALIZED in V_READING_SUPPORT_KIND:
+  value normalized
+  grounded_in [S_TERM_SUPPORT_KIND]
+
+candidate C_READING_AMBIGUOUS in V_READING_SUPPORT_KIND:
+  value ambiguous
+  grounded_in [S_REQ_AMBIGUITY, S_TERM_SUPPORT_KIND]
+  support explicit
+
+variable V_CONSTRAINT_SUPPORT_KIND:
+  value_type symbol
+  candidates [C_CONSTRAINT_EXPLICIT, C_CONSTRAINT_LINGUISTIC, C_CONSTRAINT_NORMALIZED, C_CONSTRAINT_AMBIGUOUS]
+  grounded_in [S_REQ_AMBIGUITY, S_TERM_SUPPORT_KIND]
+
+candidate C_CONSTRAINT_EXPLICIT in V_CONSTRAINT_SUPPORT_KIND:
+  value explicit
+  grounded_in [S_TERM_SUPPORT_KIND]
+
+candidate C_CONSTRAINT_LINGUISTIC in V_CONSTRAINT_SUPPORT_KIND:
+  value linguistic
+  grounded_in [S_TERM_SUPPORT_KIND]
+
+candidate C_CONSTRAINT_NORMALIZED in V_CONSTRAINT_SUPPORT_KIND:
+  value normalized
+  grounded_in [S_TERM_SUPPORT_KIND]
+
+candidate C_CONSTRAINT_AMBIGUOUS in V_CONSTRAINT_SUPPORT_KIND:
+  value ambiguous
+  grounded_in [S_TERM_SUPPORT_KIND]
+
+variable V_DOWNSTREAM_INTERPRETATION:
+  value_type symbol
+  candidates []
+  grounded_in [S_ARCH_BOUNDARY, S_TERM_DOMAINS, S_PROV_EXPLAIN]
+
+constraint K_READING_SUPPORT_KIND_ONE_OF:
+  kind one_of
+  variable V_READING_SUPPORT_KIND
+  members [C_READING_EXPLICIT, C_READING_LINGUISTIC, C_READING_NORMALIZED, C_READING_AMBIGUOUS]
+  grounded_in [S_TERM_SUPPORT_KIND]
+  support explicit
+
+constraint K_CONSTRAINT_SUPPORT_KIND_ONE_OF:
+  kind one_of
+  variable V_CONSTRAINT_SUPPORT_KIND
+  members [C_CONSTRAINT_EXPLICIT, C_CONSTRAINT_LINGUISTIC, C_CONSTRAINT_NORMALIZED, C_CONSTRAINT_AMBIGUOUS]
+  grounded_in [S_TERM_SUPPORT_KIND]
+  support explicit

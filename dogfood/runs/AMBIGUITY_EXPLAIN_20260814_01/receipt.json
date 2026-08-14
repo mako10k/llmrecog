@@ -1,0 +1,281 @@
+{
+  "schema": "Llmrecog.Internal.DogfoodRunReceipt.v1",
+  "run_id": "AMBIGUITY_EXPLAIN_20260814_01",
+  "round_id": "ambiguity_explain_v2",
+  "started_at": "2026-08-14T14:17:40+09:00",
+  "finished_at": "2026-08-14T14:17:42+09:00",
+  "tool": {
+    "repository_revision": "0ffcc9c67025e1c04e28993006f1cf05b9cae6a1",
+    "semantic_version": "0.1",
+    "node_version": "v25.1.0",
+    "platform": "linux-x64",
+    "working_directory": "."
+  },
+  "protocol": {
+    "path": "dogfood/protocol-v2/protocol.json",
+    "digest": "sha256:f86c886a9bb5b5ac801cd15bd1a94edac26b5afc7546d762d70a3bb1ffafc0b7"
+  },
+  "question_results": [
+    {
+      "question_id": "DGF-EXPLAIN-001",
+      "status": "answered",
+      "summary": "C_READING_AMBIGUOUS is positively source-supported, while the other seven declared support-kind candidates have grounding for domain membership but no positive support record; C_READING_EXPLICIT remains allowed rather than being converted to false or excluded.",
+      "evidence": [
+        "input.recog gives C_READING_AMBIGUOUS explicit support grounded in S_REQ_AMBIGUITY and S_TERM_SUPPORT_KIND, while C_READING_EXPLICIT and the other declared-only candidates omit support.",
+        "RECOGNITION_EXPLAIN_JSON reports target C_READING_EXPLICIT with support.state unsupported, support.records empty, viability.state allowed, and grounded_in(C_READING_EXPLICIT,S_TERM_SUPPORT_KIND)."
+      ]
+    },
+    {
+      "question_id": "DGF-EXPLAIN-002",
+      "status": "answered",
+      "summary": "V_READING_SUPPORT_KIND and V_CONSTRAINT_SUPPORT_KIND are grounded closed domains because each has a named one_of constraint over the closed support-kind vocabulary; V_DOWNSTREAM_INTERPRETATION remains open and resolves to unknown because it has no represented candidate or closure.",
+      "evidence": [
+        "K_READING_SUPPORT_KIND_ONE_OF and K_CONSTRAINT_SUPPORT_KIND_ONE_OF ground closure in S_TERM_SUPPORT_KIND; the joint explain result reports the relevant constraint IDs and an ambiguous complete resolution.",
+        "RECOGNITION_EXPLAIN_LIMIT_JSON reports V_DOWNSTREAM_INTERPRETATION as unknown with RCG-RSN-001 and RCG-RSN-002, complete true, and truncated false."
+      ]
+    },
+    {
+      "question_id": "DGF-EXPLAIN-003",
+      "status": "answered",
+      "summary": "The complete represented joint witness for unsupported but allowed C_READING_EXPLICIT is the ordered assignment C_READING_EXPLICIT plus C_CONSTRAINT_EXPLICIT in the requested two-variable scope.",
+      "evidence": [
+        "RECOGNITION_EXPLAIN_JSON lists V_READING_SUPPORT_KIND=C_READING_EXPLICIT followed by V_CONSTRAINT_SUPPORT_KIND=C_CONSTRAINT_EXPLICIT, with both one_of constraints considered.",
+        "The result reports requested and effective scope V_READING_SUPPORT_KIND,V_CONSTRAINT_SUPPORT_KIND, RCG-RSN-101, complete true, and truncated false."
+      ]
+    },
+    {
+      "question_id": "DGF-EXPLAIN-004",
+      "status": "answered",
+      "summary": "The explain result preserves target grounding, support, scope-bound viability, and derivation identity without selecting a preferred reading, asserting a new source recognition, or mutating the authored artifact.",
+      "evidence": [
+        "JSON and text report the same target, unsupported support state, allowed witness, two-variable scope, two one_of constraints, RCG-RSN-101 derivation, and complete/truncated flags.",
+        "R_EXPLAIN_AUTHORITY records the source-grounded boundary that explain is a derived reproducible report rather than persisted semantic authority; the artifact digest remained sha256:6b9a0d2c029609db9575124be1916a346532fe32d8f3af9037527282b9f8b72f before and after every execution."
+      ]
+    }
+  ],
+  "artifact": {
+    "path": "dogfood/runs/AMBIGUITY_EXPLAIN_20260814_01/input.recog",
+    "digest": "sha256:6b9a0d2c029609db9575124be1916a346532fe32d8f3af9037527282b9f8b72f"
+  },
+  "executions": [
+    {
+      "case_id": "DOCUMENT_VALIDATE_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "document",
+        "validate",
+        "dogfood/runs/AMBIGUITY_EXPLAIN_20260814_01/input.recog",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:5cfa9f48257f6935a826eca3ab2065dea068ebbff609a2223c790e04b59de653",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "DOCUMENT_VALIDATE_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "document",
+        "validate",
+        "dogfood/runs/AMBIGUITY_EXPLAIN_20260814_01/input.recog",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:5cfa9f48257f6935a826eca3ab2065dea068ebbff609a2223c790e04b59de653",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "RECOGNITION_EXPLAIN_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_READING_EXPLICIT",
+        "dogfood/runs/AMBIGUITY_EXPLAIN_20260814_01/input.recog",
+        "--scope",
+        "V_READING_SUPPORT_KIND,V_CONSTRAINT_SUPPORT_KIND",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:f8a53c33f1ee935c1e9b8db3260244595d5d01f0be0adb5b1606f2611de6b28f",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "RECOGNITION_EXPLAIN_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_READING_EXPLICIT",
+        "dogfood/runs/AMBIGUITY_EXPLAIN_20260814_01/input.recog",
+        "--scope",
+        "V_READING_SUPPORT_KIND,V_CONSTRAINT_SUPPORT_KIND",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:f8a53c33f1ee935c1e9b8db3260244595d5d01f0be0adb5b1606f2611de6b28f",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "RECOGNITION_EXPLAIN_TEXT",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_READING_EXPLICIT",
+        "dogfood/runs/AMBIGUITY_EXPLAIN_20260814_01/input.recog",
+        "--scope",
+        "V_READING_SUPPORT_KIND,V_CONSTRAINT_SUPPORT_KIND",
+        "--format",
+        "text"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:24490628cc3531797004ef56b75df2452aabdaf61e0551a386705df974f33675",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "RECOGNITION_EXPLAIN_TEXT",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_READING_EXPLICIT",
+        "dogfood/runs/AMBIGUITY_EXPLAIN_20260814_01/input.recog",
+        "--scope",
+        "V_READING_SUPPORT_KIND,V_CONSTRAINT_SUPPORT_KIND",
+        "--format",
+        "text"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:24490628cc3531797004ef56b75df2452aabdaf61e0551a386705df974f33675",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "RECOGNITION_EXPLAIN_LIMIT_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "V_DOWNSTREAM_INTERPRETATION",
+        "dogfood/runs/AMBIGUITY_EXPLAIN_20260814_01/input.recog",
+        "--limit",
+        "1",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:ac8df9fc998c3a1b0274a787046668d51fead86091cdbb80a9d2e89c9776b3bd",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "RECOGNITION_EXPLAIN_LIMIT_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "V_DOWNSTREAM_INTERPRETATION",
+        "dogfood/runs/AMBIGUITY_EXPLAIN_20260814_01/input.recog",
+        "--limit",
+        "1",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:ac8df9fc998c3a1b0274a787046668d51fead86091cdbb80a9d2e89c9776b3bd",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "outcome": "completed",
+  "complete": true,
+  "truncated": false,
+  "observations": [
+    {
+      "id": "OBS-EXPLAIN-001",
+      "category": "implementation",
+      "summary": "The protocol-v2 Round 3a receipt could not conform to the shared receipt schema because that schema admitted only protocol-v1 paths and Phase 2 round IDs.",
+      "evidence": "At tool revision 0ffcc9c67025e1c04e28993006f1cf05b9cae6a1, protocol-v2 names ambiguity_explain_v2 but Llmrecog.Internal.DogfoodRunReceipt.v1 constrained protocol.path to dogfood/protocol-v1/protocol.json and round_id to the two Phase 2 rounds.",
+      "reproduction_steps": [
+        "Check out tool revision 0ffcc9c67025e1c04e28993006f1cf05b9cae6a1.",
+        "Construct a receipt using protocol.path dogfood/protocol-v2/protocol.json and round_id ambiguity_explain_v2.",
+        "Validate it against dogfood/schemas/Llmrecog.Internal.DogfoodRunReceipt.v1.schema.json and observe the const and enum failures."
+      ],
+      "proposed_action": "Extend the internal v1 receipt schema additively for protocol-v2 paths and round IDs, then bind this actual run and both legacy runs through schema validation tests.",
+      "affected_contracts": [
+        "Llmrecog.Internal.DogfoodRunReceipt.v1",
+        "Llmrecog.Internal.DogfoodProtocol.v1 protocol_version 2"
+      ],
+      "point_impact": 1
+    },
+    {
+      "id": "OBS-EXPLAIN-002",
+      "category": "documentation",
+      "summary": "Two process-status statements still describe Phase 3 explain runtime as pending or the dogfood process as Phase 2 after the one_of explain slice was accepted.",
+      "evidence": "docs/process/dogfooding.md line 3 says active Phase 2 process, while docs/implementation-phases.md lines 92-93 say Phase 3 runtime implementation remains pending; the current tool revision contains the accepted one_of explain vertical slice and protocol-v2 Round 3a.",
+      "reproduction_steps": [
+        "Read docs/process/dogfooding.md lines 1-4.",
+        "Read docs/implementation-phases.md lines 90-94.",
+        "Run the required Round 3a explain commands successfully with tool revision 0ffcc9c67025e1c04e28993006f1cf05b9cae6a1."
+      ],
+      "proposed_action": "Disposition the stale statuses without invalidating this immutable receipt; if accepted, create the next protocol corpus version before changing bound documents needed by Round 3b.",
+      "affected_contracts": [
+        "docs/implementation-phases.md",
+        "docs/process/dogfooding.md",
+        "Llmrecog.Internal.DogfoodProtocol.v1 protocol_version 2"
+      ],
+      "point_impact": 1
+    },
+    {
+      "id": "OBS-EXPLAIN-003",
+      "category": "diagnostics_presentation",
+      "summary": "ExplainResult v1 identifies the target only by ID and declaration kind, so the target's typed candidate value and parent-variable membership are not directly projected as required by the explainability specification.",
+      "evidence": "RECOGNITION_EXPLAIN_JSON target contains only id C_READING_EXPLICIT and declaration_kind candidate. Its value and parent happen to be recoverable from an allowed witness, but the same recovery is unavailable for an excluded or unknown candidate without a witness; provenance-and-explainability.md requires typed semantic value and parent variable/domain closure.",
+      "reproduction_steps": [
+        "Run RECOGNITION_EXPLAIN_JSON from this receipt.",
+        "Inspect target and observe that it contains no typed value or variable ID.",
+        "Compare with docs/provenance-and-explainability.md sections 7.1 and 7.2 and schemas/Llmrecog.ExplainResult.v1.schema.json."
+      ],
+      "proposed_action": "Before implementing excludes, decide an explicitly versioned typed target projection and add schema, JSON, text, and no-witness candidate fixtures; do not silently widen ExplainResult v1.",
+      "affected_contracts": [
+        "docs/adr/0008-phase-3-explainable-csp-contract.md",
+        "Llmrecog.ExplainResult.v1"
+      ],
+      "point_impact": 3
+    }
+  ]
+}

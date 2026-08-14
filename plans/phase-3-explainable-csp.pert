@@ -85,6 +85,7 @@ task RUN_AMBIGUITY_UNKNOWN_DOGFOOD ONE_OF_EXPLAIN_ACCEPTED -> AMBIGUITY_DOGFOOD_
   description |
     Read the versioned repository corpus and answer the frozen ambiguity, closure, unsupported, open-domain, and joint-witness questions by authoring bounded recognition artifacts and invoking the actual private recognition explain route. Capture exact input and output identities, deterministic replay evidence, explanation usefulness, authoring friction, and any pressure to collapse support into viability or to invent closure.
   duration 2p
+  status done
   priority 70
   requires:
     IMPLEMENTER 1
@@ -178,3 +179,17 @@ work_event FINISH_IMPLEMENT_ONE_OF_CANDIDATE_EXPLAIN_20260814:
   kind finish
   occurred_at 2026-08-14T14:12:23+09:00
   effort 0.2086111111ph
+
+work_event START_RUN_AMBIGUITY_UNKNOWN_DOGFOOD_20260814:
+  model 1
+  task RUN_AMBIGUITY_UNKNOWN_DOGFOOD
+  kind start
+  occurred_at 2026-08-14T14:12:53+09:00
+  planned_value 2p
+
+work_event FINISH_RUN_AMBIGUITY_UNKNOWN_DOGFOOD_20260814:
+  model 1
+  task RUN_AMBIGUITY_UNKNOWN_DOGFOOD
+  kind finish
+  occurred_at 2026-08-14T14:21:17+09:00
+  effort 0.14ph

@@ -15,6 +15,8 @@ const grammarRunReceiptPath =
   "dogfood/runs/GRAMMAR_AUTHORING_20260814_01/receipt.json";
 const specificationRunReceiptPath =
   "dogfood/runs/SPECIFICATION_AUTHORING_20260814_01/receipt.json";
+const ambiguityRunReceiptPath =
+  "dogfood/runs/AMBIGUITY_EXPLAIN_20260814_01/receipt.json";
 const feedbackExamplePath =
   "dogfood/protocol-v1/examples/feedback.example.json";
 const grammarFeedbackPath =
@@ -139,12 +141,16 @@ function sha256(relativePath: string): string {
 const protocol = readJson<DogfoodProtocol>(protocolPath);
 const activeProtocol = readJson<DogfoodProtocol>(activeProtocolPath);
 
-function assertRunBindings(run: RunExample): void {
-  assert.equal(run.protocol.path, protocolPath);
-  assert.equal(run.protocol.digest, sha256(protocolPath));
+function assertRunBindings(
+  run: RunExample,
+  boundProtocol: DogfoodProtocol = protocol,
+  boundProtocolPath: string = protocolPath,
+): void {
+  assert.equal(run.protocol.path, boundProtocolPath);
+  assert.equal(run.protocol.digest, sha256(boundProtocolPath));
   assert.equal(run.artifact.digest, sha256(run.artifact.path));
 
-  const round = protocol.rounds.find(
+  const round = boundProtocol.rounds.find(
     (candidate) => candidate.id === run.round_id,
   );
   assert(round);
@@ -175,7 +181,11 @@ function assertRunBindings(run: RunExample): void {
         result.evidence.length > 0,
     ),
   );
-  for (const commandCase of protocol.command_cases) {
+  for (const commandCaseId of round.command_case_ids) {
+    const commandCase = boundProtocol.command_cases.find(
+      (candidate) => candidate.id === commandCaseId,
+    );
+    assert(commandCase);
     const executions = run.executions
       .filter((execution) => execution.case_id === commandCase.id)
       .sort((left, right) => left.repeat_index - right.repeat_index);
@@ -306,6 +316,7 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   const runExample = readJson<RunExample>(runExamplePath);
   const grammarRun = readJson<RunExample>(grammarRunReceiptPath);
   const specificationRun = readJson<RunExample>(specificationRunReceiptPath);
+  const ambiguityRun = readJson<RunExample>(ambiguityRunReceiptPath);
   const feedbackExample = readJson<FeedbackExample>(feedbackExamplePath);
   const grammarFeedback = readJson<FeedbackExample>(grammarFeedbackPath);
   const specificationFeedback = readJson<FeedbackExample>(
@@ -328,6 +339,11 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   );
   assert.equal(
     validateRun(specificationRun),
+    true,
+    JSON.stringify(validateRun.errors, null, 2),
+  );
+  assert.equal(
+    validateRun(ambiguityRun),
     true,
     JSON.stringify(validateRun.errors, null, 2),
   );
@@ -370,6 +386,17 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   assert.equal(specificationRun.complete, true);
   assert.equal(specificationRun.truncated, false);
   assertRunBindings(specificationRun);
+  assert.equal(ambiguityRun.run_id, "AMBIGUITY_EXPLAIN_20260814_01");
+  assert(
+    ambiguityRun.question_results.every(
+      (result) => result.status === "answered",
+    ),
+  );
+  assert.notEqual(ambiguityRun.tool.repository_revision, "0".repeat(40));
+  assert.equal(ambiguityRun.outcome, "completed");
+  assert.equal(ambiguityRun.complete, true);
+  assert.equal(ambiguityRun.truncated, false);
+  assertRunBindings(ambiguityRun, activeProtocol, activeProtocolPath);
 
   assert(feedbackExample.feedback_id.startsWith("EXAMPLE_"));
   assertFeedbackBindings(feedbackExample, runExamplePath, runExample);

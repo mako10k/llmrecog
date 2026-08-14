@@ -25,7 +25,12 @@
     "schema": { "const": "Llmrecog.Internal.DogfoodRunReceipt.v1" },
     "run_id": { "$ref": "#/$defs/identifier" },
     "round_id": {
-      "enum": ["grammar_authoring_v1", "specification_authoring_v1"]
+      "enum": [
+        "grammar_authoring_v1",
+        "specification_authoring_v1",
+        "ambiguity_explain_v2",
+        "exclusion_explain_v2"
+      ]
     },
     "started_at": { "type": "string", "format": "date-time" },
     "finished_at": { "type": "string", "format": "date-time" },
@@ -55,7 +60,12 @@
       "additionalProperties": false,
       "required": ["path", "digest"],
       "properties": {
-        "path": { "const": "dogfood/protocol-v1/protocol.json" },
+        "path": {
+          "enum": [
+            "dogfood/protocol-v1/protocol.json",
+            "dogfood/protocol-v2/protocol.json"
+          ]
+        },
         "digest": { "$ref": "#/$defs/sha256" }
       }
     },
