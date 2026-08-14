@@ -1,0 +1,3 @@
+source_verification: local/verified root="test/fixtures/contracts/v0.1/source-verification/digest-only" max_source_bytes=1048576 complete=true
+  source SRC verified locator="source.txt" path="source.txt"
+    digest verified expected=sha256:a7198b769d5ab02b693471bc4884128910132afd6e3ea48bfa058472f8a69b4b actual=sha256:a7198b769d5ab02b693471bc4884128910132afd6e3ea48bfa058472f8a69b4b

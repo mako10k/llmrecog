@@ -3,6 +3,8 @@ import type {
   BootstrapReadResult,
   DocumentResult,
   ExplainResult,
+  LocalSourceSpanVerification,
+  LocalValidationResult,
   MaterializationResult,
   QueryResult,
   RecognitionResult,
@@ -32,7 +34,9 @@ function renderBase(result: BootstrapReadResult): string[] {
   ];
 }
 
-function renderValidation(result: ValidationResult): string {
+function renderValidationState(
+  result: ValidationResult | LocalValidationResult,
+): readonly string[] {
   let astState = "-";
   if (result.ast !== null)
     astState = result.ast.recovered ? "recovered" : "complete";
@@ -43,7 +47,41 @@ function renderValidation(result: ValidationResult): string {
     `semantic_valid: ${String(result.semantic_valid)}`,
     `ast: ${astState}`,
     `document_model: ${result.document === null ? "-" : "present"}`,
+  ];
+}
+
+function renderValidation(result: ValidationResult): string {
+  return [
+    ...renderValidationState(result),
     `source_verification: ${result.source_verification.mode}/${result.source_verification.state}`,
+    `complete: ${String(result.complete)}`,
+    `truncated: ${String(result.truncated)}`,
+    ...renderDiagnostics(result.diagnostics),
+  ].join("\n");
+}
+
+function renderOptionalDigest(value: string | null): string {
+  return value ?? "-";
+}
+
+function renderLocalSpan(span: LocalSourceSpanVerification): string {
+  const { start, end } = span.range.selector;
+  return [
+    `    span ${span.span_id} ${span.state} range=${span.range.state} selector=${start.line}:${start.column}..${end.line}:${end.column} quote=${span.quote.state}`,
+    `      quote_digest expected=${renderOptionalDigest(span.quote.expected_digest)} actual=${renderOptionalDigest(span.quote.actual_digest)}`,
+  ].join("\n");
+}
+
+function renderLocalValidation(result: LocalValidationResult): string {
+  const verification = result.source_verification;
+  return [
+    ...renderValidationState(result),
+    `source_verification: ${verification.mode}/${verification.state} root=${JSON.stringify(verification.verification_root)} max_source_bytes=${String(verification.maximum_source_bytes)} complete=${String(verification.complete)}`,
+    ...verification.sources.flatMap((source) => [
+      `  source ${source.source_id} ${source.state} locator=${JSON.stringify(source.locator)} path=${source.resolved_path === null ? "-" : JSON.stringify(source.resolved_path)}`,
+      `    digest ${source.digest.state} expected=${renderOptionalDigest(source.digest.expected)} actual=${renderOptionalDigest(source.digest.actual)}`,
+      ...source.spans.map(renderLocalSpan),
+    ]),
     `complete: ${String(result.complete)}`,
     `truncated: ${String(result.truncated)}`,
     ...renderDiagnostics(result.diagnostics),
@@ -456,6 +494,8 @@ export function renderBootstrapText(result: BootstrapReadResult): string {
   switch (result.schema) {
     case "Llmrecog.ValidationResult.v1":
       return `${renderValidation(result)}\n`;
+    case "Llmrecog.ValidationResult.v2":
+      return `${renderLocalValidation(result)}\n`;
     case "Llmrecog.DocumentResult.v1":
       return `${renderDocument(result)}\n`;
     case "Llmrecog.RecognitionResult.v1":

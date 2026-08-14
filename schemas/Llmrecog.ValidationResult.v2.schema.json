@@ -34,7 +34,10 @@
     "source_verification": {
       "allOf": [
         { "$ref": "Llmrecog.SourceVerification.v1.schema.json" },
-        { "properties": { "mode": { "const": "local" } } }
+        {
+          "type": "object",
+          "properties": { "mode": { "const": "local" } }
+        }
       ]
     },
     "ast": {
@@ -66,6 +69,7 @@
           "ast": { "$ref": "Llmrecog.Ast.v1.schema.json" },
           "document": { "$ref": "Llmrecog.SemanticDocument.v1.schema.json" },
           "source_verification": {
+            "type": "object",
             "properties": { "state": { "enum": ["verified", "failed"] } }
           }
         }
@@ -79,6 +83,7 @@
       "then": {
         "properties": {
           "source_verification": {
+            "type": "object",
             "properties": { "state": { "const": "blocked" } }
           }
         }

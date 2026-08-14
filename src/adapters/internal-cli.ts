@@ -11,12 +11,14 @@ import {
   showBootstrapDocument,
   showBootstrapRecognition,
   validateBootstrapInput,
+  validateBootstrapInputWithLocalSources,
   type BootstrapReadInput,
   type BootstrapReadResult,
   type QueryKind,
   type QuerySupportState,
   type QueryViabilityState,
 } from "../application/bootstrap-read-path.js";
+import { createLocalFilesystemContext } from "./local-filesystem-source-resolver.js";
 import { renderBootstrapText } from "../presentation/bootstrap-text.js";
 
 type OutputFormat = "text" | "json";
@@ -28,6 +30,9 @@ interface CommonOptions {
 }
 
 interface ParsedOptions extends CommonOptions {
+  readonly verificationMode: "none" | "local";
+  readonly verificationRoot: string | undefined;
+  readonly maximumSourceBytes: number | undefined;
   readonly requestedVariableIds: readonly string[] | undefined;
   readonly limit: number;
   readonly profile: "base";
@@ -42,6 +47,8 @@ interface ParsedOptions extends CommonOptions {
 
 interface OptionPolicy {
   readonly verification: boolean;
+  readonly verificationRoot?: boolean;
+  readonly maximumSourceBytes?: boolean;
   readonly maximumDiagnostics: boolean;
   readonly scope: boolean;
   readonly limit: boolean;
@@ -58,7 +65,15 @@ interface OptionPolicy {
 type ParsedCommand =
   | (CommonOptions & {
       readonly resource: "document";
-      readonly action: "validate" | "show";
+      readonly action: "validate";
+      readonly path: string;
+      readonly verificationMode: "none" | "local";
+      readonly verificationRoot: string | undefined;
+      readonly maximumSourceBytes: number | undefined;
+    })
+  | (CommonOptions & {
+      readonly resource: "document";
+      readonly action: "show";
       readonly path: string;
     })
   | (CommonOptions & {
@@ -95,6 +110,9 @@ class UsageError extends Error {
 interface OptionState {
   format: OutputFormat;
   maximumDiagnostics: number;
+  verificationMode: "none" | "local";
+  verificationRoot: string | undefined;
+  maximumSourceBytes: number | undefined;
   requestedVariableIds: readonly string[] | undefined;
   limit: number;
   profile: "base";
@@ -187,12 +205,16 @@ function identifier(value: string, option: string): string {
   return value;
 }
 
-function verifySourceOption(policy: OptionPolicy, value: string): void {
-  if (!policy.verification || value !== "none") {
-    throw new UsageError(
-      "The Phase 2 read path accepts only --verify-sources none on validate.",
-    );
+function verifySourceOption(
+  state: OptionState,
+  policy: OptionPolicy,
+  value: string,
+): void {
+  requireAccepted(policy.verification, "--verify-sources");
+  if (value !== "none" && value !== "local") {
+    throw new UsageError("--verify-sources must be none or local.");
   }
+  state.verificationMode = value;
 }
 
 function applyQueryOption(
@@ -227,12 +249,39 @@ function applyQueryOption(
   }
 }
 
+function applyLocalVerificationOption(
+  state: OptionState,
+  policy: OptionPolicy,
+  option: string | undefined,
+  value: string,
+): boolean {
+  switch (option) {
+    case "--verify-sources":
+      verifySourceOption(state, policy, value);
+      return true;
+    case "--verification-root":
+      requireAccepted(policy.verificationRoot, "--verification-root");
+      if (value.length === 0) {
+        throw new UsageError("--verification-root must not be empty.");
+      }
+      state.verificationRoot = value;
+      return true;
+    case "--max-source-bytes":
+      requireAccepted(policy.maximumSourceBytes, "--max-source-bytes");
+      state.maximumSourceBytes = positiveInteger(value, "--max-source-bytes");
+      return true;
+    default:
+      return false;
+  }
+}
+
 function applyOption(
   state: OptionState,
   policy: OptionPolicy,
   option: string | undefined,
   value: string,
 ): void {
+  if (applyLocalVerificationOption(state, policy, option, value)) return;
   switch (option) {
     case "--format":
       state.format = outputFormat(value);
@@ -240,9 +289,6 @@ function applyOption(
     case "--max-diagnostics":
       requireAccepted(policy.maximumDiagnostics, "--max-diagnostics");
       state.maximumDiagnostics = positiveInteger(value, "--max-diagnostics");
-      return;
-    case "--verify-sources":
-      verifySourceOption(policy, value);
       return;
     case "--scope":
       requireAccepted(policy.scope, "--scope");
@@ -275,6 +321,9 @@ function parseOptions(
   const state: OptionState = {
     format: "text",
     maximumDiagnostics: 100,
+    verificationMode: "none",
+    verificationRoot: undefined,
+    maximumSourceBytes: undefined,
     requestedVariableIds: undefined,
     limit: 100,
     profile: "base",
@@ -310,6 +359,8 @@ function parseOptions(
 
 const readOptions: OptionPolicy = {
   verification: false,
+  verificationRoot: false,
+  maximumSourceBytes: false,
   maximumDiagnostics: true,
   scope: false,
   limit: false,
@@ -355,6 +406,8 @@ function parseDocumentCommand(
   const options = parseOptions(args.slice(3), {
     ...readOptions,
     verification: action === "validate",
+    verificationRoot: action === "validate",
+    maximumSourceBytes: action === "validate",
     profile: action === "audit",
     failOn: action === "audit",
   });
@@ -365,6 +418,25 @@ function parseDocumentCommand(
       path,
       ...options,
     };
+  }
+  if (action === "validate") {
+    if (
+      options.verificationMode === "local" &&
+      options.verificationRoot === undefined
+    ) {
+      throw new UsageError(
+        "--verify-sources local requires --verification-root.",
+      );
+    }
+    if (
+      options.verificationMode === "none" &&
+      (options.verificationRoot !== undefined ||
+        options.maximumSourceBytes !== undefined)
+    ) {
+      throw new UsageError(
+        "--verification-root and --max-source-bytes require --verify-sources local.",
+      );
+    }
   }
   return {
     resource: "document",
@@ -541,6 +613,31 @@ function executeSpace(
 }
 
 function execute(command: ParsedCommand): BootstrapReadResult {
+  if (
+    command.resource === "document" &&
+    command.action === "validate" &&
+    command.verificationMode === "local"
+  ) {
+    const maximumSourceBytes = command.maximumSourceBytes ?? 1_048_576;
+    const context = createLocalFilesystemContext(
+      command.path,
+      command.verificationRoot!,
+      maximumSourceBytes,
+    );
+    const input: BootstrapReadInput = {
+      bytes: fs.readFileSync(context.documentPath),
+      path: command.path,
+      maximumDiagnostics: command.maximumDiagnostics,
+    };
+    return validateBootstrapInputWithLocalSources(
+      input,
+      {
+        verificationRoot: command.verificationRoot!,
+        maximumSourceBytes,
+      },
+      context.resolver,
+    );
+  }
   const bytes = fs.readFileSync(command.path);
   const input: BootstrapReadInput = {
     bytes,
@@ -564,9 +661,28 @@ function materializationExitStatus(
   return result.require_complete ? 5 : 0;
 }
 
-function exitStatus(result: BootstrapReadResult): number {
+function validationExitStatus(
+  result: Extract<
+    BootstrapReadResult,
+    {
+      readonly schema:
+        "Llmrecog.ValidationResult.v1" | "Llmrecog.ValidationResult.v2";
+    }
+  >,
+): number {
   if (result.schema === "Llmrecog.ValidationResult.v1") {
     return result.valid && result.complete ? 0 : 1;
+  }
+  if (!result.valid || !result.complete) return 1;
+  return result.source_verification.state === "verified" ? 0 : 4;
+}
+
+function exitStatus(result: BootstrapReadResult): number {
+  if (
+    result.schema === "Llmrecog.ValidationResult.v1" ||
+    result.schema === "Llmrecog.ValidationResult.v2"
+  ) {
+    return validationExitStatus(result);
   }
   if (result.schema === "Llmrecog.RecognitionResult.v1" && !result.found)
     return 1;

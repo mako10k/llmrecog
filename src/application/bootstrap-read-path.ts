@@ -28,6 +28,7 @@ export const phase3ToolVersion = "0.0.0-phase3";
 export const phase4RelationalToolVersion = "0.0.0-phase4-relational";
 export const phase4QueryToolVersion = "0.0.0-phase4-query";
 export const phase4MaterializationToolVersion = "0.0.0-phase4-materialization";
+export const phase5LocalToolVersion = "0.0.0-phase5-local";
 
 interface ResultInput {
   readonly path: string;
@@ -38,6 +39,49 @@ interface ResultInput {
 interface SourceVerification {
   readonly mode: "none";
   readonly state: "not_requested";
+}
+
+type Sha256Digest = `sha256:${string}`;
+
+export interface LocalSourceDigestCheck {
+  readonly state: "not_declared" | "not_checked" | "verified" | "mismatch";
+  readonly expected: Sha256Digest | null;
+  readonly actual: Sha256Digest | null;
+}
+
+export interface LocalSourceSpanVerification {
+  readonly span_id: string;
+  readonly state: "not_checked" | "verified" | "mismatch";
+  readonly range: {
+    readonly state: "not_checked" | "verified" | "mismatch";
+    readonly selector: {
+      readonly start: { readonly line: number; readonly column: number };
+      readonly end: { readonly line: number; readonly column: number };
+    };
+  };
+  readonly quote: {
+    readonly state: "not_declared" | "not_checked" | "verified" | "mismatch";
+    readonly expected_digest: Sha256Digest | null;
+    readonly actual_digest: Sha256Digest | null;
+  };
+}
+
+export interface LocalSourceVerificationEntry {
+  readonly source_id: string;
+  readonly locator: string;
+  readonly resolved_path: string | null;
+  readonly state: "verified" | "unverified" | "mismatch" | "unavailable";
+  readonly digest: LocalSourceDigestCheck;
+  readonly spans: readonly LocalSourceSpanVerification[];
+}
+
+export interface LocalSourceVerification {
+  readonly mode: "local";
+  readonly verification_root: string;
+  readonly maximum_source_bytes: number;
+  readonly complete: boolean;
+  readonly state: "blocked" | "verified" | "failed";
+  readonly sources: readonly LocalSourceVerificationEntry[];
 }
 
 interface ResultBase {
@@ -143,6 +187,22 @@ export interface ExplainResult {
   readonly diagnostics: readonly Diagnostic[];
 }
 
+export interface LocalValidationResult {
+  readonly schema: "Llmrecog.ValidationResult.v2";
+  readonly semantic_version: "0.1";
+  readonly tool_version: string;
+  readonly input: ResultInput;
+  readonly complete: boolean;
+  readonly truncated: boolean;
+  readonly valid: boolean;
+  readonly structural_valid: boolean;
+  readonly semantic_valid: boolean;
+  readonly source_verification: LocalSourceVerification;
+  readonly ast: AstDocument | null;
+  readonly document: SemanticDocument | null;
+  readonly diagnostics: readonly Diagnostic[];
+}
+
 export interface AuditResult extends ResultBase {
   readonly schema: "Llmrecog.AuditResult.v1";
   readonly profile: "base";
@@ -208,8 +268,39 @@ export interface MaterializationResult extends ResultBase {
   readonly relevant_constraint_ids: readonly string[];
 }
 
+export type LocalSourceReadFailureCode =
+  | "RCG-VERIFY-001"
+  | "RCG-VERIFY-002"
+  | "RCG-VERIFY-003"
+  | "RCG-VERIFY-004"
+  | "RCG-VERIFY-005"
+  | "RCG-VERIFY-006";
+
+export type LocalSourceReadResult =
+  | {
+      readonly ok: true;
+      readonly resolvedPath: string;
+      readonly bytes: Uint8Array;
+    }
+  | {
+      readonly ok: false;
+      readonly code: LocalSourceReadFailureCode;
+      readonly resolvedPath: string | null;
+      readonly reasonData: Readonly<Record<string, unknown>>;
+    };
+
+export interface LocalSourceResolver {
+  read(sourceId: string, locator: string): LocalSourceReadResult;
+}
+
+export interface LocalSourceVerificationOptions {
+  readonly verificationRoot: string;
+  readonly maximumSourceBytes?: number;
+}
+
 export type BootstrapReadResult =
   | ValidationResult
+  | LocalValidationResult
   | DocumentResult
   | RecognitionResult
   | ExplainResult
@@ -293,7 +384,7 @@ function validatedScope(
   return value;
 }
 
-function sha256(bytes: Uint8Array): string {
+function sha256(bytes: Uint8Array): Sha256Digest {
   return `sha256:${crypto.createHash("sha256").update(bytes).digest("hex")}`;
 }
 
@@ -335,6 +426,268 @@ export function validateBootstrapInput(
     ast: validation.ast,
     document: validation.document,
     diagnostics: validation.diagnostics,
+  };
+}
+
+const localVerificationMessages: Readonly<Record<string, string>> = {
+  "RCG-VERIFY-001":
+    "The source locator is not in the local relative-path profile.",
+  "RCG-VERIFY-002": "The resolved source would escape the verification root.",
+  "RCG-VERIFY-003":
+    "A symbolic-link component is forbidden for local verification.",
+  "RCG-VERIFY-004": "Local source verification is unavailable.",
+  "RCG-VERIFY-005": "The local source is not a regular file.",
+  "RCG-VERIFY-006": "The local source exceeds the per-source byte limit.",
+  "RCG-VERIFY-007": "The local source has no declared digest.",
+  "RCG-VERIFY-008": "The local source bytes do not match the declared digest.",
+};
+
+function localSourceDiagnostic(
+  validation: ValidationResult,
+  sourceId: string,
+  code: string,
+  reasonData: Readonly<Record<string, unknown>>,
+  fieldName: "locator" | "digest" | null,
+): Diagnostic {
+  const declaration = validation.ast?.declarations.find(
+    (candidate) => candidate.kind === "source" && candidate.id === sourceId,
+  );
+  const span =
+    fieldName === null
+      ? (declaration?.span ?? null)
+      : (declaration?.fields.find((field) => field.name === fieldName)?.span ??
+        declaration?.span ??
+        null);
+  return {
+    code,
+    severity: "error",
+    message:
+      localVerificationMessages[code] ?? "Local source verification failed.",
+    entity_id: sourceId,
+    span,
+    reason_data: reasonData,
+    related: [],
+  };
+}
+
+function uncheckedSpanVerification(
+  document: SemanticDocument,
+  sourceId: string,
+): readonly LocalSourceSpanVerification[] {
+  return document.spans
+    .filter((span) => span.source_id === sourceId)
+    .map((span) => ({
+      span_id: span.id,
+      state: "not_checked" as const,
+      range: { state: "not_checked" as const, selector: span.range },
+      quote:
+        span.quote === undefined
+          ? {
+              state: "not_declared" as const,
+              expected_digest: null,
+              actual_digest: null,
+            }
+          : {
+              state: "not_checked" as const,
+              expected_digest: sha256(Buffer.from(span.quote, "utf8")),
+              actual_digest: null,
+            },
+    }));
+}
+
+function failedReadEntry(
+  source: SemanticDocument["sources"][number],
+  spans: readonly LocalSourceSpanVerification[],
+  read: Extract<LocalSourceReadResult, { readonly ok: false }>,
+): LocalSourceVerificationEntry {
+  return {
+    source_id: source.id,
+    locator: source.locator,
+    resolved_path: read.resolvedPath,
+    state: "unavailable",
+    digest: {
+      state: "not_checked",
+      expected: (source.digest as Sha256Digest | undefined) ?? null,
+      actual: null,
+    },
+    spans,
+  };
+}
+
+function verifyLocalSourceDigest(
+  validation: ValidationResult,
+  source: SemanticDocument["sources"][number],
+  resolver: LocalSourceResolver,
+): {
+  readonly entry: LocalSourceVerificationEntry;
+  readonly diagnostics: readonly Diagnostic[];
+} {
+  const document = validation.document!;
+  const spans = uncheckedSpanVerification(document, source.id);
+  const read = resolver.read(source.id, source.locator);
+  if (!read.ok) {
+    return {
+      entry: failedReadEntry(source, spans, read),
+      diagnostics: [
+        localSourceDiagnostic(
+          validation,
+          source.id,
+          read.code,
+          read.reasonData,
+          "locator",
+        ),
+      ],
+    };
+  }
+
+  const actual = sha256(read.bytes);
+  if (source.digest === undefined) {
+    return {
+      entry: {
+        source_id: source.id,
+        locator: source.locator,
+        resolved_path: read.resolvedPath,
+        state: "unverified",
+        digest: { state: "not_declared", expected: null, actual },
+        spans,
+      },
+      diagnostics: [
+        localSourceDiagnostic(
+          validation,
+          source.id,
+          "RCG-VERIFY-007",
+          { source_id: source.id },
+          null,
+        ),
+      ],
+    };
+  }
+
+  const expected = source.digest as Sha256Digest;
+  if (actual !== expected) {
+    return {
+      entry: {
+        source_id: source.id,
+        locator: source.locator,
+        resolved_path: read.resolvedPath,
+        state: "mismatch",
+        digest: { state: "mismatch", expected, actual },
+        spans,
+      },
+      diagnostics: [
+        localSourceDiagnostic(
+          validation,
+          source.id,
+          "RCG-VERIFY-008",
+          {
+            source_id: source.id,
+            expected_digest: expected,
+            actual_digest: actual,
+          },
+          "digest",
+        ),
+      ],
+    };
+  }
+
+  if (spans.length > 0) {
+    return {
+      entry: {
+        source_id: source.id,
+        locator: source.locator,
+        resolved_path: read.resolvedPath,
+        state: "unavailable",
+        digest: { state: "verified", expected, actual },
+        spans,
+      },
+      diagnostics: [
+        localSourceDiagnostic(
+          validation,
+          source.id,
+          "RCG-VERIFY-004",
+          {
+            source_id: source.id,
+            locator: source.locator,
+            cause: "policy_unavailable",
+          },
+          "locator",
+        ),
+      ],
+    };
+  }
+
+  return {
+    entry: {
+      source_id: source.id,
+      locator: source.locator,
+      resolved_path: read.resolvedPath,
+      state: "verified",
+      digest: { state: "verified", expected, actual },
+      spans,
+    },
+    diagnostics: [],
+  };
+}
+
+export function validateBootstrapInputWithLocalSources(
+  input: BootstrapReadInput,
+  options: LocalSourceVerificationOptions,
+  resolver: LocalSourceResolver,
+): LocalValidationResult {
+  const maximumSourceBytes = options.maximumSourceBytes ?? 1_048_576;
+  if (!Number.isSafeInteger(maximumSourceBytes) || maximumSourceBytes < 1) {
+    throw new RangeError("maximumSourceBytes must be a positive safe integer");
+  }
+  const validation = validateBootstrapInput({
+    ...input,
+    toolVersion: input.toolVersion ?? phase5LocalToolVersion,
+  });
+  if (!validation.valid || validation.document === null) {
+    return {
+      ...validation,
+      schema: "Llmrecog.ValidationResult.v2",
+      source_verification: {
+        mode: "local",
+        verification_root: options.verificationRoot,
+        maximum_source_bytes: maximumSourceBytes,
+        complete: false,
+        state: "blocked",
+        sources: [],
+      },
+    };
+  }
+
+  const outcomes = validation.document.sources.map((source) =>
+    verifyLocalSourceDigest(validation, source, resolver),
+  );
+  const verificationDiagnostics = outcomes.flatMap(
+    (outcome) => outcome.diagnostics,
+  );
+  const maximumDiagnostics = input.maximumDiagnostics ?? 100;
+  const allDiagnostics = [
+    ...validation.diagnostics,
+    ...verificationDiagnostics,
+  ];
+  const truncated =
+    validation.truncated || allDiagnostics.length > maximumDiagnostics;
+  const diagnostics = allDiagnostics.slice(0, maximumDiagnostics);
+  const sources = outcomes.map((outcome) => outcome.entry);
+  return {
+    ...validation,
+    schema: "Llmrecog.ValidationResult.v2",
+    complete: validation.complete && !truncated,
+    truncated,
+    source_verification: {
+      mode: "local",
+      verification_root: options.verificationRoot,
+      maximum_source_bytes: maximumSourceBytes,
+      complete: true,
+      state: sources.every((source) => source.state === "verified")
+        ? "verified"
+        : "failed",
+      sources,
+    },
+    diagnostics,
   };
 }
 

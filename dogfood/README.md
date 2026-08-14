@@ -4,9 +4,12 @@ This directory contains the versioned, process-only dogfood protocol and later
 run evidence. It is not part of the public llmrecog semantic or CLI contract.
 
 The active Phase 5 protocol is
-[`protocol-v11/protocol.json`](protocol-v11/protocol.json). It freezes the
-pre-implementation path-and-digest dogfood round so local verification begins
-before range and quote implementation. Immutable
+[`protocol-v12/protocol.json`](protocol-v12/protocol.json). It replaces the
+selector-bearing success case in immutable
+[`protocol-v11/protocol.json`](protocol-v11/protocol.json) with a digest-only
+fixture so the minimal verifier can dogfood path and digest behavior without
+claiming that unimplemented range and quote checks ran. Both protocols precede
+runtime dogfood evidence. Immutable
 [`protocol-v10/protocol.json`](protocol-v10/protocol.json) remains bound to the
 completed bounded-space replay, while
 [`protocol-v9/protocol.json`](protocol-v9/protocol.json) remains bound to its

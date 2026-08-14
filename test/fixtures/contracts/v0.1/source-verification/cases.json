@@ -4,6 +4,65 @@
   "maximum_source_bytes": 1048576,
   "cases": [
     {
+      "id": "local_digest_only",
+      "document_path": "test/fixtures/contracts/v0.1/source-verification/digest-only/document.recog",
+      "document_digest": "sha256:ca568896e03c8fb93753043d2f50fac844336d814118e86e619ddbd428322533",
+      "verification_root": "test/fixtures/contracts/v0.1/source-verification/digest-only",
+      "expected_text_path": "test/fixtures/contracts/v0.1/source-verification/digest-only/expected-source-verification.txt",
+      "expected_exit_status": 0,
+      "expected_diagnostic_codes": [],
+      "expected_verification": {
+        "mode": "local",
+        "verification_root": "test/fixtures/contracts/v0.1/source-verification/digest-only",
+        "maximum_source_bytes": 1048576,
+        "complete": true,
+        "state": "verified",
+        "sources": [
+          {
+            "source_id": "SRC",
+            "locator": "source.txt",
+            "resolved_path": "source.txt",
+            "state": "verified",
+            "digest": {
+              "state": "verified",
+              "expected": "sha256:a7198b769d5ab02b693471bc4884128910132afd6e3ea48bfa058472f8a69b4b",
+              "actual": "sha256:a7198b769d5ab02b693471bc4884128910132afd6e3ea48bfa058472f8a69b4b"
+            },
+            "spans": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "local_digest_only_stale",
+      "document_path": "test/fixtures/contracts/v0.1/source-verification/digest-only-stale/document.recog",
+      "document_digest": "sha256:22776abe54de555b0c827484125fc1004bd3e296aaf14794d0fd1399f0f100fd",
+      "verification_root": "test/fixtures/contracts/v0.1/source-verification/digest-only-stale",
+      "expected_exit_status": 4,
+      "expected_diagnostic_codes": ["RCG-VERIFY-008"],
+      "expected_verification": {
+        "mode": "local",
+        "verification_root": "test/fixtures/contracts/v0.1/source-verification/digest-only-stale",
+        "maximum_source_bytes": 1048576,
+        "complete": true,
+        "state": "failed",
+        "sources": [
+          {
+            "source_id": "SRC",
+            "locator": "source.txt",
+            "resolved_path": "source.txt",
+            "state": "mismatch",
+            "digest": {
+              "state": "mismatch",
+              "expected": "sha256:a7198b769d5ab02b693471bc4884128910132afd6e3ea48bfa058472f8a69b4b",
+              "actual": "sha256:ba972c035a242457d7ac60c9ee1480fb44445bb90d40889559b2e4f1c6976541"
+            },
+            "spans": []
+          }
+        ]
+      }
+    },
+    {
       "id": "local_verified",
       "document_path": "test/fixtures/contracts/v0.1/source-verification/verified/document.recog",
       "document_digest": "sha256:9677e62e418bcf732c8e3d00b0ac330a49c1bf5619a2801afe2e3de244de5a55",

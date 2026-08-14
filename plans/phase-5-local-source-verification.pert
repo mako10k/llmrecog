@@ -53,6 +53,7 @@ task IMPLEMENT_MINIMAL_LOCAL_VERIFIER PHASE_5_CONTRACT_ACCEPTED -> MINIMAL_LOCAL
   title "Implement fail-closed relative locator and digest verification"
   description "Add the smallest real vertical slice through an inward-owned resolver port and the private adapter: explicit artifact path and verification root, local relative locator resolution, regular-file and symlink policy, bounded byte reads, sha256 comparison, typed verified, stale, unavailable, and skipped states, deterministic diagnostics, and equivalent JSON and text projections. Do not implement range or quote verification yet, and do not add network, writes, cache, provider, or public CLI behavior."
   duration 3p
+  status done
   priority 60
   requires:
     IMPLEMENTER 1
@@ -116,3 +117,17 @@ work_event WE-1c5736955f7b0619bbf87c758985d44c59f536b36034fdf6e0899c84c5d6c667:
   kind finish
   occurred_at 2026-08-14T19:05:44+09:00
   effort 0.3616666667ph
+
+work_event WE-3ed22498c994d163d972b902242783668cdce81a5953a961331cfc0a3264357b:
+  model 1
+  task IMPLEMENT_MINIMAL_LOCAL_VERIFIER
+  kind start
+  occurred_at 2026-08-14T19:07:17+09:00
+  planned_value 3p
+
+work_event WE-b07d43724639a1c2795ab2bdb64e56efbdb2f705470f7ab4f1ef43387401a370:
+  model 1
+  task IMPLEMENT_MINIMAL_LOCAL_VERIFIER
+  kind finish
+  occurred_at 2026-08-14T19:26:42+09:00
+  effort 0.3238083333ph

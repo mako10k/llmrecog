@@ -30,6 +30,7 @@ const requiredFiles = [
   "dogfood/protocol-v4/protocol.json",
   "dogfood/protocol-v5/protocol.json",
   "dogfood/protocol-v11/protocol.json",
+  "dogfood/protocol-v12/protocol.json",
   "dogfood/protocol-v1/examples/input.example.recog",
   "dogfood/protocol-v1/examples/run-receipt.example.json",
   "dogfood/protocol-v1/examples/feedback.example.json",

@@ -20,9 +20,12 @@ import {
   showBootstrapDocument,
   showBootstrapRecognition,
   validateBootstrapInput,
+  validateBootstrapInputWithLocalSources,
   type BootstrapReadInput,
   type BootstrapReadResult,
   type ExplainOptions,
+  type LocalValidationResult,
+  type LocalSourceResolver,
   type MaterializationOptions,
   type QueryOptions,
 } from "../src/application/bootstrap-read-path.js";
@@ -51,6 +54,8 @@ const schemaPaths = [
   "schemas/Llmrecog.Ast.v1.schema.json",
   "schemas/Llmrecog.SemanticDocument.v1.schema.json",
   "schemas/Llmrecog.ValidationResult.v1.schema.json",
+  "schemas/Llmrecog.SourceVerification.v1.schema.json",
+  "schemas/Llmrecog.ValidationResult.v2.schema.json",
   "schemas/Llmrecog.DocumentResult.v1.schema.json",
   "schemas/Llmrecog.RecognitionResult.v1.schema.json",
   "schemas/Llmrecog.ExplainResult.v1.schema.json",
@@ -64,6 +69,8 @@ const resultSchemaIds: Readonly<Record<BootstrapReadResult["schema"], string>> =
   {
     "Llmrecog.ValidationResult.v1":
       "https://mako10k.github.io/llmrecog/schemas/Llmrecog.ValidationResult.v1.schema.json",
+    "Llmrecog.ValidationResult.v2":
+      "https://mako10k.github.io/llmrecog/schemas/Llmrecog.ValidationResult.v2.schema.json",
     "Llmrecog.DocumentResult.v1":
       "https://mako10k.github.io/llmrecog/schemas/Llmrecog.DocumentResult.v1.schema.json",
     "Llmrecog.RecognitionResult.v1":
@@ -105,6 +112,21 @@ interface CommandResult {
   readonly status: number | null;
   readonly stdout: string;
   readonly stderr: string;
+}
+
+interface SourceVerificationFixtureCase {
+  readonly id: string;
+  readonly document_path: string;
+  readonly verification_root: string;
+  readonly expected_text_path?: string;
+  readonly expected_exit_status: number;
+  readonly expected_diagnostic_codes: readonly string[];
+  readonly expected_verification: unknown;
+}
+
+interface SourceVerificationFixtureSet {
+  readonly maximum_source_bytes: number;
+  readonly cases: readonly SourceVerificationFixtureCase[];
 }
 
 function absolutePath(relativePath: string): string {
@@ -239,6 +261,40 @@ function runPrivateCli(args: readonly string[]): CommandResult {
     stdout: result.stdout,
     stderr: result.stderr,
   };
+}
+
+function localVerificationArgs(
+  fixture: SourceVerificationFixtureCase,
+  format: "json" | "text",
+): readonly string[] {
+  return [
+    "document",
+    "validate",
+    fixture.document_path,
+    "--verify-sources",
+    "local",
+    "--verification-root",
+    fixture.verification_root,
+    "--max-source-bytes",
+    "1048576",
+    "--format",
+    format,
+  ];
+}
+
+function parseLocalValidationResult(
+  command: CommandResult,
+  expectedStatus: number,
+): LocalValidationResult {
+  assert.equal(command.status, expectedStatus);
+  assert.equal(command.stderr, "");
+  const result = JSON.parse(command.stdout) as BootstrapReadResult;
+  assertResultSchema(result);
+  assert.equal(result.schema, "Llmrecog.ValidationResult.v2");
+  if (result.schema !== "Llmrecog.ValidationResult.v2") {
+    throw new Error("local validation returned the wrong result schema");
+  }
+  return result;
 }
 
 test("the Phase 2 read path matches the frozen AST and result schemas", () => {
@@ -1445,5 +1501,217 @@ test("the private CLI reports encoding failures on stderr with status 3", () => 
     assert.equal(result.stderr, "llmrecog input error: RCG-SYNTAX-001\n");
   } finally {
     fs.rmSync(temporaryDirectory, { recursive: true, force: true });
+  }
+});
+
+test("the Phase 5 digest-only CLI projection matches frozen local fixtures", () => {
+  const fixtureSet = readJson<SourceVerificationFixtureSet>(
+    `${fixtureRoot}/source-verification/cases.json`,
+  );
+  const selectedIds = new Set(["local_digest_only", "local_digest_only_stale"]);
+  for (const fixture of fixtureSet.cases.filter((candidate) =>
+    selectedIds.has(candidate.id),
+  )) {
+    const sourcePath = path.join(
+      path.dirname(fixture.document_path),
+      "source.txt",
+    );
+    const beforeDigest = digest(sourcePath);
+    const command = runPrivateCli(localVerificationArgs(fixture, "json"));
+    const repeated = runPrivateCli(localVerificationArgs(fixture, "json"));
+    assert.deepEqual(repeated, command);
+    const result = parseLocalValidationResult(
+      command,
+      fixture.expected_exit_status,
+    );
+    assert.deepEqual(result.source_verification, fixture.expected_verification);
+    assert.deepEqual(
+      result.diagnostics.map((diagnostic) => diagnostic.code),
+      fixture.expected_diagnostic_codes,
+    );
+    assert.equal(digest(sourcePath), beforeDigest);
+    const sourceText = fs.readFileSync(absolutePath(sourcePath), "utf8").trim();
+    assert(!command.stdout.includes(sourceText));
+  }
+
+  const verified = fixtureSet.cases.find(
+    (fixture) => fixture.id === "local_digest_only",
+  );
+  assert(verified?.expected_text_path);
+  const text = runPrivateCli(localVerificationArgs(verified, "text"));
+  assert.equal(text.status, 0);
+  assert.equal(text.stderr, "");
+  const expectedComponent = fs.readFileSync(
+    absolutePath(verified.expected_text_path),
+    "utf8",
+  );
+  const lines = text.stdout.split("\n");
+  const componentStart = lines.findIndex((line) =>
+    line.startsWith("source_verification: local/"),
+  );
+  assert.notEqual(componentStart, -1);
+  const componentLineCount = expectedComponent.trimEnd().split("\n").length;
+  assert.equal(
+    `${lines
+      .slice(componentStart, componentStart + componentLineCount)
+      .join("\n")}\n`,
+    expectedComponent,
+  );
+});
+
+test("the Phase 5 local resolver fails closed at path and file boundaries", () => {
+  const fixtureSet = readJson<SourceVerificationFixtureSet>(
+    `${fixtureRoot}/source-verification/cases.json`,
+  );
+  for (const fixtureId of ["local_missing", "local_root_escape"]) {
+    const fixture = fixtureSet.cases.find(
+      (candidate) => candidate.id === fixtureId,
+    );
+    assert(fixture);
+    const command = runPrivateCli(localVerificationArgs(fixture, "json"));
+    const result = parseLocalValidationResult(command, 4);
+    assert.deepEqual(result.source_verification, fixture.expected_verification);
+    assert.deepEqual(
+      result.diagnostics.map((diagnostic) => diagnostic.code),
+      fixture.expected_diagnostic_codes,
+    );
+    assert.equal(result.source_verification.sources[0]?.digest.actual, null);
+  }
+
+  const boundedFixture = fixtureSet.cases.find(
+    (candidate) => candidate.id === "local_digest_only",
+  );
+  assert(boundedFixture);
+  const bounded = runPrivateCli([
+    "document",
+    "validate",
+    boundedFixture.document_path,
+    "--verify-sources",
+    "local",
+    "--verification-root",
+    boundedFixture.verification_root,
+    "--max-source-bytes",
+    "1",
+    "--format",
+    "json",
+  ]);
+  const boundedResult = parseLocalValidationResult(bounded, 4);
+  assert.equal(boundedResult.diagnostics[0]?.code, "RCG-VERIFY-006");
+  assert.equal(
+    boundedResult.source_verification.sources[0]?.digest.actual,
+    null,
+  );
+
+  for (const fileKind of ["symlink", "directory"] as const) {
+    const temporaryDirectory = fs.mkdtempSync(
+      path.join(os.tmpdir(), `llmrecog-local-${fileKind}-`),
+    );
+    const documentPath = path.join(temporaryDirectory, "document.recog");
+    const sourcePath = path.join(temporaryDirectory, "source.txt");
+    try {
+      fs.copyFileSync(
+        absolutePath(
+          `${fixtureRoot}/source-verification/digest-only/document.recog`,
+        ),
+        documentPath,
+      );
+      if (fileKind === "symlink") {
+        const targetPath = path.join(temporaryDirectory, "target.txt");
+        fs.copyFileSync(
+          absolutePath(
+            `${fixtureRoot}/source-verification/digest-only/source.txt`,
+          ),
+          targetPath,
+        );
+        fs.symlinkSync("target.txt", sourcePath);
+      } else {
+        fs.mkdirSync(sourcePath);
+      }
+      const command = runPrivateCli([
+        "document",
+        "validate",
+        documentPath,
+        "--verify-sources",
+        "local",
+        "--verification-root",
+        temporaryDirectory,
+        "--format",
+        "json",
+      ]);
+      const result = parseLocalValidationResult(command, 4);
+      assert.equal(
+        result.diagnostics[0]?.code,
+        fileKind === "symlink" ? "RCG-VERIFY-003" : "RCG-VERIFY-005",
+      );
+      assert.equal(result.source_verification.sources[0]?.state, "unavailable");
+      assert.equal(result.source_verification.sources[0]?.digest.actual, null);
+    } finally {
+      fs.rmSync(temporaryDirectory, { recursive: true, force: true });
+    }
+  }
+});
+
+test("local verification blocks invalid documents before resolver access", () => {
+  let readCount = 0;
+  const resolver: LocalSourceResolver = {
+    read() {
+      readCount += 1;
+      return {
+        ok: false,
+        code: "RCG-VERIFY-004",
+        resolvedPath: null,
+        reasonData: { cause: "io_error" },
+      };
+    },
+  };
+  const result = validateBootstrapInputWithLocalSources(
+    readInput(`${fixtureRoot}/invalid/missing-header.recog`),
+    { verificationRoot: fixtureRoot },
+    resolver,
+  );
+  assert.equal(readCount, 0);
+  assert.equal(result.valid, false);
+  assert.equal(result.source_verification.state, "blocked");
+  assert.equal(result.source_verification.complete, false);
+  assert.deepEqual(result.source_verification.sources, []);
+  assertResultSchema(result);
+});
+
+test("the minimal Phase 5 slice rejects unsupported selectors and invalid options", () => {
+  const selectorPath = `${fixtureRoot}/source-verification/verified/document.recog`;
+  const selectorRoot = `${fixtureRoot}/source-verification/verified`;
+  const selector = runPrivateCli([
+    "document",
+    "validate",
+    selectorPath,
+    "--verify-sources",
+    "local",
+    "--verification-root",
+    selectorRoot,
+    "--format",
+    "json",
+  ]);
+  const selectorResult = parseLocalValidationResult(selector, 4);
+  assert.equal(selectorResult.diagnostics[0]?.code, "RCG-VERIFY-004");
+  assert(
+    selectorResult.source_verification.sources[0]?.spans.every(
+      (span) => span.state === "not_checked",
+    ),
+  );
+
+  for (const args of [
+    ["--verify-sources", "local"],
+    ["--verification-root", selectorRoot],
+    ["--max-source-bytes", "10"],
+  ] as const) {
+    const command = runPrivateCli([
+      "document",
+      "validate",
+      selectorPath,
+      ...args,
+    ]);
+    assert.equal(command.status, 2);
+    assert.equal(command.stdout, "");
+    assert.match(command.stderr, /llmrecog usage error:/u);
   }
 });

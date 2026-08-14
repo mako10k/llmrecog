@@ -99,7 +99,7 @@ back into an earlier layer.
 ## Current scope lock
 
 The next plan-gated work is the 3p minimal Phase 5 rooted path-and-digest
-verifier. Protocol v11 dogfood starts immediately after that slice and its
+verifier. Protocol v12 dogfood starts immediately after that slice and its
 feedback must be dispositioned before range and quote implementation. Network
 access, automatic repair, provider-backed extraction, llmthink changes,
 sidecars, embeddings, ontologies, editor integrations, public packaging, and

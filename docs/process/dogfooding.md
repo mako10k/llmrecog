@@ -64,9 +64,11 @@ bounded-space baseline, and protocol v8 retains the pre-materialization
 baseline. Protocol v9 remains bound to the blocked first bounded-space run,
 which showed that its command set could not compare the same low-limit result
 with and without `--require-complete`. Protocol v10 remains bound to the
-completed replay. Active protocol v11 freezes the pre-implementation local
-path-and-digest round in
-[`dogfood/protocol-v11/protocol.json`](../../dogfood/protocol-v11/protocol.json).
+completed replay. Protocol v11 froze a selector-bearing success case that the
+minimal digest slice could not honestly mark verified. It was superseded
+before execution and remains immutable. Active protocol v12 replaces only
+that case with a digest-only source in
+[`dogfood/protocol-v12/protocol.json`](../../dogfood/protocol-v12/protocol.json).
 The process-only receipt and feedback schemas are under
 [`dogfood/schemas/`](../../dogfood/schemas/), and the evidence layout and
 immutability rules are in [`dogfood/README.md`](../../dogfood/README.md).
