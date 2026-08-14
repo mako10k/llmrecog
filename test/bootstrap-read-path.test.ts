@@ -30,6 +30,7 @@ import {
   type QueryOptions,
 } from "../src/application/bootstrap-read-path.js";
 import type { Diagnostic } from "../src/core/types.js";
+import { createLocalFilesystemContext } from "../src/adapters/local-filesystem-source-resolver.js";
 import { renderBootstrapText } from "../src/presentation/bootstrap-text.js";
 
 const repositoryRoot = process.cwd();
@@ -1652,6 +1653,131 @@ test("the Phase 5 local resolver fails closed at path and file boundaries", () =
     } finally {
       fs.rmSync(temporaryDirectory, { recursive: true, force: true });
     }
+  }
+});
+
+test("local verification rejects escaped and symbolic-link document paths", () => {
+  const temporaryDirectory = fs.mkdtempSync(
+    path.join(os.tmpdir(), "llmrecog-local-document-boundary-"),
+  );
+  const verificationRoot = path.join(temporaryDirectory, "root");
+  const outsideDocument = path.join(temporaryDirectory, "outside.recog");
+  const linkedDocument = path.join(verificationRoot, "linked.recog");
+  try {
+    fs.mkdirSync(verificationRoot);
+    fs.copyFileSync(
+      absolutePath(
+        `${fixtureRoot}/source-verification/digest-only/document.recog`,
+      ),
+      outsideDocument,
+    );
+    fs.symlinkSync(outsideDocument, linkedDocument);
+
+    const escaped = runPrivateCli([
+      "document",
+      "validate",
+      outsideDocument,
+      "--verify-sources",
+      "local",
+      "--verification-root",
+      verificationRoot,
+      "--format",
+      "json",
+    ]);
+    assert.equal(escaped.status, 3);
+    assert.equal(escaped.stdout, "");
+    assert.equal(
+      escaped.stderr,
+      "llmrecog input error: EVERIFY_DOCUMENT_OUTSIDE_ROOT\n",
+    );
+
+    const linked = runPrivateCli([
+      "document",
+      "validate",
+      linkedDocument,
+      "--verify-sources",
+      "local",
+      "--verification-root",
+      verificationRoot,
+      "--format",
+      "json",
+    ]);
+    assert.equal(linked.status, 3);
+    assert.equal(linked.stdout, "");
+    assert.equal(
+      linked.stderr,
+      "llmrecog input error: EVERIFY_DOCUMENT_SYMLINK\n",
+    );
+  } finally {
+    fs.rmSync(temporaryDirectory, { recursive: true, force: true });
+  }
+});
+
+test("local verification rejects a source identity change during read", () => {
+  const temporaryDirectory = fs.mkdtempSync(
+    path.join(os.tmpdir(), "llmrecog-local-source-race-"),
+  );
+  const documentPath = path.join(temporaryDirectory, "document.recog");
+  const sourcePath = path.join(temporaryDirectory, "source.txt");
+  const movedSourcePath = path.join(temporaryDirectory, "source.before.txt");
+  const originalReadSync = fs.readSync;
+  try {
+    fs.copyFileSync(
+      absolutePath(
+        `${fixtureRoot}/source-verification/digest-only/document.recog`,
+      ),
+      documentPath,
+    );
+    fs.copyFileSync(
+      absolutePath(`${fixtureRoot}/source-verification/digest-only/source.txt`),
+      sourcePath,
+    );
+    const input = { bytes: fs.readFileSync(documentPath), path: documentPath };
+    const context = createLocalFilesystemContext(
+      documentPath,
+      temporaryDirectory,
+      1_048_576,
+    );
+    let replaced = false;
+    fs.readSync = ((
+      fileDescriptor: number,
+      buffer: NodeJS.ArrayBufferView,
+      offset: number,
+      length: number,
+      position: number | null,
+    ): number => {
+      const bytesRead = originalReadSync(
+        fileDescriptor,
+        buffer,
+        offset,
+        length,
+        position,
+      );
+      if (!replaced && bytesRead > 0) {
+        replaced = true;
+        fs.renameSync(sourcePath, movedSourcePath);
+        fs.writeFileSync(sourcePath, "replacement source\n");
+      }
+      return bytesRead;
+    }) as typeof fs.readSync;
+
+    const result = validateBootstrapInputWithLocalSources(
+      input,
+      { verificationRoot: temporaryDirectory },
+      context.resolver,
+    );
+    assert.equal(replaced, true);
+    assert.equal(result.source_verification.sources[0]?.state, "unavailable");
+    assert.equal(result.source_verification.sources[0]?.digest.actual, null);
+    assert.equal(result.diagnostics[0]?.code, "RCG-VERIFY-004");
+    assert.deepEqual(result.diagnostics[0]?.reason_data, {
+      source_id: "SRC",
+      locator: "source.txt",
+      cause: "changed_during_read",
+    });
+  } finally {
+    fs.readSync = originalReadSync;
+    fs.rmSync(temporaryDirectory, { recursive: true, force: true });
   }
 });
 

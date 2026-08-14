@@ -103,6 +103,7 @@ task ACCEPT_PHASE_5_SLICE LOCAL_SOURCE_DOGFOOD_REVIEWED -> PHASE_5_ACCEPTED:
   title "Audit and accept fail-closed local source verification"
   description "Run schema and fixture checks, supported Node targets, repeated path, digest, range, and quote cases, npm run check including jscpd, npm audit, and git diff --check. Review traversal and symlink boundaries, byte and Unicode positions, incomplete and mixed outcomes, dependency direction, no network, no writes or repair, and no provider or related-project runtime; record unresolved work without starting Phase 6 or publishing, releasing, tagging, or pushing."
   duration 2p
+  status active
   priority 10
   requires:
     IMPLEMENTER 1
@@ -191,3 +192,10 @@ work_event WE-2531d8db44674fe4619cab96ddf56c3c38ddd1b0f0c8295598661cf463d0b1ff:
   kind finish
   occurred_at 2026-08-14T19:54:31+09:00
   effort 0.0213888889ph
+
+work_event WE-d44dd1b33340f436e748423255b4ae011a265d91fd016768a1460c624dfec579:
+  model 1
+  task ACCEPT_PHASE_5_SLICE
+  kind start
+  occurred_at 2026-08-14T19:54:57+09:00
+  planned_value 2p
