@@ -81,7 +81,7 @@ task IMPLEMENT_BOOTSTRAP_READ_PATH DOGFOOD_PROTOCOL_ACCEPTED -> BOOTSTRAP_READ_P
   requires:
     IMPLEMENTER 1
 
-task RUN_GRAMMAR_AUTHORING_DOGFOOD BOOTSTRAP_READ_PATH_ACCEPTED -> GRAMMAR_DOGFOOD_OBSERVED:
+task RUN_GRAMMAR_AUTHORING_DOGFOOD STATIC_DUPLICATION_CHECK_ACCEPTED -> GRAMMAR_DOGFOOD_OBSERVED:
   title "Dogfood grammar understanding through the bootstrap read path"
   description |
     Read the normative grammar and EBNF, answer the frozen questions by authoring a bounded .recog document, then run validate and show repeatedly through the actual implementation. Capture reproducible receipts for authoring friction, parser and diagnostic behavior, semantic expressiveness, output usefulness, and responsibility-boundary pressure without treating the operator's interpretation or an LLM response as a golden oracle.
@@ -138,6 +138,15 @@ task ACCEPT_PHASE_2_SLICE SPEC_DOGFOOD_REVIEWED -> PHASE_2_ACCEPTED:
     IMPLEMENTER 1
     SEMANTIC_REVIEWER 1
 
+task INTEGRATE_JSCPD_CHECK BOOTSTRAP_READ_PATH_ACCEPTED -> STATIC_DUPLICATION_CHECK_ACCEPTED:
+  title "Integrate the jscpd duplication gate"
+  description "Measure the current authored TypeScript and JavaScript baseline, pin jscpd as a development dependency, freeze the minimum clone size, baseline ceiling, and generated-artifact exclusions, connect a deterministic no-report check to npm run check, and review the lockfile, install-script approvals, and npm audit result. Do not refactor semantic code only to reduce a metric or scan normative source fixtures as implementation duplication."
+  duration 2p
+  status done
+  priority 75
+  requires:
+    IMPLEMENTER 1
+
 work_event START_FREEZE_PHASE_2_CONTRACT_20260814:
   model 1
   task FREEZE_PHASE_2_CONTRACT
@@ -179,3 +188,21 @@ work_event FINISH_IMPLEMENT_BOOTSTRAP_READ_PATH_20260814:
   kind finish
   occurred_at 2026-08-14T11:17:48+09:00
   effort 0.3994444444ph
+
+milestone STATIC_DUPLICATION_CHECK_ACCEPTED:
+  title "Static duplication check accepted"
+  description "jscpd is pinned, configured with an explicit threshold and scoped exclusions, connected to npm run check, and verified without generated reports in the worktree."
+
+work_event START_INTEGRATE_JSCPD_CHECK_20260814:
+  model 1
+  task INTEGRATE_JSCPD_CHECK
+  kind start
+  occurred_at 2026-08-14T11:19:54+09:00
+  planned_value 2p
+
+work_event FINISH_INTEGRATE_JSCPD_CHECK_20260814:
+  model 1
+  task INTEGRATE_JSCPD_CHECK
+  kind finish
+  occurred_at 2026-08-14T11:24:52+09:00
+  effort 0.0827777778ph

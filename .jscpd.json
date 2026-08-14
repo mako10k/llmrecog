@@ -1,0 +1,16 @@
+{
+  "threshold": 0.62,
+  "reporters": ["console"],
+  "format": ["typescript", "javascript"],
+  "ignore": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/coverage/**",
+    "**/test/fixtures/**"
+  ],
+  "minLines": 5,
+  "minTokens": 50,
+  "mode": "mild",
+  "noColors": true,
+  "noTips": true
+}

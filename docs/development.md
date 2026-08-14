@@ -27,6 +27,7 @@ Focused checks:
 ```sh
 npm run typecheck
 npm run lint
+npm run check:duplication
 npm run format:check
 npm test
 npm run check:docs
@@ -45,9 +46,18 @@ npm run dogfood:cli -- recognition show <id> <file.recog> --format json
 This script is a dogfood instrument. It is not a package `bin`, public CLI, or
 compatibility promise, and it performs no source-locator I/O or writes.
 
+`npm run check:duplication` runs pinned jscpd 5.0.15 over authored TypeScript
+and JavaScript under `src/`, `test/`, and `scripts/`, plus the ESLint config.
+The checked baseline uses mild mode, a minimum clone size of 5 lines and 50
+tokens, and a maximum duplicated-line percentage of 0.62. Generated output,
+coverage, dependencies, and normative fixture data are excluded. The initial
+2026-08-14 measurement found 2 existing clone pairs and 22 duplicated lines
+out of 3,579 (0.61%); this is a baseline ceiling, not an instruction to
+refactor semantic boundaries merely to reduce a metric.
+
 `npm run check` is the single local and CI repository gate. It type-checks,
-lints, verifies formatting, runs tests, validates documentation structure, and
-builds declarations/source maps.
+lints, checks duplication, verifies formatting, runs tests, validates
+documentation structure, and builds declarations/source maps.
 
 ## Initialized repository shape
 

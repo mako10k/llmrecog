@@ -22,10 +22,11 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "node --import tsx --test test/*.test.ts",
     "lint": "eslint .",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" \"scripts/**/*.mjs\" \"schemas/**/*.json\" \"contracts/**/*.json\" \"dogfood/**/*.json\" \"test/fixtures/**/*.json\" \"*.{json,js}\" \".github/workflows/*.yml\"",
-    "format:check": "prettier --check \"src/**/*.ts\" \"test/**/*.ts\" \"scripts/**/*.mjs\" \"schemas/**/*.json\" \"contracts/**/*.json\" \"dogfood/**/*.json\" \"test/fixtures/**/*.json\" \"*.{json,js}\" \".github/workflows/*.yml\"",
+    "check:duplication": "jscpd src test scripts eslint.config.js --config .jscpd.json",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" \"scripts/**/*.mjs\" \"schemas/**/*.json\" \"contracts/**/*.json\" \"dogfood/**/*.json\" \"test/fixtures/**/*.json\" \"*.{json,js}\" \".jscpd.json\" \".github/workflows/*.yml\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"test/**/*.ts\" \"scripts/**/*.mjs\" \"schemas/**/*.json\" \"contracts/**/*.json\" \"dogfood/**/*.json\" \"test/fixtures/**/*.json\" \"*.{json,js}\" \".jscpd.json\" \".github/workflows/*.yml\"",
     "check:docs": "node scripts/check-docs.mjs",
-    "check": "npm run typecheck && npm run lint && npm run format:check && npm test && npm run check:docs && npm run build"
+    "check": "npm run typecheck && npm run lint && npm run check:duplication && npm run format:check && npm test && npm run check:docs && npm run build"
   },
   "devDependencies": {
     "@eslint/js": "^9.30.1",
@@ -35,6 +36,7 @@
     "eslint": "^9.30.1",
     "eslint-plugin-sonarjs": "^4.2.0",
     "globals": "^16.3.0",
+    "jscpd": "5.0.15",
     "prettier": "^3.6.2",
     "tsx": "^4.19.2",
     "typescript": "^5.8.3",
