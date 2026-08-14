@@ -1,0 +1,135 @@
+project LLMRECOG_PHASE_3_EXPLAINABLE_CSP:
+  version 1
+  title "llmrecog Phase 3 dogfood-first explainable CSP slice"
+  description |
+    Deliver only the Phase 3 finite one_of and excludes vertical slice through the accepted private read path, with deterministic support and viability projections, joint witnesses, exclusion chains, typed unknown reasons, candidate and constraint explain, and the focused audit rules required by those semantics.
+    Relative complexity points are estimated independently from elapsed time; no velocity, calendar forecast, or delivery date is declared from the Phase 2 observations.
+    Begin actual explain dogfooding as soon as the one_of, support, unknown, and joint-witness slice is privately usable, then apply its findings before implementing excludes and focused audit behavior.
+    This plan does not authorize requires, same_as, distinct_from, query, materialization, source verification, provider integration, a public CLI binary, release, publication, tagging, push, or related-repository changes.
+  duration_unit point
+  finish PHASE_3_ACCEPTED
+
+resource IMPLEMENTER:
+  title "Phase 3 implementation and dogfood capacity"
+  capacity 1
+
+resource SEMANTIC_REVIEWER:
+  title "Contract, semantic-boundary, and evidence review capacity"
+  capacity 1
+
+milestone PHASE_2_ACCEPTED:
+  title "Phase 2 parse, validate, and show vertical slice accepted"
+  state reached
+
+milestone PHASE_3_CONTRACT_ACCEPTED:
+  title "Phase 3 explain and focused audit contract accepted"
+
+milestone EXPLAIN_DOGFOOD_PROTOCOL_V2_ACCEPTED:
+  title "Version 2 explain dogfood protocol accepted"
+
+milestone ONE_OF_EXPLAIN_ACCEPTED:
+  title "Finite one_of candidate explanation slice accepted for private dogfood"
+
+milestone AMBIGUITY_DOGFOOD_OBSERVED:
+  title "Ambiguity and unknown explain dogfood evidence captured"
+
+milestone AMBIGUITY_DOGFOOD_REVIEWED:
+  title "Ambiguity and unknown feedback dispositioned"
+
+milestone EXCLUDES_AUDIT_ACCEPTED:
+  title "Finite excludes and focused audit slice accepted"
+
+milestone EXCLUSION_DOGFOOD_OBSERVED:
+  title "Exclusion, conflict, and constraint explain dogfood evidence captured"
+
+milestone EXPLAIN_DOGFOOD_REVIEWED:
+  title "All Phase 3 explain feedback dispositioned and later work re-estimated"
+
+milestone PHASE_3_ACCEPTED:
+  title "Phase 3 explainable CSP vertical slice accepted"
+
+task FREEZE_PHASE_3_CONTRACT PHASE_2_ACCEPTED -> PHASE_3_CONTRACT_ACCEPTED:
+  title "Freeze the bounded Phase 3 explain and audit contract"
+  description |
+    Accept an ADR before implementation that fixes the Phase 3 recognition explain and document audit routes, candidate and constraint target boundary, deterministic transitive scope, positive default limit, exit behavior, finite one_of and excludes semantics, support and viability independence, witness and exclusion guarantees, typed unknown behavior, and no-persistence boundary. Rebaseline the requirements implementation status; add or revise JSON Schemas, exact text and JSON expectations, success, failure, open-domain, conflict, and limit fixtures together without extending semantic version 0.1.
+  duration 4p
+  priority 100
+  requires:
+    IMPLEMENTER 1
+    SEMANTIC_REVIEWER 1
+
+task FREEZE_EXPLAIN_DOGFOOD_PROTOCOL_V2 PHASE_3_CONTRACT_ACCEPTED -> EXPLAIN_DOGFOOD_PROTOCOL_V2_ACCEPTED:
+  title "Freeze the version 2 explain dogfood protocol"
+  description |
+    Version the corpus, questions, command cases, result and observation fields, receipt binding, and review gates for two Phase 3 rounds. The first round asks ambiguity, open-domain, unsupported, and joint-witness questions against the privately usable one_of slice; the second adds exclusion, supported-plus-excluded conflict, and grounded-constraint questions. Dogfood evidence remains process evidence and cannot silently change normative fixtures.
+  duration 2p
+  priority 90
+  requires:
+    IMPLEMENTER 1
+    SEMANTIC_REVIEWER 1
+
+task IMPLEMENT_ONE_OF_CANDIDATE_EXPLAIN EXPLAIN_DOGFOOD_PROTOCOL_V2_ACCEPTED -> ONE_OF_EXPLAIN_ACCEPTED:
+  title "Implement finite one_of candidate explain"
+  description |
+    Add fixtures first, then implement the pure finite one_of scope and assignment engine, independent support-state projection, deterministic joint satisfying witnesses, closed-variable resolution, open and unsupported unknown reasons, candidate explanation, and equivalent text and JSON projections through the real parser, model, application, and private adapter seam. Do not evaluate excludes or any deferred constraint kind in this task; report it as skipped or unknown according to the frozen contract.
+  duration 5p
+  priority 80
+  requires:
+    IMPLEMENTER 1
+
+task RUN_AMBIGUITY_UNKNOWN_DOGFOOD ONE_OF_EXPLAIN_ACCEPTED -> AMBIGUITY_DOGFOOD_OBSERVED:
+  title "Dogfood ambiguity and unknown explanations"
+  description |
+    Read the versioned repository corpus and answer the frozen ambiguity, closure, unsupported, open-domain, and joint-witness questions by authoring bounded recognition artifacts and invoking the actual private recognition explain route. Capture exact input and output identities, deterministic replay evidence, explanation usefulness, authoring friction, and any pressure to collapse support into viability or to invent closure.
+  duration 2p
+  priority 70
+  requires:
+    IMPLEMENTER 1
+
+task APPLY_AMBIGUITY_DOGFOOD_FEEDBACK AMBIGUITY_DOGFOOD_OBSERVED -> AMBIGUITY_DOGFOOD_REVIEWED:
+  title "Disposition ambiguity and unknown feedback"
+  description |
+    Classify every first-round finding as contract or semantic issue, implementation defect, diagnostic or presentation issue, documentation issue, or out-of-scope reasoning request. Record accepted, rejected, and deferred decisions; update an ADR first for any accepted semantic or public-contract change; revise remaining point estimates and fixtures before excludes implementation begins.
+  duration 2p
+  priority 60
+  requires:
+    IMPLEMENTER 1
+    SEMANTIC_REVIEWER 1
+
+task IMPLEMENT_EXCLUDES_AND_FOCUSED_AUDIT AMBIGUITY_DOGFOOD_REVIEWED -> EXCLUDES_AUDIT_ACCEPTED:
+  title "Implement finite excludes, constraint explain, and focused audit"
+  description |
+    Add fixtures first, then extend the same pure scoped engine with symmetric excludes, deterministic minimal public exclusion chains, supported-plus-excluded conflict projection, closed empty-domain detection, constraint explanation, and only the document audit rules needed by this slice. Preserve grounded relationship requirements, joint-witness semantics, unknown reasons for deferred or incomplete operands, result ordering, bounds, no locator I/O, and no persisted derivation or materialization state.
+  duration 5p
+  priority 50
+  requires:
+    IMPLEMENTER 1
+
+task RUN_EXCLUSION_CONFLICT_DOGFOOD EXCLUDES_AUDIT_ACCEPTED -> EXCLUSION_DOGFOOD_OBSERVED:
+  title "Dogfood exclusion, conflict, and constraint explanations"
+  description |
+    Rerun the versioned corpus through the complete Phase 3 route and answer the frozen exclusion, supported-plus-excluded conflict, unknown, grounding, and constraint-chain questions. Prove the minimal Sato and Tanaka commitment example end to end, capture deterministic receipts, and inspect whether explain or audit encourages unsupported inference, hidden closure, or persisted solver output.
+  duration 3p
+  priority 40
+  requires:
+    IMPLEMENTER 1
+
+task APPLY_EXPLAIN_DOGFOOD_FEEDBACK EXCLUSION_DOGFOOD_OBSERVED -> EXPLAIN_DOGFOOD_REVIEWED:
+  title "Disposition Phase 3 feedback and re-estimate the frontier"
+  description |
+    Review both Phase 3 rounds against exact protocol and artifact identities, disposition every finding, apply accepted contract feedback ADR-first, and re-estimate Phase 4 and later dogfood work in points. Keep requires, same_as, distinct_from, query, materialization, local source verification, provider work, and llmthink integration behind their separate gates.
+  duration 3p
+  priority 30
+  requires:
+    IMPLEMENTER 1
+    SEMANTIC_REVIEWER 1
+
+task ACCEPT_PHASE_3_SLICE EXPLAIN_DOGFOOD_REVIEWED -> PHASE_3_ACCEPTED:
+  title "Audit and accept the Phase 3 vertical slice"
+  description |
+    Run focused schema and fixture checks, repeated deterministic explain and audit cases, supported Node target validation, npm run check including jscpd, npm audit, and git diff --check. Review dependency direction, source-support and viability separation, joint witnesses, grounded exclusion chains, open and unsupported unknowns, conflict reporting, bounds, no persistence, no source locator I/O, and no provider or related-project runtime; record unresolved work without starting Phase 4 or publishing, releasing, tagging, or pushing.
+  duration 2p
+  priority 20
+  requires:
+    IMPLEMENTER 1
+    SEMANTIC_REVIEWER 1
