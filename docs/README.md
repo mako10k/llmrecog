@@ -26,6 +26,7 @@ This directory is the design and implementation-contract authority.
 | [../plans/phase-2-parse-validate-show.pert](../plans/phase-2-parse-validate-show.pert) | Detailed perttool plan for the separately gated Phase 2 vertical slice |
 | [../plans/phase-3-explainable-csp.pert](../plans/phase-3-explainable-csp.pert) | Detailed dogfood-first plan for the separately gated Phase 3 explainable CSP slice |
 | [../plans/phase-4-complete-core.pert](../plans/phase-4-complete-core.pert) | Detailed dogfood-first plan for the separately gated Phase 4 complete semantic core |
+| [../plans/phase-5-local-source-verification.pert](../plans/phase-5-local-source-verification.pert) | Active detailed dogfood-first plan for fail-closed local source verification |
 | [../plans/dogfooding-roadmap.pert](../plans/dogfooding-roadmap.pert) | Current point-based phase-selection roadmap with dogfood/replan gates |
 | [design-review.md](design-review.md) | Contradiction, overlap, and overdesign review |
 | [reference-review.md](reference-review.md) | Concepts evaluated from related projects |

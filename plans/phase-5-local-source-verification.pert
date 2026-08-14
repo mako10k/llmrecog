@@ -1,0 +1,103 @@
+# Existing .pert plans should normally be maintained through perttool commands; direct DSL editing bypasses goal/DAG owner-confirmation checks.
+project LLMRECOG_PHASE_5_LOCAL_SOURCE_VERIFICATION:
+  version 5
+  title "llmrecog Phase 5 dogfood-first local source verification"
+  description "Implement fail-closed local source verification behind an explicit filesystem adapter after Phase 4 acceptance. Freeze path, byte-digest, text-range, quote, result, diagnostic, and CLI contracts first; dogfood the minimal locator and digest slice before completing range and quote verification. Relative complexity points are planning estimates without a calendar forecast. This plan does not authorize network access, automatic repair, provider work, a public CLI binary, persistence, release, publication, tagging, push, or related-repository changes."
+  duration_unit point
+  finish PHASE_5_ACCEPTED
+
+milestone PHASE_4_ACCEPTED:
+  title "Phase 4 deterministic semantic core accepted"
+  state reached
+
+resource IMPLEMENTER:
+  title "Local verification implementation and dogfood capacity"
+  capacity 1
+
+resource SECURITY_REVIEWER:
+  title "Path, provenance, and fail-closed contract review capacity"
+  capacity 1
+
+milestone PHASE_5_CONTRACT_ACCEPTED:
+  title "Local source-verification contract and protocol accepted"
+
+milestone MINIMAL_LOCAL_VERIFIER_ACCEPTED:
+  title "Relative locator and digest verification slice accepted for dogfood"
+
+milestone DIGEST_DOGFOOD_OBSERVED:
+  title "Path and digest dogfood evidence captured"
+
+milestone COMPLETE_LOCAL_VERIFIER_ACCEPTED:
+  title "Range and quote verification completed after early dogfood"
+
+milestone LOCAL_SOURCE_DOGFOOD_OBSERVED:
+  title "Complete local source-verification dogfood evidence captured"
+
+milestone LOCAL_SOURCE_DOGFOOD_REVIEWED:
+  title "All local source-verification feedback dispositioned"
+
+milestone PHASE_5_ACCEPTED:
+  title "Fail-closed local source-verification slice accepted"
+
+task FREEZE_PHASE_5_CONTRACT_AND_PROTOCOL PHASE_4_ACCEPTED -> PHASE_5_CONTRACT_ACCEPTED:
+  title "Freeze local source-verification contract and dogfood protocol"
+  description "Accept an ADR first, then freeze explicit verification-root and relative-locator resolution, path and symlink policy, exact source-byte digest semantics, UTF-8 text range and quote semantics, result and diagnostic shapes, deterministic ordering and bounds, and the private --verify-sources local invocation. Add exact fixtures and a versioned dogfood protocol before runtime implementation. Preserve no network, no automatic repair, no ambient base directory, and no core filesystem dependency."
+  duration 4p
+  priority 70
+  requires:
+    IMPLEMENTER 1
+    SECURITY_REVIEWER 1
+
+task IMPLEMENT_MINIMAL_LOCAL_VERIFIER PHASE_5_CONTRACT_ACCEPTED -> MINIMAL_LOCAL_VERIFIER_ACCEPTED:
+  title "Implement fail-closed relative locator and digest verification"
+  description "Add the smallest real vertical slice through an inward-owned resolver port and the private adapter: explicit artifact path and verification root, local relative locator resolution, regular-file and symlink policy, bounded byte reads, sha256 comparison, typed verified, stale, unavailable, and skipped states, deterministic diagnostics, and equivalent JSON and text projections. Do not implement range or quote verification yet, and do not add network, writes, cache, provider, or public CLI behavior."
+  duration 3p
+  priority 60
+  requires:
+    IMPLEMENTER 1
+    SECURITY_REVIEWER 1
+
+task RUN_DIGEST_PATH_DOGFOOD MINIMAL_LOCAL_VERIFIER_ACCEPTED -> DIGEST_DOGFOOD_OBSERVED:
+  title "Dogfood path and digest verification before selectors"
+  description "Verify actual repository-derived dogfood sources through the minimal private route, then use copied inputs and sources to exercise unchanged bytes, stale digest, missing file, root escape, symlink, non-regular file, and repeated deterministic output cases. Capture immutable receipts and observations before implementing text ranges and quotes."
+  duration 1p
+  priority 50
+  requires:
+    IMPLEMENTER 1
+    SECURITY_REVIEWER 1
+
+task APPLY_DIGEST_FEEDBACK_AND_COMPLETE_VERIFIER DIGEST_DOGFOOD_OBSERVED -> COMPLETE_LOCAL_VERIFIER_ACCEPTED:
+  title "Apply early feedback and complete range and quote verification"
+  description "Disposition every early path and digest observation, revise remaining points, update an ADR before any accepted contract change, then implement UTF-8 decoding, Unicode-scalar line and column ranges, exact selected text and quote checks, bounded mismatch diagnostics, and aggregate source-verification status through the same resolver port. Preserve fail-closed behavior and never repair a span or quote automatically."
+  duration 3p
+  priority 40
+  requires:
+    IMPLEMENTER 1
+    SECURITY_REVIEWER 1
+
+task RUN_COMPLETE_LOCAL_SOURCE_DOGFOOD COMPLETE_LOCAL_VERIFIER_ACCEPTED -> LOCAL_SOURCE_DOGFOOD_OBSERVED:
+  title "Dogfood complete local source verification"
+  description "Run the successor protocol against unchanged repository sources and deliberately changed copies covering digest, range, quote, encoding, size, ordering, and mixed-source outcomes. Re-run every command byte-deterministically, preserve earlier receipts, and inspect whether verification hides stale evidence, reads outside the explicit root, or encourages automatic repair."
+  duration 2p
+  priority 30
+  requires:
+    IMPLEMENTER 1
+    SECURITY_REVIEWER 1
+
+task APPLY_LOCAL_SOURCE_DOGFOOD_FEEDBACK LOCAL_SOURCE_DOGFOOD_OBSERVED -> LOCAL_SOURCE_DOGFOOD_REVIEWED:
+  title "Disposition provenance feedback and re-estimate producer work"
+  description "Bind feedback to exact receipts, disposition every complete-verifier observation, apply accepted contract changes ADR-first, and revise the separately gated producer-contract and adapter estimates in points. Do not start provider work, credentials, network access, llmthink integration, release, or publication."
+  duration 1p
+  priority 20
+  requires:
+    IMPLEMENTER 1
+    SECURITY_REVIEWER 1
+
+task ACCEPT_PHASE_5_SLICE LOCAL_SOURCE_DOGFOOD_REVIEWED -> PHASE_5_ACCEPTED:
+  title "Audit and accept fail-closed local source verification"
+  description "Run schema and fixture checks, supported Node targets, repeated path, digest, range, and quote cases, npm run check including jscpd, npm audit, and git diff --check. Review traversal and symlink boundaries, byte and Unicode positions, incomplete and mixed outcomes, dependency direction, no network, no writes or repair, and no provider or related-project runtime; record unresolved work without starting Phase 6 or publishing, releasing, tagging, or pushing."
+  duration 2p
+  priority 10
+  requires:
+    IMPLEMENTER 1
+    SECURITY_REVIEWER 1

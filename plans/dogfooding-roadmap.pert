@@ -1,11 +1,7 @@
 project LLMRECOG_DOGFOODING_ROADMAP:
   version 5
   title "llmrecog dogfood-first implementation roadmap"
-  description |
-    Sequence the deterministic core, repeated self-use, provider-produced drafts, and the optional llmthink handoff so that evidence from each dogfood round changes the next design and estimate before implementation resumes.
-    Relative complexity points are planning estimates, not elapsed time or dates; velocity remains unspecified until comparable completed work exists.
-    This roadmap is the current phase-selection authority; plans/phase-4-complete-core.pert is the active detailed Phase 4 task authority, while the Phase 2 and Phase 3 detailed plans remain history.
-    The roadmap does not itself authorize implementation, network/provider access, related-repository changes, release, publication, tagging, or push.
+  description "Sequence the deterministic core, repeated self-use, fail-closed local source verification, provider-produced drafts, and the optional llmthink handoff so that evidence from each dogfood round changes the next design and estimate before implementation resumes. Relative complexity points are planning estimates, not elapsed time or dates; velocity remains unspecified until comparable completed work exists. This roadmap is the current phase-selection authority; plans/phase-5-local-source-verification.pert is the active detailed Phase 5 task authority, while the Phase 2 through Phase 4 detailed plans remain history. The roadmap does not itself authorize network/provider access, related-repository changes, release, publication, tagging, or push."
   duration_unit point
   finish DOGFOODING_ROADMAP_ACCEPTED
 
