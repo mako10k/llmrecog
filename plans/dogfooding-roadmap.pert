@@ -1,10 +1,10 @@
 project LLMRECOG_DOGFOODING_ROADMAP:
-  version 1
+  version 5
   title "llmrecog dogfood-first implementation roadmap"
   description |
     Sequence the deterministic core, repeated self-use, provider-produced drafts, and the optional llmthink handoff so that evidence from each dogfood round changes the next design and estimate before implementation resumes.
     Relative complexity points are planning estimates, not elapsed time or dates; velocity remains unspecified until comparable completed work exists.
-    This roadmap is the current phase-selection authority; plans/phase-3-explainable-csp.pert is the active detailed Phase 3 task authority, while plans/phase-2-parse-validate-show.pert remains historical Phase 2 detail.
+    This roadmap is the current phase-selection authority; plans/phase-4-complete-core.pert is the active detailed Phase 4 task authority, while the Phase 2 and Phase 3 detailed plans remain history.
     The roadmap does not itself authorize implementation, network/provider access, related-repository changes, release, publication, tagging, or push.
   duration_unit point
   finish DOGFOODING_ROADMAP_ACCEPTED
@@ -65,6 +65,7 @@ task IMPLEMENT_AND_DOGFOOD_EXPLAIN PHASE_2_DOGFOOD_SLICE_ACCEPTED -> EXPLAIN_DOG
   title "Implement the explainable CSP slice and dogfood ambiguity questions"
   description "Implement finite one_of and excludes behavior, joint witnesses, exclusion chains, unknown reasons, candidate explain, and focused audit rules; rerun the versioned corpus and disposition all explain, conflict, and unknown feedback before extending constraint semantics"
   duration 35p
+  status done
   priority 90
   requires:
     IMPLEMENTER 1
@@ -141,3 +142,17 @@ task ACCEPT_DOGFOODING_ROADMAP LLMTHINK_HANDOFF_DOGFOOD_REVIEWED -> DOGFOODING_R
   requires:
     IMPLEMENTER 1
     REVIEWER 1
+
+work_event START_IMPLEMENT_AND_DOGFOOD_EXPLAIN_20260814:
+  model 1
+  task IMPLEMENT_AND_DOGFOOD_EXPLAIN
+  kind start
+  occurred_at 2026-08-14T13:44:50+09:00
+  planned_value 35p
+
+work_event FINISH_IMPLEMENT_AND_DOGFOOD_EXPLAIN_20260814:
+  model 1
+  task IMPLEMENT_AND_DOGFOOD_EXPLAIN
+  kind finish
+  occurred_at 2026-08-14T15:36:24+09:00
+  effort 1.7016666667ph

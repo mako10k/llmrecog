@@ -1,0 +1,149 @@
+project LLMRECOG_PHASE_4_COMPLETE_CORE:
+  version 5
+  title "llmrecog Phase 4 dogfood-first complete semantic core"
+  description |
+    Complete only the initial deterministic constraint vocabulary and bounded read-only space views after Phase 3 acceptance.
+    Draft and accept the semantic and command contract before implementation, then dogfood requires, same_as, and distinct_from as soon as their real vertical slice is usable. Apply that evidence, including the deferred compound-navigation question, before implementing query and materialization, and run a second dogfood round before final acceptance.
+    Relative complexity points are planning estimates independent from elapsed time. Phase 3 actuals are observations only; no velocity, calendar forecast, or delivery date is declared.
+    This plan does not authorize source verification, providers, llmthink integration, a public CLI binary, persistence, release, publication, tagging, push, or related-repository changes.
+  duration_unit point
+  finish PHASE_4_ACCEPTED
+
+resource IMPLEMENTER:
+  title "Phase 4 implementation and dogfood capacity"
+  capacity 1
+
+resource SEMANTIC_REVIEWER:
+  title "Contract, semantic-boundary, and evidence review capacity"
+  capacity 1
+
+milestone PHASE_3_ACCEPTED:
+  title "Phase 3 explainable CSP slice accepted"
+  state reached
+
+milestone PHASE_4_CONTRACT_DRAFTED:
+  title "Phase 4 contract decisions drafted for review"
+
+milestone PHASE_4_CONTRACT_AND_PROTOCOL_ACCEPTED:
+  title "Phase 4 contract, exact fixtures, and dogfood protocol v4 accepted"
+
+milestone RELATIONAL_CONSTRAINTS_ACCEPTED:
+  title "Requires, same_as, and distinct_from vertical slice accepted for dogfood"
+
+milestone RELATIONAL_DOGFOOD_OBSERVED:
+  title "Relational constraint and compound-navigation evidence captured"
+
+milestone RELATIONAL_DOGFOOD_REVIEWED:
+  title "First Phase 4 dogfood feedback dispositioned before space routes"
+
+milestone BOUNDED_QUERY_ACCEPTED:
+  title "Bounded read-only query slice accepted"
+
+milestone BOUNDED_MATERIALIZATION_ACCEPTED:
+  title "Bounded lazy materialization slice accepted"
+
+milestone SPACE_DOGFOOD_OBSERVED:
+  title "Query and materialization dogfood evidence captured"
+
+milestone CORE_DOGFOOD_REVIEWED:
+  title "All Phase 4 dogfood feedback dispositioned"
+
+milestone PHASE_4_ACCEPTED:
+  title "Complete deterministic semantic-core vertical slice accepted"
+
+task DRAFT_PHASE_4_CONTRACT PHASE_3_ACCEPTED -> PHASE_4_CONTRACT_DRAFTED:
+  title "Draft the bounded Phase 4 semantic and space-read contract"
+  description |
+    Review accepted authorities, provisional Phase 4 text, exact existing registries, Phase 3 implementation seams, and both Phase 3 feedback rounds. Draft an ADR that fixes requires implication, same_as canonical equality, distinct_from inequality, scope closure, public reason composition, query filter conjunction and ordering, lazy materialization, mandatory scope and limit, completeness, truncation, exit status, and no persistence. Keep the ADR proposed and make no runtime change until the complete contract package and protocol are reviewed.
+  duration 3p
+  priority 100
+  requires:
+    IMPLEMENTER 1
+    SEMANTIC_REVIEWER 1
+
+task FREEZE_PHASE_4_CONTRACT_AND_PROTOCOL PHASE_4_CONTRACT_DRAFTED -> PHASE_4_CONTRACT_AND_PROTOCOL_ACCEPTED:
+  title "Freeze the Phase 4 contract and dogfood protocol v4"
+  description |
+    Accept the ADR first, then update requirements, terminology, semantic, provenance, diagnostics, CLI, phase, and dogfood documents together. Add QueryResult and MaterializationResult schemas plus exact success, failure, open-domain, cross-variable, conflict, joint-witness, equality, inequality, limit, truncation, and require-complete fixtures. Create immutable protocol v4 with relational, cross-document, compound-navigation, bounded-query, and materialization questions and command identities. Run npm run check including jscpd and preserve all earlier protocols and receipts byte-for-byte.
+  duration 5p
+  priority 90
+  requires:
+    IMPLEMENTER 1
+    SEMANTIC_REVIEWER 1
+
+task IMPLEMENT_RELATIONAL_CONSTRAINTS PHASE_4_CONTRACT_AND_PROTOCOL_ACCEPTED -> RELATIONAL_CONSTRAINTS_ACCEPTED:
+  title "Implement requires, same_as, and distinct_from explanations"
+  description |
+    Add exact fixtures first, then extend the pure scoped assignment engine with grounded requires implication, type-compatible canonical equality and inequality, deterministic transitive public reason composition, candidate and constraint explanation, variable resolution, conflict reporting, and bounded unknown behavior through the real parser, model, application, presentation, and private-adapter seam. Preserve joint witnesses, support and viability separation, declaration ordering, no source-locator I/O, and no persisted solver state. Run focused checks and npm run check including jscpd.
+  duration 7p
+  priority 80
+  requires:
+    IMPLEMENTER 1
+
+task RUN_RELATIONAL_CONSTRAINT_DOGFOOD RELATIONAL_CONSTRAINTS_ACCEPTED -> RELATIONAL_DOGFOOD_OBSERVED:
+  title "Dogfood complete relational constraints before space routes"
+  description |
+    Use protocol v4 to author and inspect actual repository-derived recognition artifacts with implication chains, equality aliases, inequality collisions, multi-variable joint witnesses, open operands, and conflicts. Re-run every command byte-deterministically and capture immutable receipts and feedback. Explicitly retry the compound allowed-plus-forbidden question from OBS-EXPLAIN-005 using current target-specific explain routes, without pre-deciding that a wider query or navigation result is required.
+  duration 3p
+  priority 70
+  requires:
+    IMPLEMENTER 1
+    SEMANTIC_REVIEWER 1
+
+task APPLY_RELATIONAL_DOGFOOD_FEEDBACK RELATIONAL_DOGFOOD_OBSERVED -> RELATIONAL_DOGFOOD_REVIEWED:
+  title "Disposition relational feedback before query and materialization"
+  description |
+    Classify every first-round observation, preserve unknowns, and update an ADR before any accepted semantic or result-contract change. Spend the reserved 1p evaluating whether the compound question needs a composed bounded query, navigation links, or no contract change. Revise the remaining point estimates, query/materialization fixtures, and protocol command cases before either space route is implemented.
+  duration 3p
+  priority 60
+  requires:
+    IMPLEMENTER 1
+    SEMANTIC_REVIEWER 1
+
+task IMPLEMENT_BOUNDED_QUERY RELATIONAL_DOGFOOD_REVIEWED -> BOUNDED_QUERY_ACCEPTED:
+  title "Implement deterministic bounded space query"
+  description |
+    Implement only the accepted read-only conjunction filters, effective solver scope, declaration-order plus ID ordering, positive limit, typed completeness and truncation, equivalent JSON and text projections, and any dogfood-accepted navigation behavior. Reuse the shared semantic/application services and do not introduce a general query language, arbitrary predicates, ranking, writes, or materialization. Run focused checks and npm run check including jscpd.
+  duration 4p
+  priority 50
+  requires:
+    IMPLEMENTER 1
+
+task IMPLEMENT_BOUNDED_MATERIALIZATION BOUNDED_QUERY_ACCEPTED -> BOUNDED_MATERIALIZATION_ACCEPTED:
+  title "Implement lazy bounded space materialization"
+  description |
+    Implement mandatory explicit scope and positive limit, deterministic satisfying-assignment enumeration, open/unbound projection without invented candidates, exact complete/truncated behavior, and require-complete exit status 5. Keep materialized worlds as non-persisted derived views with no support status, ranking, choice, cache, write path, or ambient input. Run focused checks and npm run check including jscpd.
+  duration 4p
+  priority 40
+  requires:
+    IMPLEMENTER 1
+
+task RUN_SPACE_VIEW_DOGFOOD BOUNDED_MATERIALIZATION_ACCEPTED -> SPACE_DOGFOOD_OBSERVED:
+  title "Dogfood bounded query and materialization"
+  description |
+    Run protocol v4 cross-document filters, compound navigation, joint-witness, open-domain, ordering, low-limit, truncation, and require-complete cases through the actual private routes. Capture immutable command, artifact, output, and replay identities; inspect whether the views imply preference, silently close domains, fabricate source support, hide incomplete scopes, or encourage persisted world state.
+  duration 2p
+  priority 30
+  requires:
+    IMPLEMENTER 1
+    SEMANTIC_REVIEWER 1
+
+task APPLY_CORE_DOGFOOD_FEEDBACK SPACE_DOGFOOD_OBSERVED -> CORE_DOGFOOD_REVIEWED:
+  title "Disposition complete-core feedback and re-estimate source verification"
+  description |
+    Review both Phase 4 rounds against exact protocol and artifact identities, disposition every observation, apply accepted contract feedback ADR-first, and revise the separately gated local-source-verification plan in points. Do not start source verification, provider work, llmthink integration, publication, or release.
+  duration 2p
+  priority 20
+  requires:
+    IMPLEMENTER 1
+    SEMANTIC_REVIEWER 1
+
+task ACCEPT_PHASE_4_SLICE CORE_DOGFOOD_REVIEWED -> PHASE_4_ACCEPTED:
+  title "Audit and accept the complete deterministic semantic core"
+  description |
+    Run schema and fixture checks, repeated deterministic explain/query/materialization cases, supported Node target validation, npm run check including jscpd, npm audit, and git diff --check. Review all five constraint truth tables, reason composition, joint witnesses, open and unsupported unknowns, query bounds, lazy materialization, require-complete behavior, dependency direction, no persistence, no locator I/O, and no provider or related-project runtime. Record unresolved work without starting Phase 5 or publishing, releasing, tagging, or pushing.
+  duration 2p
+  priority 10
+  requires:
+    IMPLEMENTER 1
+    SEMANTIC_REVIEWER 1
