@@ -1,4 +1,5 @@
 import type {
+  AuditResult,
   BootstrapReadResult,
   DocumentResult,
   ExplainResult,
@@ -329,6 +330,42 @@ function renderExplain(result: ExplainResult): string {
   ].join("\n");
 }
 
+function renderAuditReasonData(
+  reasonData: Readonly<Record<string, unknown>>,
+): string {
+  return Object.entries(reasonData)
+    .map(
+      ([key, value]) =>
+        `${key}=${Array.isArray(value) ? value.join(",") : String(value)}`,
+    )
+    .join(" ");
+}
+
+function renderAudit(result: AuditResult): string {
+  return [
+    ...renderBase(result),
+    `profile: ${result.profile}`,
+    `fail_on: ${result.fail_on}`,
+    `passed: ${String(result.passed)}`,
+    `source_verification: ${result.source_verification.mode}/${result.source_verification.state}`,
+    `evaluated_rules: ${result.evaluated_rule_codes.join(", ")}`,
+    `summary: errors=${result.summary.errors} warnings=${result.summary.warnings} info=${result.summary.info}`,
+    `complete: ${String(result.complete)}`,
+    `truncated: ${String(result.truncated)}`,
+    ...(result.diagnostics.length === 0
+      ? ["diagnostics: 0"]
+      : [
+          "diagnostics:",
+          ...result.diagnostics.map((diagnostic) => {
+            const reasonData = renderAuditReasonData(diagnostic.reason_data);
+            const reasonSuffix =
+              reasonData.length === 0 ? "" : ` ${reasonData}`;
+            return `  ${diagnostic.code} ${diagnostic.severity} entity=${diagnostic.entity_id ?? "-"} ${diagnostic.message}${reasonSuffix}`;
+          }),
+        ]),
+  ].join("\n");
+}
+
 export function renderBootstrapText(result: BootstrapReadResult): string {
   switch (result.schema) {
     case "Llmrecog.ValidationResult.v1":
@@ -339,5 +376,7 @@ export function renderBootstrapText(result: BootstrapReadResult): string {
       return `${renderRecognition(result)}\n`;
     case "Llmrecog.ExplainResult.v2":
       return `${renderExplain(result)}\n`;
+    case "Llmrecog.AuditResult.v1":
+      return `${renderAudit(result)}\n`;
   }
 }

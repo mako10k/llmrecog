@@ -5,6 +5,7 @@ import {
   analyzeOneOfExplain,
   type CandidateViability,
   type ExplainScope,
+  type OneOfExplainAnalysis,
   type PublicReason,
   type SkippedConstraint,
   type VariableResolution,
@@ -136,8 +137,30 @@ export interface ExplainResult {
   readonly diagnostics: readonly Diagnostic[];
 }
 
+export interface AuditResult extends ResultBase {
+  readonly schema: "Llmrecog.AuditResult.v1";
+  readonly profile: "base";
+  readonly fail_on: "warning" | "error";
+  readonly passed: boolean;
+  readonly evaluated_rule_codes: readonly [
+    "RCG-GROUND-003",
+    "RCG-SUPPORT-001",
+    "RCG-CSP-001",
+    "RCG-CSP-002",
+  ];
+  readonly summary: {
+    readonly errors: number;
+    readonly warnings: number;
+    readonly info: number;
+  };
+}
+
 export type BootstrapReadResult =
-  ValidationResult | DocumentResult | RecognitionResult | ExplainResult;
+  | ValidationResult
+  | DocumentResult
+  | RecognitionResult
+  | ExplainResult
+  | AuditResult;
 
 export interface BootstrapReadInput {
   readonly bytes: Uint8Array;
@@ -149,6 +172,10 @@ export interface BootstrapReadInput {
 export interface ExplainOptions {
   readonly requestedVariableIds?: readonly string[];
   readonly limit?: number;
+}
+
+export interface AuditOptions {
+  readonly failOn?: "warning" | "error";
 }
 
 export class ExplainInputError extends Error {
@@ -340,6 +367,7 @@ function targetNormalization(target: Recognition): NormalizationRecord | null {
 function groundingEdges(
   document: SemanticDocument,
   target: Recognition,
+  derivations: readonly PublicReason[] = [],
 ): readonly ProvenanceEdge[] {
   const edges: ProvenanceEdge[] = target.grounded_in.map((reference) => ({
     kind: "grounded_in",
@@ -369,7 +397,58 @@ function groundingEdges(
       to: normalization.rule,
     });
   }
+  if (target.declaration_kind === "candidate") {
+    const appliedConstraintIds = uniqueStrings(
+      derivations.flatMap((derivation) =>
+        derivation.code === "RCG-RSN-202" && derivation.constraint_id !== null
+          ? [derivation.constraint_id]
+          : [],
+      ),
+    );
+    edges.push(
+      ...appliedConstraintIds.map((constraintId) => ({
+        kind: "applies" as const,
+        from: target.id,
+        to: constraintId,
+      })),
+    );
+  }
   return edges;
+}
+
+function uniqueStrings(values: readonly string[]): readonly string[] {
+  return [...new Set(values)];
+}
+
+function supportedExcludedDiagnostic(
+  candidateId: string,
+  constraintIds: readonly string[],
+): Diagnostic {
+  return {
+    code: "RCG-CSP-002",
+    severity: "warning",
+    message:
+      "A source-supported candidate is excluded by grounded constraints.",
+    entity_id: candidateId,
+    span: null,
+    reason_data: { constraint_ids: constraintIds },
+    related: [],
+  };
+}
+
+function exclusionConstraintIds(
+  analysis: OneOfExplainAnalysis,
+): readonly string[] {
+  if (analysis.viability?.state !== "excluded") return [];
+  const usedIds = new Set(
+    analysis.viability.reason_chain.flatMap((reason) => [
+      ...(reason.constraint_id === null ? [] : [reason.constraint_id]),
+      ...reason.inputs,
+    ]),
+  );
+  return analysis.relevant_constraints
+    .map((constraint) => constraint.id)
+    .filter((id) => usedIds.has(id));
 }
 
 function sourceIdsForGrounding(
@@ -447,6 +526,14 @@ export function explainBootstrapRecognition(
     );
   }
   const result = analysis.analysis;
+  const exclusionIds = exclusionConstraintIds(result);
+  const explainDiagnostics =
+    result.target.declaration_kind === "candidate" &&
+    result.target.support !== undefined &&
+    result.viability?.state === "excluded" &&
+    result.derivations.some((derivation) => derivation.code === "RCG-RSN-202")
+      ? [supportedExcludedDiagnostic(result.target.id, exclusionIds)]
+      : [];
   return {
     schema: "Llmrecog.ExplainResult.v2",
     semantic_version: "0.1",
@@ -463,7 +550,11 @@ export function explainBootstrapRecognition(
     viability: result.viability,
     variable_resolution: result.variable_resolution,
     scope: result.scope,
-    provenance: groundingEdges(validation.document, result.target),
+    provenance: groundingEdges(
+      validation.document,
+      result.target,
+      result.derivations,
+    ),
     normalization: targetNormalization(result.target),
     source_verification: explainSourceVerification(validation.document, [
       result.target,
@@ -474,6 +565,221 @@ export function explainBootstrapRecognition(
     ),
     skipped_constraints: result.skipped_constraints,
     derivations: result.derivations,
-    diagnostics: validation.diagnostics,
+    diagnostics: [...validation.diagnostics, ...explainDiagnostics],
+  };
+}
+
+function auditCoreAnalysis(
+  document: SemanticDocument,
+  id: string,
+): OneOfExplainAnalysis {
+  const result = analyzeOneOfExplain(
+    document,
+    id,
+    undefined,
+    Number.MAX_SAFE_INTEGER,
+  );
+  if (!result.ok) {
+    throw new Error(`validated audit target ${id} was not analyzable`);
+  }
+  return result.analysis;
+}
+
+function unsealedSourceDiagnostic(
+  source: SemanticDocument["sources"][number],
+): Diagnostic {
+  return {
+    code: "RCG-GROUND-003",
+    severity: "warning",
+    message: "A locatable source is not sealed by a digest.",
+    entity_id: source.id,
+    span: null,
+    reason_data: { source_id: source.id, locator: source.locator },
+    related: [],
+  };
+}
+
+function unsupportedRecognitionDiagnostic(
+  recognition: Recognition,
+): Diagnostic {
+  return {
+    code: "RCG-SUPPORT-001",
+    severity: "warning",
+    message: "A candidate or record has no positive support record.",
+    entity_id: recognition.id,
+    span: null,
+    reason_data: { recognition_id: recognition.id },
+    related: [],
+  };
+}
+
+function inconsistentVariableDiagnostic(
+  variableId: string,
+  constraintIds: readonly string[],
+): Diagnostic {
+  return {
+    code: "RCG-CSP-001",
+    severity: "error",
+    message: "A closed variable has no satisfying assignment.",
+    entity_id: variableId,
+    span: null,
+    reason_data: { variable_id: variableId, constraint_ids: constraintIds },
+    related: [],
+  };
+}
+
+function diagnosticOrder(left: Diagnostic, right: Diagnostic): number {
+  const leftOffset = left.span?.start.offset ?? Number.MAX_SAFE_INTEGER;
+  const rightOffset = right.span?.start.offset ?? Number.MAX_SAFE_INTEGER;
+  if (leftOffset !== rightOffset) return leftOffset - rightOffset;
+  const code = left.code.localeCompare(right.code);
+  if (code !== 0) return code;
+  return (left.entity_id ?? "").localeCompare(right.entity_id ?? "");
+}
+
+function inconsistentVariableDiagnostics(
+  variableAnalyses: ReadonlyMap<string, OneOfExplainAnalysis>,
+): readonly Diagnostic[] {
+  return [...variableAnalyses.entries()].flatMap(([variableId, analysis]) =>
+    analysis.variable_resolution?.state === "inconsistent"
+      ? [
+          inconsistentVariableDiagnostic(
+            variableId,
+            analysis.relevant_constraints.map((constraint) => constraint.id),
+          ),
+        ]
+      : [],
+  );
+}
+
+function supportAuditDiagnostic(recognition: Recognition): Diagnostic | null {
+  const supportRelevant =
+    recognition.declaration_kind === "candidate" ||
+    recognition.declaration_kind === "record";
+  if (!supportRelevant || recognition.support !== undefined) return null;
+  return unsupportedRecognitionDiagnostic(recognition);
+}
+
+function excludedCandidateAuditDiagnostic(
+  document: SemanticDocument,
+  recognition: Recognition,
+  variableAnalyses: ReadonlyMap<string, OneOfExplainAnalysis>,
+): Diagnostic | null {
+  if (
+    recognition.declaration_kind !== "candidate" ||
+    recognition.support === undefined
+  ) {
+    return null;
+  }
+  const analysis = auditCoreAnalysis(document, recognition.id);
+  if (analysis.viability?.state !== "excluded") return null;
+  const parentInconsistent =
+    variableAnalyses.get(recognition.variable_id)?.variable_resolution
+      ?.state === "inconsistent";
+  const constraintIds = parentInconsistent
+    ? analysis.relevant_constraints.map((constraint) => constraint.id)
+    : exclusionConstraintIds(analysis);
+  return supportedExcludedDiagnostic(recognition.id, constraintIds);
+}
+
+function recognitionAuditDiagnostics(
+  document: SemanticDocument,
+  variableAnalyses: ReadonlyMap<string, OneOfExplainAnalysis>,
+): readonly Diagnostic[] {
+  return document.recognitions.flatMap((recognition) => {
+    const diagnostics = [
+      supportAuditDiagnostic(recognition),
+      excludedCandidateAuditDiagnostic(document, recognition, variableAnalyses),
+    ];
+    return diagnostics.filter(
+      (diagnostic): diagnostic is Diagnostic => diagnostic !== null,
+    );
+  });
+}
+
+function focusedAuditDiagnostics(document: SemanticDocument): Diagnostic[] {
+  const variables = document.recognitions.filter(
+    (recognition) => recognition.declaration_kind === "variable",
+  );
+  const variableAnalyses = new Map(
+    variables.map((variable) => [
+      variable.id,
+      auditCoreAnalysis(document, variable.id),
+    ]),
+  );
+
+  const diagnostics = [
+    ...inconsistentVariableDiagnostics(variableAnalyses),
+    ...recognitionAuditDiagnostics(document, variableAnalyses),
+    ...document.sources
+      .filter((source) => source.digest === undefined)
+      .map(unsealedSourceDiagnostic),
+  ];
+  return diagnostics.sort(diagnosticOrder);
+}
+
+function diagnosticSummary(
+  diagnostics: readonly Diagnostic[],
+): AuditResult["summary"] {
+  return {
+    errors: diagnostics.filter((diagnostic) => diagnostic.severity === "error")
+      .length,
+    warnings: diagnostics.filter(
+      (diagnostic) => diagnostic.severity === "warning",
+    ).length,
+    info: diagnostics.filter((diagnostic) => diagnostic.severity === "info")
+      .length,
+  };
+}
+
+function diagnosticSeverityRank(diagnostic: Diagnostic): number {
+  if (diagnostic.severity === "error") return 2;
+  if (diagnostic.severity === "warning") return 1;
+  return 0;
+}
+
+export function auditBootstrapDocument(
+  input: BootstrapReadInput,
+  options: AuditOptions = {},
+): ValidationResult | AuditResult {
+  const phase3Input: BootstrapReadInput = {
+    ...input,
+    toolVersion: input.toolVersion ?? phase3ToolVersion,
+  };
+  const validation = validateBootstrapInput(phase3Input);
+  if (!validation.valid || validation.document === null) return validation;
+  const failOn = options.failOn ?? "error";
+  const allDiagnostics = [
+    ...validation.diagnostics,
+    ...focusedAuditDiagnostics(validation.document),
+  ].sort(diagnosticOrder);
+  const maximumDiagnostics = input.maximumDiagnostics ?? 100;
+  const truncated = allDiagnostics.length > maximumDiagnostics;
+  const diagnostics = allDiagnostics.slice(0, maximumDiagnostics);
+  const threshold = failOn === "warning" ? 1 : 2;
+  const passed =
+    !truncated &&
+    !diagnostics.some(
+      (diagnostic) => diagnosticSeverityRank(diagnostic) >= threshold,
+    );
+  return {
+    schema: "Llmrecog.AuditResult.v1",
+    semantic_version: "0.1",
+    tool_version: validation.tool_version,
+    input: validation.input,
+    complete: !truncated,
+    truncated,
+    profile: "base",
+    fail_on: failOn,
+    passed,
+    source_verification: validation.source_verification,
+    evaluated_rule_codes: [
+      "RCG-GROUND-003",
+      "RCG-SUPPORT-001",
+      "RCG-CSP-001",
+      "RCG-CSP-002",
+    ],
+    summary: diagnosticSummary(diagnostics),
+    diagnostics,
   };
 }

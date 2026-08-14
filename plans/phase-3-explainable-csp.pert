@@ -106,6 +106,7 @@ task IMPLEMENT_EXCLUDES_AND_FOCUSED_AUDIT TYPED_EXPLAIN_TARGET_ACCEPTED -> EXCLU
   description |
     Add fixtures first, then extend the same pure scoped engine with symmetric excludes, deterministic minimal public exclusion chains, supported-plus-excluded conflict projection, closed empty-domain detection, constraint explanation, and only the document audit rules needed by this slice. Preserve grounded relationship requirements, joint-witness semantics, unknown reasons for deferred or incomplete operands, result ordering, bounds, no locator I/O, and no persisted derivation or materialization state.
   duration 5p
+  status done
   priority 50
   requires:
     IMPLEMENTER 1
@@ -233,3 +234,17 @@ work_event FINISH_IMPLEMENT_TYPED_EXPLAIN_TARGET_20260814:
   kind finish
   occurred_at 2026-08-14T14:33:47+09:00
   effort 0.1186111111ph
+
+work_event START_IMPLEMENT_EXCLUDES_AND_FOCUSED_AUDIT_20260814:
+  model 1
+  task IMPLEMENT_EXCLUDES_AND_FOCUSED_AUDIT
+  kind start
+  occurred_at 2026-08-14T14:34:09+09:00
+  planned_value 5p
+
+work_event FINISH_IMPLEMENT_EXCLUDES_AND_FOCUSED_AUDIT_20260814:
+  model 1
+  task IMPLEMENT_EXCLUDES_AND_FOCUSED_AUDIT
+  kind finish
+  occurred_at 2026-08-14T14:52:22+09:00
+  effort 0.3036111111ph

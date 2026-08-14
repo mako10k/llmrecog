@@ -2,6 +2,7 @@ import fs from "node:fs";
 
 import {
   ExplainInputError,
+  auditBootstrapDocument,
   explainBootstrapRecognition,
   showBootstrapDocument,
   showBootstrapRecognition,
@@ -12,6 +13,7 @@ import {
 import { renderBootstrapText } from "../presentation/bootstrap-text.js";
 
 type OutputFormat = "text" | "json";
+type AuditFailOn = "warning" | "error";
 
 interface CommonOptions {
   readonly format: OutputFormat;
@@ -21,6 +23,8 @@ interface CommonOptions {
 interface ParsedOptions extends CommonOptions {
   readonly requestedVariableIds: readonly string[] | undefined;
   readonly limit: number;
+  readonly profile: "base";
+  readonly failOn: AuditFailOn;
 }
 
 interface OptionPolicy {
@@ -28,6 +32,8 @@ interface OptionPolicy {
   readonly maximumDiagnostics: boolean;
   readonly scope: boolean;
   readonly limit: boolean;
+  readonly profile: boolean;
+  readonly failOn: boolean;
 }
 
 type ParsedCommand =
@@ -35,6 +41,12 @@ type ParsedCommand =
       readonly resource: "document";
       readonly action: "validate" | "show";
       readonly path: string;
+    })
+  | (CommonOptions & {
+      readonly resource: "document";
+      readonly action: "audit";
+      readonly path: string;
+      readonly failOn: AuditFailOn;
     })
   | (CommonOptions & {
       readonly resource: "recognition";
@@ -61,6 +73,8 @@ interface OptionState {
   maximumDiagnostics: number;
   requestedVariableIds: readonly string[] | undefined;
   limit: number;
+  profile: "base";
+  failOn: AuditFailOn;
 }
 
 function positiveInteger(value: string, option: string): number {
@@ -96,6 +110,13 @@ function requireAccepted(accepted: boolean, option: string): void {
   if (!accepted) throw new UsageError(`${option} is not accepted here.`);
 }
 
+function auditFailOn(value: string): AuditFailOn {
+  if (value !== "warning" && value !== "error") {
+    throw new UsageError("--fail-on must be warning or error.");
+  }
+  return value;
+}
+
 function verifySourceOption(policy: OptionPolicy, value: string): void {
   if (!policy.verification || value !== "none") {
     throw new UsageError(
@@ -129,6 +150,16 @@ function applyOption(
       requireAccepted(policy.limit, "--limit");
       state.limit = positiveInteger(value, "--limit");
       return;
+    case "--profile":
+      requireAccepted(policy.profile, "--profile");
+      if (value !== "base")
+        throw new UsageError("--profile must be base in Phase 3.");
+      state.profile = value;
+      return;
+    case "--fail-on":
+      requireAccepted(policy.failOn, "--fail-on");
+      state.failOn = auditFailOn(value);
+      return;
     default:
       throw new UsageError(`Unknown option ${String(option)}.`);
   }
@@ -143,6 +174,8 @@ function parseOptions(
     maximumDiagnostics: 100,
     requestedVariableIds: undefined,
     limit: 100,
+    profile: "base",
+    failOn: "error",
   };
   for (let index = 0; index < args.length; index += 2) {
     const option = args[index];
@@ -159,6 +192,8 @@ const readOptions: OptionPolicy = {
   maximumDiagnostics: true,
   scope: false,
   limit: false,
+  profile: false,
+  failOn: false,
 };
 
 function recognitionOperands(
@@ -184,20 +219,31 @@ function parseDocumentCommand(
   args: readonly string[],
   action: string | undefined,
 ): ParsedCommand {
-  if (action !== "validate" && action !== "show") {
-    throw new UsageError("Expected document validate|show.");
+  if (action !== "validate" && action !== "show" && action !== "audit") {
+    throw new UsageError("Expected document validate|show|audit.");
   }
   const path = args[2];
   if (path === undefined)
     throw new UsageError("A .recog file path is required.");
+  const options = parseOptions(args.slice(3), {
+    ...readOptions,
+    verification: action === "validate",
+    profile: action === "audit",
+    failOn: action === "audit",
+  });
+  if (action === "audit") {
+    return {
+      resource: "document",
+      action,
+      path,
+      ...options,
+    };
+  }
   return {
     resource: "document",
     action,
     path,
-    ...parseOptions(args.slice(3), {
-      ...readOptions,
-      verification: action === "validate",
-    }),
+    ...options,
   };
 }
 
@@ -227,6 +273,8 @@ function parseRecognitionCommand(
         maximumDiagnostics: false,
         scope: true,
         limit: true,
+        profile: false,
+        failOn: false,
       }),
     };
   }
@@ -239,7 +287,7 @@ function parseCommand(args: readonly string[]): ParsedCommand {
     return parseRecognitionCommand(args, args[1]);
   }
   throw new UsageError(
-    "Expected document validate|show or recognition show|explain.",
+    "Expected document validate|show|audit or recognition show|explain.",
   );
 }
 
@@ -251,9 +299,12 @@ function execute(command: ParsedCommand): BootstrapReadResult {
     maximumDiagnostics: command.maximumDiagnostics,
   };
   if (command.resource === "document") {
-    return command.action === "validate"
-      ? validateBootstrapInput(input)
-      : showBootstrapDocument(input);
+    if (command.action === "validate") return validateBootstrapInput(input);
+    if (command.action === "show") return showBootstrapDocument(input);
+    if (command.action === "audit") {
+      return auditBootstrapDocument(input, { failOn: command.failOn });
+    }
+    throw new Error("unreachable document action");
   }
   if (command.action === "explain") {
     return explainBootstrapRecognition(input, command.id, {
@@ -272,6 +323,9 @@ function exitStatus(result: BootstrapReadResult): number {
   }
   if (result.schema === "Llmrecog.RecognitionResult.v1" && !result.found)
     return 1;
+  if (result.schema === "Llmrecog.AuditResult.v1") {
+    return result.passed && result.complete ? 0 : 1;
+  }
   return result.complete ? 0 : 1;
 }
 

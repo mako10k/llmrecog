@@ -11,6 +11,7 @@ import addFormats from "ajv-formats";
 
 import {
   ExplainInputError,
+  auditBootstrapDocument,
   explainBootstrapRecognition,
   showBootstrapDocument,
   showBootstrapRecognition,
@@ -29,6 +30,10 @@ const openUnknownPath = `${fixtureRoot}/valid/open-unknown.recog`;
 const unsupportedAllowedPath = `${fixtureRoot}/valid/unsupported-allowed.recog`;
 const oneOfJointPath = `${fixtureRoot}/valid/one-of-joint.recog`;
 const oneOfConflictPath = `${fixtureRoot}/valid/one-of-conflict.recog`;
+const propagatedExclusionPath = `${fixtureRoot}/valid/propagated-exclusion.recog`;
+const closedConflictPath = `${fixtureRoot}/valid/closed-conflict.recog`;
+const limitUnknownPath = `${fixtureRoot}/valid/limit-unknown.recog`;
+const allDeclarationsPath = `${fixtureRoot}/valid/all-declarations.recog`;
 
 const schemaPaths = [
   "schemas/Llmrecog.Common.v1.schema.json",
@@ -39,6 +44,7 @@ const schemaPaths = [
   "schemas/Llmrecog.RecognitionResult.v1.schema.json",
   "schemas/Llmrecog.ExplainResult.v1.schema.json",
   "schemas/Llmrecog.ExplainResult.v2.schema.json",
+  "schemas/Llmrecog.AuditResult.v1.schema.json",
 ];
 
 const resultSchemaIds: Readonly<Record<BootstrapReadResult["schema"], string>> =
@@ -51,6 +57,8 @@ const resultSchemaIds: Readonly<Record<BootstrapReadResult["schema"], string>> =
       "https://mako10k.github.io/llmrecog/schemas/Llmrecog.RecognitionResult.v1.schema.json",
     "Llmrecog.ExplainResult.v2":
       "https://mako10k.github.io/llmrecog/schemas/Llmrecog.ExplainResult.v2.schema.json",
+    "Llmrecog.AuditResult.v1":
+      "https://mako10k.github.io/llmrecog/schemas/Llmrecog.AuditResult.v1.schema.json",
   };
 
 interface ExpectedDiagnostic {
@@ -587,22 +595,22 @@ test("ExplainResult v2 projects typed authored targets without relying on witnes
     );
   }
 
-  const deferred = explainBootstrapRecognition(
+  const finite = explainBootstrapRecognition(
     contractInput(minimalPath),
     "C_WEAK_COMMITMENT",
   );
-  assert.equal(deferred.schema, "Llmrecog.ExplainResult.v2");
-  if (deferred.schema !== "Llmrecog.ExplainResult.v2") return;
-  assert.equal(deferred.viability?.witness, null);
-  assert.equal(deferred.recognition.declaration_kind, "candidate");
-  if (deferred.recognition.declaration_kind !== "candidate") return;
-  assert.equal(deferred.recognition.variable_id, "V_COMMITMENT");
-  assert.deepEqual(deferred.recognition.value, {
+  assert.equal(finite.schema, "Llmrecog.ExplainResult.v2");
+  if (finite.schema !== "Llmrecog.ExplainResult.v2") return;
+  assert.notEqual(finite.viability?.witness, null);
+  assert.equal(finite.recognition.declaration_kind, "candidate");
+  if (finite.recognition.declaration_kind !== "candidate") return;
+  assert.equal(finite.recognition.variable_id, "V_COMMITMENT");
+  assert.deepEqual(finite.recognition.value, {
     kind: "symbol",
     value: "weak_commitment",
   });
   assert(
-    renderBootstrapText(deferred).includes(
+    renderBootstrapText(finite).includes(
       "  variable: V_COMMITMENT\n  value: symbol weak_commitment\n",
     ),
   );
@@ -622,10 +630,10 @@ test("ExplainResult v2 projects typed authored targets without relying on witnes
   ]);
 });
 
-test("the one_of slice exposes deferred constraints instead of inventing a witness", () => {
+test("implemented excludes are finite while other constraint kinds remain explicit", () => {
   const result = explainBootstrapRecognition(
-    readInput(minimalPath),
-    "C_WEAK_COMMITMENT",
+    readInput(allDeclarationsPath),
+    "C_MODE_DESIRE",
   );
   assert.equal(result.schema, "Llmrecog.ExplainResult.v2");
   if (result.schema !== "Llmrecog.ExplainResult.v2") return;
@@ -637,12 +645,12 @@ test("the one_of slice exposes deferred constraints instead of inventing a witne
     reason_chain: [],
     unknown_reasons: ["RCG-RSN-006"],
   });
-  assert.deepEqual(result.skipped_constraints, [
-    {
-      constraint_id: "K_TANAKA_NOT_WEAK",
-      reason_code: "RCG-RSN-006",
-    },
-  ]);
+  assert(result.skipped_constraints.length > 0);
+  assert(
+    result.skipped_constraints.every(
+      (constraint) => constraint.reason_code === "RCG-RSN-006",
+    ),
+  );
 
   assert.throws(
     () =>
@@ -653,12 +661,130 @@ test("the one_of slice exposes deferred constraints instead of inventing a witne
   );
 });
 
+test("finite excludes explanation matches allowed, excluded, conflict, and limit contracts", () => {
+  const contractInput = (relativePath: string): BootstrapReadInput => ({
+    ...readInput(relativePath),
+    toolVersion: "contract-fixture",
+  });
+  const cases = [
+    {
+      input: propagatedExclusionPath,
+      id: "C_DESIRE",
+      expected: `${fixtureRoot}/expected/candidate-allowed.explain.json`,
+    },
+    {
+      input: propagatedExclusionPath,
+      id: "C_WEAK",
+      expected: `${fixtureRoot}/expected/candidate-excluded.explain.json`,
+    },
+    {
+      input: minimalPath,
+      id: "C_WEAK_COMMITMENT",
+      expected: `${fixtureRoot}/expected/minimal-weak.explain.json`,
+      text: `${fixtureRoot}/expected/minimal-weak.explain.txt`,
+    },
+    {
+      input: minimalPath,
+      id: "K_TANAKA_NOT_WEAK",
+      expected: `${fixtureRoot}/expected/minimal-excludes.constraint-explain.json`,
+      text: `${fixtureRoot}/expected/minimal-excludes.constraint-explain.txt`,
+    },
+    {
+      input: limitUnknownPath,
+      id: "C_B1",
+      options: { limit: 1 },
+      expected: `${fixtureRoot}/expected/limit-unknown.explain.json`,
+      text: `${fixtureRoot}/expected/limit-unknown.explain.txt`,
+    },
+  ] as const;
+
+  for (const fixture of cases) {
+    const result = explainBootstrapRecognition(
+      contractInput(fixture.input),
+      fixture.id,
+      "options" in fixture ? fixture.options : {},
+    );
+    assert.equal(result.schema, "Llmrecog.ExplainResult.v2");
+    assertResultSchema(result);
+    assert.deepEqual(result, readJson(fixture.expected));
+    if ("text" in fixture) {
+      assert.equal(
+        renderBootstrapText(result),
+        fs.readFileSync(absolutePath(fixture.text), "utf8"),
+      );
+    }
+  }
+});
+
+test("focused audit matches frozen diagnostics, thresholds, and truncation", () => {
+  const contractInput = (relativePath: string): BootstrapReadInput => ({
+    ...readInput(relativePath),
+    toolVersion: "contract-fixture",
+  });
+  const propagated = auditBootstrapDocument(
+    contractInput(propagatedExclusionPath),
+  );
+  const conflict = auditBootstrapDocument(contractInput(closedConflictPath));
+  assert.equal(propagated.schema, "Llmrecog.AuditResult.v1");
+  assert.equal(conflict.schema, "Llmrecog.AuditResult.v1");
+  assertResultSchema(propagated);
+  assertResultSchema(conflict);
+  assert.deepEqual(
+    propagated,
+    readJson(`${fixtureRoot}/expected/propagated-exclusion.audit.json`),
+  );
+  assert.deepEqual(
+    conflict,
+    readJson(`${fixtureRoot}/expected/closed-conflict.audit.json`),
+  );
+  assert.equal(
+    renderBootstrapText(propagated),
+    fs.readFileSync(
+      absolutePath(`${fixtureRoot}/expected/propagated-exclusion.audit.txt`),
+      "utf8",
+    ),
+  );
+
+  const warningsFail = auditBootstrapDocument(
+    contractInput(propagatedExclusionPath),
+    { failOn: "warning" },
+  );
+  assert.equal(warningsFail.schema, "Llmrecog.AuditResult.v1");
+  if (warningsFail.schema === "Llmrecog.AuditResult.v1") {
+    assert.equal(warningsFail.passed, false);
+  }
+
+  const truncated = auditBootstrapDocument({
+    ...contractInput(propagatedExclusionPath),
+    maximumDiagnostics: 1,
+  });
+  assert.equal(truncated.schema, "Llmrecog.AuditResult.v1");
+  if (truncated.schema === "Llmrecog.AuditResult.v1") {
+    assert.equal(truncated.complete, false);
+    assert.equal(truncated.truncated, true);
+    assert.equal(truncated.passed, false);
+    assert.equal(truncated.diagnostics.length, 1);
+  }
+
+  const unsupported = auditBootstrapDocument(
+    contractInput(unsupportedAllowedPath),
+  );
+  assert(
+    unsupported.diagnostics.some(
+      (diagnostic) => diagnostic.code === "RCG-SUPPORT-001",
+    ),
+  );
+});
+
 test("the private CLI is read-only and byte-deterministic for dogfood routes", () => {
   const beforeDigest = digest(minimalPath);
+  const beforeAuditDigest = digest(propagatedExclusionPath);
   const cases = [
     ["document", "validate", minimalPath, "--format", "json"],
     ["document", "show", minimalPath, "--format", "json"],
     ["document", "show", minimalPath, "--format", "text"],
+    ["document", "audit", propagatedExclusionPath, "--format", "json"],
+    ["document", "audit", propagatedExclusionPath, "--format", "text"],
     ["recognition", "show", "R_DEADLINE", minimalPath, "--format", "json"],
     ["recognition", "show", "R_DEADLINE", minimalPath, "--format", "text"],
     [
@@ -692,7 +818,10 @@ test("the private CLI is read-only and byte-deterministic for dogfood routes", (
   for (const args of cases) {
     const first = runPrivateCli(args);
     const second = runPrivateCli(args);
-    assert.equal(first.status, 0, first.stderr);
+    const expectedStatus = args.some((argument) => argument === "--limit")
+      ? 1
+      : 0;
+    assert.equal(first.status, expectedStatus, first.stderr);
     assert.deepEqual(first, second);
     assert.equal(first.stderr, "");
     if (args.at(-1) === "json") {
@@ -703,6 +832,7 @@ test("the private CLI is read-only and byte-deterministic for dogfood routes", (
     }
   }
   assert.equal(digest(minimalPath), beforeDigest);
+  assert.equal(digest(propagatedExclusionPath), beforeAuditDigest);
 
   const missing = runPrivateCli([
     "recognition",
@@ -737,6 +867,53 @@ test("the private CLI is read-only and byte-deterministic for dogfood routes", (
   assert.equal(invalidScope.status, 2);
   assert.equal(invalidScope.stdout, "");
   assert.match(invalidScope.stderr, /scope/u);
+
+  const warningThreshold = runPrivateCli([
+    "document",
+    "audit",
+    propagatedExclusionPath,
+    "--fail-on",
+    "warning",
+    "--format",
+    "json",
+  ]);
+  assert.equal(warningThreshold.status, 1);
+  const warningResult = JSON.parse(
+    warningThreshold.stdout,
+  ) as BootstrapReadResult;
+  assertResultSchema(warningResult);
+  assert.equal(
+    warningResult.schema === "Llmrecog.AuditResult.v1" && warningResult.passed,
+    false,
+  );
+
+  const truncatedAudit = runPrivateCli([
+    "document",
+    "audit",
+    propagatedExclusionPath,
+    "--max-diagnostics",
+    "1",
+    "--format",
+    "json",
+  ]);
+  assert.equal(truncatedAudit.status, 1);
+  const truncatedResult = JSON.parse(
+    truncatedAudit.stdout,
+  ) as BootstrapReadResult;
+  assertResultSchema(truncatedResult);
+  assert.equal(truncatedResult.complete, false);
+  assert.equal(truncatedResult.truncated, true);
+
+  const unavailableProfile = runPrivateCli([
+    "document",
+    "audit",
+    propagatedExclusionPath,
+    "--profile",
+    "strict-grounding",
+  ]);
+  assert.equal(unavailableProfile.status, 2);
+  assert.equal(unavailableProfile.stdout, "");
+  assert.match(unavailableProfile.stderr, /profile/u);
 });
 
 test("the private CLI reports encoding failures on stderr with status 3", () => {
