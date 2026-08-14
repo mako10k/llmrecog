@@ -19,6 +19,7 @@ This directory is the design and implementation-contract authority.
 | [llmthink-grounding-audit.md](llmthink-grounding-audit.md) | Optional recognition-aware premise/evidence audit |
 | [examples/boundary-cases.md](examples/boundary-cases.md) | Required boundary examples |
 | [implementation-phases.md](implementation-phases.md) | Small implementation phases after design acceptance |
+| [phase-2-acceptance.md](phase-2-acceptance.md) | Exact candidate evidence and Phase 2 acceptance boundary |
 | [../plans/initial-roadmap.pert](../plans/initial-roadmap.pert) | Original coarse roadmap and Phase 0/1 history |
 | [../plans/phase-2-parse-validate-show.pert](../plans/phase-2-parse-validate-show.pert) | Detailed perttool plan for the separately gated Phase 2 vertical slice |
 | [../plans/dogfooding-roadmap.pert](../plans/dogfooding-roadmap.pert) | Current point-based phase-selection roadmap with dogfood/replan gates |

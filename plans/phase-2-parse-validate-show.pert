@@ -137,6 +137,7 @@ task ACCEPT_PHASE_2_SLICE SPEC_DOGFOOD_REVIEWED -> PHASE_2_ACCEPTED:
   description |
     Run focused success and failure checks, npm run check, and git diff --check; verify supported Node targets, schema and fixture parity, deterministic repeated output, core dependency direction, no provider or related-project runtime, no source locator I/O, and no responsibility leakage into CSP inference or execution planning. Review the final diff and record unresolved or deferred work without starting Phase 3, publishing, releasing, tagging, or pushing.
   duration 3p
+  status done
   priority 20
   requires:
     IMPLEMENTER 1
@@ -280,3 +281,17 @@ work_event FINISH_APPLY_SPECIFICATION_DOGFOOD_FEEDBACK_20260814:
   kind finish
   occurred_at 2026-08-14T12:12:45+09:00
   effort 0.0591666667ph
+
+work_event START_ACCEPT_PHASE_2_SLICE_20260814:
+  model 1
+  task ACCEPT_PHASE_2_SLICE
+  kind start
+  occurred_at 2026-08-14T12:13:47+09:00
+  planned_value 3p
+
+work_event FINISH_ACCEPT_PHASE_2_SLICE_20260814:
+  model 1
+  task ACCEPT_PHASE_2_SLICE
+  kind finish
+  occurred_at 2026-08-14T12:18:17+09:00
+  effort 0.075ph

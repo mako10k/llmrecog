@@ -20,6 +20,7 @@ const requiredFiles = [
   "docs/integration-llmthink.md",
   "docs/llmthink-grounding-audit.md",
   "docs/development.md",
+  "docs/phase-2-acceptance.md",
   "docs/process/development-method.md",
   "docs/process/dogfooding.md",
   "dogfood/README.md",
