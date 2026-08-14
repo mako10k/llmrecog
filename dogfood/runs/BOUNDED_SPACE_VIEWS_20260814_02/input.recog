@@ -1,0 +1,141 @@
+llmrecog 0.1
+
+document BOUNDED_SPACE_VIEWS_20260814_02:
+  title "Phase 4 bounded space views dogfood replay"
+
+source CLI_CONTRACT_DOC:
+  kind text
+  locator "../../../docs/cli-contract.md"
+  media_type "text/markdown"
+  digest "sha256:61b91edeeae5fc2a7ed7d27c71efef910f90bab5023849dd6d1161c0ded6f738"
+
+source PHASE4_ADR_DOC:
+  kind text
+  locator "../../../docs/adr/0010-phase-4-complete-core-contract.md"
+  media_type "text/markdown"
+  digest "sha256:e3bb18f938281e2d1d61bc5dc029a12df6e42bf898247078fd5519cc142cc272"
+
+source IMPLEMENTATION_PHASES_DOC:
+  kind text
+  locator "../../../docs/implementation-phases.md"
+  media_type "text/markdown"
+  digest "sha256:90d62d29538a62585d97bdf419d7aee348b8b9b59a99220643ba9927c6d86130"
+
+span S_CLI_QUERY:
+  source CLI_CONTRACT_DOC
+  range 126:1..155:1
+
+span S_CLI_MATERIALIZATION:
+  source CLI_CONTRACT_DOC
+  range 176:1..202:1
+
+span S_ADR_SPACE_VIEWS:
+  source PHASE4_ADR_DOC
+  range 125:1..216:1
+
+span S_PHASE4_SEQUENCE:
+  source IMPLEMENTATION_PHASES_DOC
+  range 121:1..160:1
+
+observation O_BOUNDED_SPACE_READY:
+  surface "Both bounded read-only space routes are ready for dogfood"
+  grounded_in [S_CLI_QUERY, S_CLI_MATERIALIZATION, S_PHASE4_SEQUENCE]
+
+entity E_BOUNDED_SPACE:
+  type semantic_slice
+  label "Phase 4 bounded space views"
+  grounded_in [O_BOUNDED_SPACE_READY, S_ADR_SPACE_VIEWS]
+  support explicit
+
+record R_SPACE_BOUNDARY:
+  kind property
+  subject E_BOUNDED_SPACE
+  predicate responsibility
+  value "Deterministic read-only projection without choice or persistence"
+  grounded_in [S_ADR_SPACE_VIEWS]
+  support explicit
+
+variable V_TRIGGER:
+  value_type symbol
+  candidates [C_TRIGGER_ON, C_TRIGGER_OFF]
+  grounded_in [S_CLI_MATERIALIZATION, S_ADR_SPACE_VIEWS]
+
+candidate C_TRIGGER_ON in V_TRIGGER:
+  value on
+  grounded_in [S_ADR_SPACE_VIEWS]
+  support explicit
+
+candidate C_TRIGGER_OFF in V_TRIGGER:
+  value off
+  grounded_in [S_ADR_SPACE_VIEWS]
+  support explicit
+
+variable V_MODE:
+  value_type symbol
+  candidates [C_MODE_FAST, C_MODE_SAFE]
+  grounded_in [S_CLI_MATERIALIZATION, S_ADR_SPACE_VIEWS]
+
+candidate C_MODE_FAST in V_MODE:
+  value fast
+  grounded_in [S_ADR_SPACE_VIEWS]
+  support explicit
+
+candidate C_MODE_SAFE in V_MODE:
+  value safe
+  grounded_in [S_ADR_SPACE_VIEWS]
+  support explicit
+
+constraint K_TRIGGER_ONE_OF:
+  kind one_of
+  variable V_TRIGGER
+  members [C_TRIGGER_ON, C_TRIGGER_OFF]
+  grounded_in [S_ADR_SPACE_VIEWS]
+  support explicit
+
+constraint K_MODE_ONE_OF:
+  kind one_of
+  variable V_MODE
+  members [C_MODE_FAST, C_MODE_SAFE]
+  grounded_in [S_ADR_SPACE_VIEWS]
+  support explicit
+
+constraint K_ON_REQUIRES_FAST:
+  kind requires
+  antecedent C_TRIGGER_ON
+  consequent C_MODE_FAST
+  grounded_in [S_ADR_SPACE_VIEWS]
+  support explicit
+
+variable V_OPEN_LEFT:
+  value_type symbol
+  candidates [C_OPEN_LEFT_RED]
+  grounded_in [S_CLI_QUERY, S_ADR_SPACE_VIEWS]
+
+candidate C_OPEN_LEFT_RED in V_OPEN_LEFT:
+  value red
+  grounded_in [S_ADR_SPACE_VIEWS]
+  support explicit
+
+variable V_OPEN_RIGHT:
+  value_type symbol
+  candidates [C_OPEN_RIGHT_BLUE]
+  grounded_in [S_CLI_QUERY, S_ADR_SPACE_VIEWS]
+
+candidate C_OPEN_RIGHT_BLUE in V_OPEN_RIGHT:
+  value blue
+  grounded_in [S_ADR_SPACE_VIEWS]
+  support ambiguous
+
+constraint K_OPEN_LEFT_ONE_OF:
+  kind one_of
+  variable V_OPEN_LEFT
+  members [C_OPEN_LEFT_RED]
+  grounded_in [S_ADR_SPACE_VIEWS]
+  support explicit
+
+constraint K_OPEN_VALUES_SAME:
+  kind same_as
+  left V_OPEN_LEFT
+  right V_OPEN_RIGHT
+  grounded_in [S_ADR_SPACE_VIEWS]
+  support explicit

@@ -16,7 +16,8 @@ const phase4ProtocolV5Path = "dogfood/protocol-v5/protocol.json";
 const phase4ProtocolV6Path = "dogfood/protocol-v6/protocol.json";
 const phase4ProtocolV7Path = "dogfood/protocol-v7/protocol.json";
 const phase4ProtocolV8Path = "dogfood/protocol-v8/protocol.json";
-const activeProtocolPath = "dogfood/protocol-v9/protocol.json";
+const phase4ProtocolV9Path = "dogfood/protocol-v9/protocol.json";
+const activeProtocolPath = "dogfood/protocol-v10/protocol.json";
 const runExamplePath = "dogfood/protocol-v1/examples/run-receipt.example.json";
 const grammarRunReceiptPath =
   "dogfood/runs/GRAMMAR_AUTHORING_20260814_01/receipt.json";
@@ -32,6 +33,8 @@ const relationalReplayReceiptPath =
   "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_02/receipt.json";
 const boundedSpaceRunReceiptPath =
   "dogfood/runs/BOUNDED_SPACE_VIEWS_20260814_01/receipt.json";
+const boundedSpaceReplayReceiptPath =
+  "dogfood/runs/BOUNDED_SPACE_VIEWS_20260814_02/receipt.json";
 const feedbackExamplePath =
   "dogfood/protocol-v1/examples/feedback.example.json";
 const grammarFeedbackPath =
@@ -46,6 +49,10 @@ const relationalFeedbackPath =
   "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_01/feedback.json";
 const relationalReplayFeedbackPath =
   "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_02/feedback.json";
+const boundedSpaceFeedbackPath =
+  "dogfood/runs/BOUNDED_SPACE_VIEWS_20260814_01/feedback.json";
+const boundedSpaceReplayFeedbackPath =
+  "dogfood/runs/BOUNDED_SPACE_VIEWS_20260814_02/feedback.json";
 
 interface ProtocolDocument {
   readonly id: string;
@@ -166,6 +173,7 @@ const protocol = readJson<DogfoodProtocol>(protocolPath);
 const activeProtocol = readJson<DogfoodProtocol>(activeProtocolPath);
 const relationalReplayProtocol =
   readJson<DogfoodProtocol>(phase4ProtocolV6Path);
+const boundedSpaceProtocolV9 = readJson<DogfoodProtocol>(phase4ProtocolV9Path);
 
 function requiredCommandCase(
   protocolDocument: DogfoodProtocol,
@@ -305,6 +313,15 @@ function assertFeedbackBindings(
   assert.deepEqual(feedback.unresolved_observation_ids, []);
 }
 
+function assertProtocolCommand(command: CommandCase): void {
+  assert(command.route.length === 2);
+  assert.equal(command.repeat_count, 2);
+  assert(Array.isArray(command.required_options));
+  if (command.required_flags !== undefined) {
+    assert(Array.isArray(command.required_flags));
+  }
+}
+
 test("the active dogfood protocol freezes corpus, questions, commands, and gates", () => {
   assert.equal(
     sha256(protocolPath),
@@ -339,11 +356,15 @@ test("the active dogfood protocol freezes corpus, questions, commands, and gates
     "sha256:6caba5472a1df4fdbc463c9463c6af50a7bb6a3b973de67e0280aea2d2a2248a",
   );
   assert.equal(
-    sha256(activeProtocolPath),
+    sha256(phase4ProtocolV9Path),
     "sha256:8ce28da57255e62dce10a0daf1bb599650c3b0388bf2fbdc3176a5e29b36522f",
   );
+  assert.equal(
+    sha256(activeProtocolPath),
+    "sha256:1e83c13dbb7d3e04e29d378ac6480a0cba417fae2c5238d99893c8df88c7b058",
+  );
   assert.equal(activeProtocol.schema, "Llmrecog.Internal.DogfoodProtocol.v1");
-  assert.equal(activeProtocol.protocol_version, 9);
+  assert.equal(activeProtocol.protocol_version, 10);
   assert.equal(activeProtocol.semantic_version, "0.1");
   assert.equal(activeProtocol.status, "active");
   assert.equal(activeProtocol.run_path_pattern, "dogfood/runs/<run-id>");
@@ -394,12 +415,7 @@ test("the active dogfood protocol freezes corpus, questions, commands, and gates
   );
   assert.equal(new Set(commandCaseIds).size, commandCaseIds.length);
   for (const command of activeProtocol.command_cases) {
-    assert(command.route.length === 2);
-    assert.equal(command.repeat_count, 2);
-    assert(Array.isArray(command.required_options));
-    if (command.required_flags !== undefined) {
-      assert(Array.isArray(command.required_flags));
-    }
+    assertProtocolCommand(command);
   }
   for (const round of activeProtocol.rounds) {
     assert(round.command_case_ids.length > 0);
@@ -436,6 +452,11 @@ test("the active dogfood protocol freezes corpus, questions, commands, and gates
       "SPACE_MATERIALIZE_REQUIRE_COMPLETE_JSON",
     ),
   );
+  assert(
+    activeProtocol.rounds[0]?.command_case_ids.includes(
+      "SPACE_MATERIALIZE_LOW_LIMIT_JSON",
+    ),
+  );
 
   assert.deepEqual(activeProtocol.observation_categories, [
     "contract_semantic",
@@ -465,6 +486,9 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   const relationalRun = readJson<RunExample>(relationalRunReceiptPath);
   const relationalReplay = readJson<RunExample>(relationalReplayReceiptPath);
   const boundedSpaceRun = readJson<RunExample>(boundedSpaceRunReceiptPath);
+  const boundedSpaceReplay = readJson<RunExample>(
+    boundedSpaceReplayReceiptPath,
+  );
   const feedbackExample = readJson<FeedbackExample>(feedbackExamplePath);
   const grammarFeedback = readJson<FeedbackExample>(grammarFeedbackPath);
   const specificationFeedback = readJson<FeedbackExample>(
@@ -475,6 +499,12 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   const relationalFeedback = readJson<FeedbackExample>(relationalFeedbackPath);
   const relationalReplayFeedback = readJson<FeedbackExample>(
     relationalReplayFeedbackPath,
+  );
+  const boundedSpaceFeedback = readJson<FeedbackExample>(
+    boundedSpaceFeedbackPath,
+  );
+  const boundedSpaceReplayFeedback = readJson<FeedbackExample>(
+    boundedSpaceReplayFeedbackPath,
   );
   const ajv = new Ajv2020({ allErrors: true, strict: true });
   addFormats(ajv);
@@ -522,6 +552,11 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
     JSON.stringify(validateRun.errors, null, 2),
   );
   assert.equal(
+    validateRun(boundedSpaceReplay),
+    true,
+    JSON.stringify(validateRun.errors, null, 2),
+  );
+  assert.equal(
     validateFeedback(feedbackExample),
     true,
     JSON.stringify(validateFeedback.errors, null, 2),
@@ -553,6 +588,16 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   );
   assert.equal(
     validateFeedback(relationalReplayFeedback),
+    true,
+    JSON.stringify(validateFeedback.errors, null, 2),
+  );
+  assert.equal(
+    validateFeedback(boundedSpaceFeedback),
+    true,
+    JSON.stringify(validateFeedback.errors, null, 2),
+  );
+  assert.equal(
+    validateFeedback(boundedSpaceReplayFeedback),
     true,
     JSON.stringify(validateFeedback.errors, null, 2),
   );
@@ -641,7 +686,22 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   assert.equal(boundedSpaceRun.outcome, "blocked");
   assert.equal(boundedSpaceRun.complete, false);
   assert.equal(boundedSpaceRun.truncated, false);
-  assertRunBindings(boundedSpaceRun, activeProtocol, activeProtocolPath);
+  assertRunBindings(
+    boundedSpaceRun,
+    boundedSpaceProtocolV9,
+    phase4ProtocolV9Path,
+  );
+  assert.equal(boundedSpaceReplay.run_id, "BOUNDED_SPACE_VIEWS_20260814_02");
+  assert(
+    boundedSpaceReplay.question_results.every(
+      (result) => result.status === "answered",
+    ),
+  );
+  assert.notEqual(boundedSpaceReplay.tool.repository_revision, "0".repeat(40));
+  assert.equal(boundedSpaceReplay.outcome, "completed");
+  assert.equal(boundedSpaceReplay.complete, true);
+  assert.equal(boundedSpaceReplay.truncated, false);
+  assertRunBindings(boundedSpaceReplay, activeProtocol, activeProtocolPath);
 
   assert(feedbackExample.feedback_id.startsWith("EXAMPLE_"));
   assertFeedbackBindings(feedbackExample, runExamplePath, runExample);
@@ -785,5 +845,34 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
     relationalReplayFeedback,
     relationalReplayReceiptPath,
     relationalReplay,
+  );
+  assert.equal(
+    boundedSpaceFeedback.feedback_id,
+    "BOUNDED_SPACE_VIEWS_20260814_01_FEEDBACK_01",
+  );
+  assert.deepEqual(boundedSpaceFeedback.point_adjustments, [
+    {
+      plan_path: "plans/phase-4-complete-core.pert",
+      task_id: "APPLY_CORE_DOGFOOD_FEEDBACK",
+      previous_points: 2,
+      revised_points: 3,
+      rationale:
+        "Add 1p for an immutable successor protocol, the missing no-flag limit-2 command case, a complete replay receipt, and both feedback bindings discovered by actual v9 use.",
+    },
+  ]);
+  assertFeedbackBindings(
+    boundedSpaceFeedback,
+    boundedSpaceRunReceiptPath,
+    boundedSpaceRun,
+  );
+  assert.equal(
+    boundedSpaceReplayFeedback.feedback_id,
+    "BOUNDED_SPACE_VIEWS_20260814_02_FEEDBACK_01",
+  );
+  assert.deepEqual(boundedSpaceReplayFeedback.point_adjustments, []);
+  assertFeedbackBindings(
+    boundedSpaceReplayFeedback,
+    boundedSpaceReplayReceiptPath,
+    boundedSpaceReplay,
   );
 });

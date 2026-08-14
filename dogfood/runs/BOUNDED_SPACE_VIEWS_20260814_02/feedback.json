@@ -1,0 +1,15 @@
+{
+  "schema": "Llmrecog.Internal.DogfoodFeedback.v1",
+  "feedback_id": "BOUNDED_SPACE_VIEWS_20260814_02_FEEDBACK_01",
+  "receipt": {
+    "path": "dogfood/runs/BOUNDED_SPACE_VIEWS_20260814_02/receipt.json",
+    "digest": "sha256:de3714b7103b581add999b34f84a48cd959aaccd93f62c929b27ab615face730"
+  },
+  "reviewed_at": "2026-08-14T18:22:44+09:00",
+  "reviewer": "codex",
+  "supersedes": null,
+  "entries": [],
+  "point_adjustments": [],
+  "round_complete": true,
+  "unresolved_observation_ids": []
+}

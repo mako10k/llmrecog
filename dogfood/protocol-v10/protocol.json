@@ -1,0 +1,219 @@
+{
+  "schema": "Llmrecog.Internal.DogfoodProtocol.v1",
+  "protocol_version": 10,
+  "semantic_version": "0.1",
+  "status": "active",
+  "receipt_schema": "dogfood/schemas/Llmrecog.Internal.DogfoodRunReceipt.v1.schema.json",
+  "feedback_schema": "dogfood/schemas/Llmrecog.Internal.DogfoodFeedback.v1.schema.json",
+  "run_path_pattern": "dogfood/runs/<run-id>",
+  "rounds": [
+    {
+      "id": "bounded_space_views_v10",
+      "sequence": 6,
+      "earliest_gate": "BOUNDED_MATERIALIZATION_ACCEPTED",
+      "documents": [
+        {
+          "id": "r6v10_cli_contract",
+          "path": "docs/cli-contract.md",
+          "digest": "sha256:61b91edeeae5fc2a7ed7d27c71efef910f90bab5023849dd6d1161c0ded6f738",
+          "authority": "accepted_private_command_contract"
+        },
+        {
+          "id": "r6v10_implementation_sequence",
+          "path": "docs/implementation-phases.md",
+          "digest": "sha256:90d62d29538a62585d97bdf419d7aee348b8b9b59a99220643ba9927c6d86130",
+          "authority": "implementation_sequence"
+        },
+        {
+          "id": "r6v10_dogfood_process",
+          "path": "docs/process/dogfooding.md",
+          "digest": "sha256:062ebf4d277f5ca1f50cbd13982eae06f813fe78d09c78f658977da3adf37a5f",
+          "authority": "dogfood_sequence_and_feedback_gates"
+        },
+        {
+          "id": "r6v10_query_schema",
+          "path": "schemas/Llmrecog.QueryResult.v1.schema.json",
+          "digest": "sha256:f1705c52b48698da0a43681fe66022952f187d3d6722bb3328f919281ce2ed43",
+          "authority": "normative_query_result"
+        },
+        {
+          "id": "r6v10_materialization_schema",
+          "path": "schemas/Llmrecog.MaterializationResult.v1.schema.json",
+          "digest": "sha256:531332f92dd7296312c368fd5bcdc97a03032624b3499d2a9f024260020631e4",
+          "authority": "normative_materialization_result"
+        },
+        {
+          "id": "r6v10_core_fixture",
+          "path": "test/fixtures/contracts/v0.1/valid/relational-core.recog",
+          "digest": "sha256:a4eb61975a0fa13dd94deeb7a9d315c97adc5c238942e7b8f698a17f1bcb7b9c",
+          "authority": "normative_bounded_space_fixture"
+        },
+        {
+          "id": "r6v10_open_fixture",
+          "path": "test/fixtures/contracts/v0.1/valid/relational-open.recog",
+          "digest": "sha256:326c8e4c10fe698e28b598e7fd9834af0fcfe4e8209cd6600f45cb8aec2eb912",
+          "authority": "normative_open_space_fixture"
+        }
+      ],
+      "question_ids": [
+        "DGF-SPACE-001",
+        "DGF-SPACE-002",
+        "DGF-SPACE-003",
+        "DGF-SPACE-004",
+        "DGF-SPACE-005"
+      ],
+      "required_declarations": [
+        "document",
+        "source",
+        "span",
+        "observation",
+        "entity",
+        "record",
+        "variable",
+        "candidate",
+        "constraint"
+      ],
+      "command_case_ids": [
+        "SPACE_QUERY_JSON",
+        "SPACE_QUERY_TEXT",
+        "SPACE_QUERY_LIMIT_JSON",
+        "SPACE_MATERIALIZE_JSON",
+        "SPACE_MATERIALIZE_TEXT",
+        "SPACE_MATERIALIZE_LOW_LIMIT_JSON",
+        "SPACE_MATERIALIZE_REQUIRE_COMPLETE_JSON",
+        "SPACE_MATERIALIZE_OPEN_JSON"
+      ],
+      "next_gate": "CORE_DOGFOOD_REVIEWED"
+    }
+  ],
+  "questions": [
+    {
+      "id": "DGF-SPACE-001",
+      "round_id": "bounded_space_views_v10",
+      "prompt": "Can conjunction filters find the compound targets without becoming a general query or inference language?",
+      "required_evidence": "Exact filter object, typed recognition items, support and viability separation, and effective solver scope",
+      "non_goal": "Adding arbitrary predicates, joins, ranking, or conclusions"
+    },
+    {
+      "id": "DGF-SPACE-002",
+      "round_id": "bounded_space_views_v10",
+      "prompt": "Are query items and materialized worlds stable in declaration and candidate order across repeated runs?",
+      "required_evidence": "Byte-identical JSON and text, ordered IDs, world indices, and identical exit statuses",
+      "non_goal": "Sorting by confidence, preference, probability, or solver backend order"
+    },
+    {
+      "id": "DGF-SPACE-003",
+      "round_id": "bounded_space_views_v10",
+      "prompt": "Does an exact inspection limit report complete only when the represented generator is exhausted?",
+      "required_evidence": "Limit, inspected count, one-step exhaustion behavior, complete and truncated fields",
+      "non_goal": "Equating emitted-world count with inspected-assignment count"
+    },
+    {
+      "id": "DGF-SPACE-004",
+      "round_id": "bounded_space_views_v10",
+      "prompt": "Does low-limit materialization preserve the same typed prefix while require-complete changes only the exit boundary?",
+      "required_evidence": "Identical typed prefix, RCG-RSN-007, status 0 without the flag, and status 5 with it",
+      "non_goal": "Presenting a truncated prefix as complete or discarding it on status 5"
+    },
+    {
+      "id": "DGF-SPACE-005",
+      "round_id": "bounded_space_views_v10",
+      "prompt": "How are fully inspected open relational branches reported without emitting an indeterminate world?",
+      "required_evidence": "Open variable IDs, indeterminate count, RCG-RSN-001, empty or proved-only worlds, and computational completeness",
+      "non_goal": "Inventing an unspecified candidate or treating open as equal, distinct, or false"
+    }
+  ],
+  "command_cases": [
+    {
+      "id": "SPACE_QUERY_JSON",
+      "route": ["space", "query"],
+      "format": "json",
+      "repeat_count": 2,
+      "required_options": [
+        "--variable",
+        "V_OPEN_LEFT",
+        "--viability",
+        "unknown"
+      ]
+    },
+    {
+      "id": "SPACE_QUERY_TEXT",
+      "route": ["space", "query"],
+      "format": "text",
+      "repeat_count": 2,
+      "required_options": [
+        "--variable",
+        "V_OPEN_LEFT",
+        "--viability",
+        "unknown"
+      ]
+    },
+    {
+      "id": "SPACE_QUERY_LIMIT_JSON",
+      "route": ["space", "query"],
+      "format": "json",
+      "repeat_count": 2,
+      "required_options": ["--limit", "1"]
+    },
+    {
+      "id": "SPACE_MATERIALIZE_JSON",
+      "route": ["space", "materialize"],
+      "format": "json",
+      "repeat_count": 2,
+      "required_options": ["--scope", "V_TRIGGER", "--limit", "4"]
+    },
+    {
+      "id": "SPACE_MATERIALIZE_TEXT",
+      "route": ["space", "materialize"],
+      "format": "text",
+      "repeat_count": 2,
+      "required_options": ["--scope", "V_TRIGGER", "--limit", "4"]
+    },
+    {
+      "id": "SPACE_MATERIALIZE_LOW_LIMIT_JSON",
+      "route": ["space", "materialize"],
+      "format": "json",
+      "repeat_count": 2,
+      "required_options": ["--scope", "V_TRIGGER", "--limit", "2"]
+    },
+    {
+      "id": "SPACE_MATERIALIZE_REQUIRE_COMPLETE_JSON",
+      "route": ["space", "materialize"],
+      "format": "json",
+      "repeat_count": 2,
+      "required_options": ["--scope", "V_TRIGGER", "--limit", "2"],
+      "required_flags": ["--require-complete"]
+    },
+    {
+      "id": "SPACE_MATERIALIZE_OPEN_JSON",
+      "route": ["space", "materialize"],
+      "format": "json",
+      "repeat_count": 2,
+      "required_options": ["--scope", "V_OPEN_LEFT", "--limit", "2"]
+    }
+  ],
+  "observation_categories": [
+    "contract_semantic",
+    "implementation",
+    "diagnostics_presentation",
+    "documentation",
+    "product_boundary"
+  ],
+  "feedback_dispositions": ["accepted", "rejected", "deferred"],
+  "acceptance": {
+    "receipt_immutable": true,
+    "feedback_binds_receipt_digest": true,
+    "all_questions_answered_or_blocked": true,
+    "all_observations_dispositioned_before_next_gate": true,
+    "contract_change_requires_adr": true,
+    "unfinished_work_reestimated_in_points": true,
+    "elapsed_time_forecast_requires_stable_velocity": true,
+    "support_and_viability_remain_separate": true,
+    "allowed_requires_joint_witness": true,
+    "excluded_requires_grounded_chain": true,
+    "open_relational_operands_remain_indeterminate": true,
+    "query_remains_conjunctive_and_read_only": true,
+    "materialization_limit_counts_inspected_assignments": true,
+    "derived_results_are_not_persisted": true
+  }
+}

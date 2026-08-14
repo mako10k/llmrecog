@@ -73,7 +73,7 @@ task IMPLEMENT_AND_DOGFOOD_EXPLAIN PHASE_2_DOGFOOD_SLICE_ACCEPTED -> EXPLAIN_DOG
 
 task COMPLETE_AND_DOGFOOD_CORE EXPLAIN_DOGFOOD_REVIEWED -> CORE_DOGFOOD_REVIEWED:
   title "Complete and dogfood the deterministic semantic core"
-  description "Add requires, same_as, distinct_from, bounded query/materialization, limit behavior, and reason composition; use grounded-provenance and joint-witness questions, evaluate whether one compound allowed-plus-forbidden question needs a composed query or navigation surface before changing the explain contract, disposition the evidence, and revise the source-verification plan"
+  description "Add requires, same_as, distinct_from, bounded query/materialization, limit behavior, and reason composition; use grounded-provenance and joint-witness questions, evaluate the compound allowed-plus-forbidden question, and disposition all evidence. The 35p duration remains the immutable start-event planning basis; the current detailed Phase 4 plan totals 37p after two dogfood-discovered replay points."
   duration 35p
   status active
   priority 80
@@ -83,7 +83,7 @@ task COMPLETE_AND_DOGFOOD_CORE EXPLAIN_DOGFOOD_REVIEWED -> CORE_DOGFOOD_REVIEWED
 
 task VERIFY_AND_DOGFOOD_LOCAL_SOURCES CORE_DOGFOOD_REVIEWED -> PROVENANCE_DOGFOOD_REVIEWED:
   title "Implement and dogfood fail-closed local source verification"
-  description "Verify relative locators, digests, ranges, and quotes without network or automatic repair; mutate a copied corpus to prove stale-source failures, disposition provenance feedback, and revise the producer-contract plan"
+  description "Keep Phase 5 at 16p: 4p to freeze the local-verification ADR, result and diagnostic contracts, fixtures, and dogfood protocol; 5p to implement the fail-closed relative resolver plus digest, range, and quote verification through an explicit filesystem port; 3p to dogfood unchanged and deliberately stale copied corpus sources; 2p to disposition and re-estimate producer work; and 2p for final audit and acceptance. No network, automatic repair, provider, publication, or release is authorized."
   duration 16p
   priority 70
   requires:

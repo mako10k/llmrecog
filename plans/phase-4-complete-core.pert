@@ -138,6 +138,7 @@ task APPLY_CORE_DOGFOOD_FEEDBACK SPACE_DOGFOOD_OBSERVED -> CORE_DOGFOOD_REVIEWED
   title "Disposition complete-core feedback and re-estimate source verification"
   description "Review both Phase 4 rounds against exact protocol and artifact identities, disposition every observation, apply accepted contract feedback ADR-first, and revise the separately gated local-source-verification plan in points. Spend the additional observed 1p creating an immutable successor protocol with the missing no-flag limit-2 materialization case and replaying the bounded-space round to completion. Do not start source verification, provider work, llmthink integration, publication, or release."
   duration 3p
+  status done
   priority 20
   requires:
     IMPLEMENTER 1
@@ -264,3 +265,17 @@ work_event FINISH_RUN_SPACE_VIEW_DOGFOOD_20260814:
   kind finish
   occurred_at 2026-08-14T18:15:52+09:00
   effort 0.1066666667ph
+
+work_event START_APPLY_CORE_DOGFOOD_FEEDBACK_20260814:
+  model 1
+  task APPLY_CORE_DOGFOOD_FEEDBACK
+  kind start
+  occurred_at 2026-08-14T18:17:12+09:00
+  planned_value 3p
+
+work_event FINISH_APPLY_CORE_DOGFOOD_FEEDBACK_20260814:
+  model 1
+  task APPLY_CORE_DOGFOOD_FEEDBACK
+  kind finish
+  occurred_at 2026-08-14T18:26:08+09:00
+  effort 0.1488888889ph

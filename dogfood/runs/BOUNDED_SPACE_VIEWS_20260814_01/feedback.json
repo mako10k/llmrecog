@@ -1,0 +1,31 @@
+{
+  "schema": "Llmrecog.Internal.DogfoodFeedback.v1",
+  "feedback_id": "BOUNDED_SPACE_VIEWS_20260814_01_FEEDBACK_01",
+  "receipt": {
+    "path": "dogfood/runs/BOUNDED_SPACE_VIEWS_20260814_01/receipt.json",
+    "digest": "sha256:240c5eb71d30f3f9f5590d28fcc6cea7a3c6ce57c810a7fe33d631af24997c5f"
+  },
+  "reviewed_at": "2026-08-14T18:22:43+09:00",
+  "reviewer": "codex",
+  "supersedes": null,
+  "entries": [
+    {
+      "observation_id": "OBS-SPACE-001",
+      "disposition": "accepted",
+      "rationale": "The frozen v9 question required a same-limit no-flag comparison that its command set could not obtain. Protocol v10 preserves v9, adds only the repeated no-flag scope V_TRIGGER and limit 2 case, and the completed replay proves the identical typed world prefix, counts, truncation, and RCG-RSN-007 at statuses 0 and 5. This corrects internal evidence coverage without changing the public materialization or exit-status contracts.",
+      "contract_change": "not_required",
+      "action_task_ids": ["APPLY_CORE_DOGFOOD_FEEDBACK"]
+    }
+  ],
+  "point_adjustments": [
+    {
+      "plan_path": "plans/phase-4-complete-core.pert",
+      "task_id": "APPLY_CORE_DOGFOOD_FEEDBACK",
+      "previous_points": 2,
+      "revised_points": 3,
+      "rationale": "Add 1p for an immutable successor protocol, the missing no-flag limit-2 command case, a complete replay receipt, and both feedback bindings discovered by actual v9 use."
+    }
+  ],
+  "round_complete": true,
+  "unresolved_observation_ids": []
+}

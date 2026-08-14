@@ -4,8 +4,10 @@ This directory contains the versioned, process-only dogfood protocol and later
 run evidence. It is not part of the public llmrecog semantic or CLI contract.
 
 The active Phase 4 protocol is
-[`protocol-v9/protocol.json`](protocol-v9/protocol.json). It rebinds the
-not-yet-run bounded-space round after materialization implementation. Immutable
+[`protocol-v10/protocol.json`](protocol-v10/protocol.json). It adds the missing
+no-flag low-limit comparison discovered by the blocked first bounded-space run.
+Immutable [`protocol-v9/protocol.json`](protocol-v9/protocol.json) remains bound
+to that first run, while
 [`protocol-v8/protocol.json`](protocol-v8/protocol.json) retains the exact
 pre-materialization bounded-space baseline, and
 [`protocol-v7/protocol.json`](protocol-v7/protocol.json) retains the exact

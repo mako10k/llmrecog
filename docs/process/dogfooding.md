@@ -61,9 +61,11 @@ relational run that exposed missing known-mismatch command evidence. Protocol
 v6 completed that round with repeated known-mismatch and
 compound-constraint explain cases. Protocol v7 retains the pre-query
 bounded-space baseline, and protocol v8 retains the pre-materialization
-baseline. Active protocol v9 rebinds the not-yet-run round to the implemented
-query-and-materialization status in
-[`dogfood/protocol-v9/protocol.json`](../../dogfood/protocol-v9/protocol.json).
+baseline. Protocol v9 remains bound to the blocked first bounded-space run,
+which showed that its command set could not compare the same low-limit result
+with and without `--require-complete`. Active protocol v10 adds that missing
+no-flag case without changing the product contract in
+[`dogfood/protocol-v10/protocol.json`](../../dogfood/protocol-v10/protocol.json).
 The process-only receipt and feedback schemas are under
 [`dogfood/schemas/`](../../dogfood/schemas/), and the evidence layout and
 immutability rules are in [`dogfood/README.md`](../../dogfood/README.md).

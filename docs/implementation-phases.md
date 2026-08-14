@@ -152,9 +152,12 @@ equality question because its command set omitted a known-mismatch target.
 Protocol v6 completed all five questions and established that separate
 candidate and constraint targets answer the compound-navigation question
 without widening `ExplainResult.v2` or `QueryResult.v1`. Implement query and
-materialization against those unchanged contracts, then dogfood bounded
-filters, ordering, bounds, and materialization under protocol v7. Its reviewed
-feedback is an input to the Phase 5 source-verification design.
+materialization against those unchanged contracts. Protocol v9 then captured
+four answered bounded-space questions and one blocked evidence question: its
+command set had the status-5 low-limit case but no otherwise-identical no-flag
+case. Protocol v10 adds that comparison and replays the round without changing
+the query, materialization, or exit-status contracts. Its reviewed feedback is
+an input to the Phase 5 source-verification design.
 
 ## Phase 5: local source verification
 
@@ -220,10 +223,11 @@ authorized by accepting llmrecog core implementation.
 
 ## Current implementation frontier
 
-Run the 2p bounded-space dogfood round against active protocol v9 now that both
-read-only routes implement their accepted contracts. Phase 4 acceptance still
-requires this evidence and its feedback disposition. Producer dogfood remains
-gated on the accepted complete initial constraint semantics,
+The bounded-space round is governed by active protocol v10, which adds the
+missing no-flag limit-2 comparison discovered by the immutable protocol-v9
+run. Phase 4 acceptance requires complete replay evidence and feedback
+disposition. Producer dogfood remains gated on the accepted complete initial
+constraint semantics,
 fail-closed local source verification, a producer-contract ADR, and a
 separately approved adapter.
 
