@@ -56,6 +56,7 @@ task DRAFT_PHASE_4_CONTRACT PHASE_3_ACCEPTED -> PHASE_4_CONTRACT_DRAFTED:
   description |
     Review accepted authorities, provisional Phase 4 text, exact existing registries, Phase 3 implementation seams, and both Phase 3 feedback rounds. Draft an ADR that fixes requires implication, same_as canonical equality, distinct_from inequality, scope closure, public reason composition, query filter conjunction and ordering, lazy materialization, mandatory scope and limit, completeness, truncation, exit status, and no persistence. Keep the ADR proposed and make no runtime change until the complete contract package and protocol are reviewed.
   duration 3p
+  status done
   priority 100
   requires:
     IMPLEMENTER 1
@@ -147,3 +148,17 @@ task ACCEPT_PHASE_4_SLICE CORE_DOGFOOD_REVIEWED -> PHASE_4_ACCEPTED:
   requires:
     IMPLEMENTER 1
     SEMANTIC_REVIEWER 1
+
+work_event START_DRAFT_PHASE_4_CONTRACT_20260814:
+  model 1
+  task DRAFT_PHASE_4_CONTRACT
+  kind start
+  occurred_at 2026-08-14T16:31:42+09:00
+  planned_value 3p
+
+work_event FINISH_DRAFT_PHASE_4_CONTRACT_20260814:
+  model 1
+  task DRAFT_PHASE_4_CONTRACT
+  kind finish
+  occurred_at 2026-08-14T16:35:21+09:00
+  effort 0.0608333333ph
