@@ -33,6 +33,18 @@ npm run check:docs
 npm run build
 ```
 
+During the private Phase 2 bootstrap only, the unreleased read path is invoked
+through:
+
+```sh
+npm run dogfood:cli -- document validate <file.recog> --format json
+npm run dogfood:cli -- document show <file.recog> --format text
+npm run dogfood:cli -- recognition show <id> <file.recog> --format json
+```
+
+This script is a dogfood instrument. It is not a package `bin`, public CLI, or
+compatibility promise, and it performs no source-locator I/O or writes.
+
 `npm run check` is the single local and CI repository gate. It type-checks,
 lints, verifies formatting, runs tests, validates documentation structure, and
 builds declarations/source maps.

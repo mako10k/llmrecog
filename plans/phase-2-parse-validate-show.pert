@@ -76,6 +76,7 @@ task IMPLEMENT_BOOTSTRAP_READ_PATH DOGFOOD_PROTOCOL_ACCEPTED -> BOOTSTRAP_READ_P
   description |
     Add success and failure fixtures, then implement the real bytes-to-AST-to-model-to-validation seam for document, source, span, entity, and record declarations plus thin document validate/show and recognition show projections. Preserve exact bytes, Unicode-scalar positions, deterministic ordering, stable diagnostics, and no-write/no-locator-I/O behavior. This internal pre-acceptance route is only a dogfood instrument and is not a released or compatibility-stable CLI.
   duration 13p
+  status done
   priority 80
   requires:
     IMPLEMENTER 1
@@ -164,3 +165,17 @@ work_event FINISH_FREEZE_DOGFOOD_PROTOCOL_20260814:
   kind finish
   occurred_at 2026-08-14T10:46:04+09:00
   effort 0.1602777778ph
+
+work_event START_IMPLEMENT_BOOTSTRAP_READ_PATH_20260814:
+  model 1
+  task IMPLEMENT_BOOTSTRAP_READ_PATH
+  kind start
+  occurred_at 2026-08-14T10:53:50+09:00
+  planned_value 13p
+
+work_event FINISH_IMPLEMENT_BOOTSTRAP_READ_PATH_20260814:
+  model 1
+  task IMPLEMENT_BOOTSTRAP_READ_PATH
+  kind finish
+  occurred_at 2026-08-14T11:17:48+09:00
+  effort 0.3994444444ph

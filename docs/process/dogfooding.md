@@ -1,6 +1,6 @@
 # Dogfooding workflow
 
-Status: active planning baseline; implementation remains separately gated
+Status: active Phase 2 process; each implementation slice remains plan-gated
 
 This workflow makes llmrecog consume evidence about its own specifications as
 soon as a real read path exists. Dogfooding is an input to design and planning;
