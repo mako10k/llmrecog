@@ -57,7 +57,7 @@ The contract test proves all 67 EBNF productions and all 13 documented
 boundary cases are represented. It does not implement or claim a parser,
 semantic validator, solver, formatter, or CLI.
 
-## Phase 2: parse and validate vertical slice
+## Phase 2: parse and validate vertical slice — completed 2026-08-14
 
 Implement and dogfood in this order:
 
@@ -88,6 +88,9 @@ Acceptance:
   and the remaining roadmap was re-estimated in points.
 
 ## Phase 3: one explainable CSP slice
+
+ADR 0008 accepts this phase's explain and focused-audit contract. Runtime
+implementation remains pending and follows the detailed dogfood-first plan.
 
 Implement:
 

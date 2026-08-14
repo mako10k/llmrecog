@@ -64,6 +64,7 @@ task FREEZE_EXPLAIN_DOGFOOD_PROTOCOL_V2 PHASE_3_CONTRACT_ACCEPTED -> EXPLAIN_DOG
   description |
     Rebaseline the requirements implementation status and version the resulting corpus identities, questions, command cases, result and observation fields, receipt binding, and review gates for two Phase 3 rounds. The first round asks ambiguity, open-domain, unsupported, and joint-witness questions against the privately usable one_of slice; the second adds exclusion, supported-plus-excluded conflict, and grounded-constraint questions. Dogfood evidence remains process evidence and cannot silently change normative fixtures.
   duration 2p
+  status done
   priority 90
   requires:
     IMPLEMENTER 1
@@ -148,3 +149,17 @@ work_event FINISH_FREEZE_PHASE_3_CONTRACT_20260814:
   kind finish
   occurred_at 2026-08-14T13:55:04+09:00
   effort 0.1705555556ph
+
+work_event START_FREEZE_EXPLAIN_DOGFOOD_PROTOCOL_V2_20260814:
+  model 1
+  task FREEZE_EXPLAIN_DOGFOOD_PROTOCOL_V2
+  kind start
+  occurred_at 2026-08-14T13:55:50+09:00
+  planned_value 2p
+
+work_event FINISH_FREEZE_EXPLAIN_DOGFOOD_PROTOCOL_V2_20260814:
+  model 1
+  task FREEZE_EXPLAIN_DOGFOOD_PROTOCOL_V2
+  kind finish
+  occurred_at 2026-08-14T13:58:58+09:00
+  effort 0.0522222222ph

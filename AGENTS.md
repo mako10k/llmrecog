@@ -17,11 +17,12 @@ until it exists in the current checkout and has been verified.
 ## Current phase and scope lock
 
 `llmrecog` has a design baseline, a frozen executable contract 0.1, an accepted
-private Phase 2 parse/validate/show read path, and the accepted Phase 3 explain
-and focused-audit contract in ADR 0008. It has no constraint solver, Phase 3
-runtime, public CLI, or released package. The next task in the accepted
-point-based plan is the Phase 3 dogfood protocol v2; contract acceptance does
-not authorize implementation before that protocol gate.
+private Phase 2 parse/validate/show read path, the accepted Phase 3 explain and
+focused-audit contract in ADR 0008, and the Phase 3 dogfood protocol v2. It has
+no constraint solver, Phase 3 runtime, public CLI, or released package. The
+next task in the accepted point-based plan is the fixture-first finite
+`one_of` candidate-explain slice; later Phase 3 behavior remains gated by its
+two dogfood reviews.
 
 Completion of the Phase 2 read path does not authorize:
 

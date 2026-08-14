@@ -1,7 +1,7 @@
 # llmrecog requirements
 
-- Status: Executable contract baseline 0.1; runtime not implemented
-- Date: 2026-08-13
+- Status: Private Phase 2 read path accepted; Phase 3 contract accepted but not implemented
+- Date: 2026-08-14
 - Provisional document extension: `.recog`
 - Product role: Recognition
 

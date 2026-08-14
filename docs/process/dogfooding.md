@@ -88,7 +88,8 @@ understanding objective.
 | 0 | Phase 2 contract accepted | Freeze corpus, questions, receipt format, and review categories | Bootstrap implementation |
 | 1 | Minimal private read path accepted | Manually encode and validate the grammar/EBNF understanding | Remaining Phase 2 grammar and validation |
 | 2 | Complete Phase 2 read path accepted | Manually encode requirements, terminology, architecture, and phase boundaries | Phase 2 acceptance and Phase 3 estimate |
-| 3 | Explainable CSP slice accepted | Ask ambiguity, exclusion, conflict, and unknown questions of the same corpus | Remaining constraint semantics |
+| 3a | Finite `one_of` explain slice accepted | Ask ambiguity, closure, unsupported, unknown, and joint-witness questions of the same corpus | `excludes` and focused audit implementation |
+| 3b | Finite `excludes` and focused audit accepted | Ask exclusion-chain, supported-plus-excluded conflict, empty-domain, and limit questions | Phase 3 acceptance and remaining constraint semantics |
 | 4 | Complete deterministic semantic core accepted | Exercise cross-document queries, joint witnesses, limits, and materialization | Source-verification design |
 | 5 | Local source verification accepted | Detect stale digests, ranges, quotes, and changed source documents | Producer-contract design |
 | 6 | One producer adapter separately accepted | Generate raw-document drafts, then validate, audit, explain, verify, and review them | llmthink handoff design |

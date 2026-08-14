@@ -9,6 +9,7 @@ import addFormats from "ajv-formats";
 
 const repositoryRoot = process.cwd();
 const protocolPath = "dogfood/protocol-v1/protocol.json";
+const activeProtocolPath = "dogfood/protocol-v2/protocol.json";
 const runExamplePath = "dogfood/protocol-v1/examples/run-receipt.example.json";
 const grammarRunReceiptPath =
   "dogfood/runs/GRAMMAR_AUTHORING_20260814_01/receipt.json";
@@ -52,6 +53,7 @@ interface CommandCase {
   readonly route: readonly string[];
   readonly format: "json" | "text";
   readonly repeat_count: number;
+  readonly required_options?: readonly string[];
 }
 
 interface DogfoodProtocol {
@@ -135,6 +137,7 @@ function sha256(relativePath: string): string {
 }
 
 const protocol = readJson<DogfoodProtocol>(protocolPath);
+const activeProtocol = readJson<DogfoodProtocol>(activeProtocolPath);
 
 function assertRunBindings(run: RunExample): void {
   assert.equal(run.protocol.path, protocolPath);
@@ -202,27 +205,31 @@ function assertFeedbackBindings(
   assert.deepEqual(feedback.unresolved_observation_ids, []);
 }
 
-test("the dogfood protocol freezes corpus, questions, commands, and gates", () => {
-  assert.equal(protocol.schema, "Llmrecog.Internal.DogfoodProtocol.v1");
-  assert.equal(protocol.protocol_version, 1);
-  assert.equal(protocol.semantic_version, "0.1");
-  assert.equal(protocol.status, "active");
-  assert.equal(protocol.run_path_pattern, "dogfood/runs/<run-id>");
+test("the active dogfood protocol freezes corpus, questions, commands, and gates", () => {
+  assert.equal(
+    sha256(protocolPath),
+    "sha256:d9cd79dfb7a614bf42c2966ee27535e99dbf9c9d2e5259b05317a306104f201f",
+  );
+  assert.equal(activeProtocol.schema, "Llmrecog.Internal.DogfoodProtocol.v1");
+  assert.equal(activeProtocol.protocol_version, 2);
+  assert.equal(activeProtocol.semantic_version, "0.1");
+  assert.equal(activeProtocol.status, "active");
+  assert.equal(activeProtocol.run_path_pattern, "dogfood/runs/<run-id>");
 
   assert.deepEqual(
-    protocol.rounds.map((round) => round.sequence),
-    [1, 2],
+    activeProtocol.rounds.map((round) => round.sequence),
+    [3, 4],
   );
   assert.equal(
-    new Set(protocol.rounds.map((round) => round.id)).size,
-    protocol.rounds.length,
+    new Set(activeProtocol.rounds.map((round) => round.id)).size,
+    activeProtocol.rounds.length,
   );
 
-  const documentIds = protocol.rounds.flatMap((round) =>
+  const documentIds = activeProtocol.rounds.flatMap((round) =>
     round.documents.map((document) => document.id),
   );
   assert.equal(new Set(documentIds).size, documentIds.length);
-  for (const round of protocol.rounds) {
+  for (const round of activeProtocol.rounds) {
     assert(round.earliest_gate.length > 0);
     assert(round.next_gate.length > 0);
     assert(round.required_declarations.length > 0);
@@ -233,46 +240,62 @@ test("the dogfood protocol freezes corpus, questions, commands, and gates", () =
     }
   }
 
-  const questionIds = protocol.questions.map((question) => question.id);
+  const questionIds = activeProtocol.questions.map((question) => question.id);
   assert.equal(new Set(questionIds).size, questionIds.length);
-  for (const question of protocol.questions) {
+  for (const question of activeProtocol.questions) {
     assert(question.prompt.length > 0);
     assert(question.required_evidence.length > 0);
     assert(question.non_goal.length > 0);
   }
-  for (const round of protocol.rounds) {
+  for (const round of activeProtocol.rounds) {
     assert.deepEqual(
       [...round.question_ids].sort(),
-      protocol.questions
+      activeProtocol.questions
         .filter((question) => question.round_id === round.id)
         .map((question) => question.id)
         .sort(),
     );
   }
 
-  const commandCaseIds = protocol.command_cases.map((command) => command.id);
+  const commandCaseIds = activeProtocol.command_cases.map(
+    (command) => command.id,
+  );
   assert.equal(new Set(commandCaseIds).size, commandCaseIds.length);
-  for (const command of protocol.command_cases) {
+  for (const command of activeProtocol.command_cases) {
     assert(command.route.length === 2);
     assert.equal(command.repeat_count, 2);
+    assert(Array.isArray(command.required_options));
   }
-  for (const round of protocol.rounds) {
-    assert.deepEqual([...round.command_case_ids].sort(), commandCaseIds.sort());
+  for (const round of activeProtocol.rounds) {
+    assert(round.command_case_ids.length > 0);
+    assert(
+      round.command_case_ids.every((commandCaseId) =>
+        commandCaseIds.includes(commandCaseId),
+      ),
+    );
   }
+  assert(
+    !activeProtocol.rounds[0]?.command_case_ids.some((commandCaseId) =>
+      commandCaseId.startsWith("DOCUMENT_AUDIT"),
+    ),
+  );
+  assert(
+    activeProtocol.rounds[1]?.command_case_ids.includes("DOCUMENT_AUDIT_JSON"),
+  );
 
-  assert.deepEqual(protocol.observation_categories, [
+  assert.deepEqual(activeProtocol.observation_categories, [
     "contract_semantic",
     "implementation",
     "diagnostics_presentation",
     "documentation",
     "product_boundary",
   ]);
-  assert.deepEqual(protocol.feedback_dispositions, [
+  assert.deepEqual(activeProtocol.feedback_dispositions, [
     "accepted",
     "rejected",
     "deferred",
   ]);
-  assert(Object.values(protocol.acceptance).every(Boolean));
+  assert(Object.values(activeProtocol.acceptance).every(Boolean));
 });
 
 test("dogfood receipts and feedback satisfy their process schemas", () => {

@@ -3,10 +3,12 @@
 This directory contains the versioned, process-only dogfood protocol and later
 run evidence. It is not part of the public llmrecog semantic or CLI contract.
 
-The active Phase 2 protocol is
-[`protocol-v1/protocol.json`](protocol-v1/protocol.json). It freezes the corpus,
-question IDs, command cases, artifact locations, and review boundary used by the
-first two authoring dogfood rounds.
+The active Phase 3 protocol is
+[`protocol-v2/protocol.json`](protocol-v2/protocol.json). It freezes the updated
+corpus, question IDs, explain/audit command cases, artifact locations, and two
+review boundaries used before and after finite `excludes` implementation.
+[`protocol-v1/protocol.json`](protocol-v1/protocol.json) remains the immutable
+Phase 2 protocol bound by the completed Round 1 and Round 2 evidence.
 
 ## Evidence layout
 
@@ -38,7 +40,7 @@ reproduce them.
 - A changed corpus document, question, schema, command case, or storage rule
   requires a new protocol version. Old evidence retains its original protocol
   digest.
-- Example files under `protocol-v1/examples/` demonstrate shape only and are
-  never execution or acceptance evidence.
+- Example files under `protocol-v1/examples/` demonstrate the shared receipt
+  and feedback shapes only and are never execution or acceptance evidence.
 - Dogfood evidence becomes a normative product fixture only through a separate
   semantic/contract review.
