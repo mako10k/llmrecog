@@ -143,11 +143,14 @@ Acceptance:
   the solver.
 
 Dogfood begins before both space routes are complete. After the relational
-constraint slice, run protocol v5 implication, equality, inequality, open
-operand, joint-witness, and compound-navigation questions. Disposition that
-evidence before query or materialization implementation. Then dogfood bounded
-filters, ordering, bounds, and materialization against the same corpus. Its
-reviewed feedback is an input to the Phase 5 source-verification design.
+constraint slice, protocol v5 captured four answered questions and one blocked
+equality question because its command set omitted a known-mismatch target.
+Protocol v6 completed all five questions and established that separate
+candidate and constraint targets answer the compound-navigation question
+without widening `ExplainResult.v2` or `QueryResult.v1`. Implement query and
+materialization against those unchanged contracts, then dogfood bounded
+filters, ordering, bounds, and materialization under protocol v7. Its reviewed
+feedback is an input to the Phase 5 source-verification design.
 
 ## Phase 5: local source verification
 
@@ -213,9 +216,10 @@ authorized by accepting llmrecog core implementation.
 
 ## Current implementation frontier
 
-Run the first Phase 4 protocol-v5 relational dogfood round against the actual
-private explain/audit seam, then disposition every finding and re-estimate the
-remaining work before either space route begins. Producer dogfood remains
+Implement the 4p bounded-query vertical slice against the unchanged accepted
+`Llmrecog.QueryResult.v1` contract. The protocol-v5 findings are dispositioned,
+the corrected protocol-v6 relational replay is complete, and active protocol
+v7 retains the later bounded-space dogfood round. Producer dogfood remains
 gated on the accepted complete initial constraint semantics,
 fail-closed local source verification, a producer-contract ADR, and a
 separately approved adapter.

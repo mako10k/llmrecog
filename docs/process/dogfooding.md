@@ -56,10 +56,12 @@ coverage, round gates, and acceptance flags are frozen in
 [`dogfood/protocol-v1/protocol.json`](../../dogfood/protocol-v1/protocol.json).
 The completed Phase 3 ambiguity and exclusion/conflict runs remain bound to
 immutable protocols v2 and v3. Protocol v4 retains the exact pre-implementation
-Phase 4 contract baseline. Active protocol v5 binds the implemented relational
-status documents, corrected text-projection decision, identity edge fixture,
-questions, and command identities in
-[`dogfood/protocol-v5/protocol.json`](../../dogfood/protocol-v5/protocol.json).
+Phase 4 contract baseline. Protocol v5 remains bound to the blocked first
+relational run that exposed missing known-mismatch command evidence. Protocol
+v6 completed that round with repeated known-mismatch and
+compound-constraint explain cases. Active protocol v7 retains only the
+not-yet-run bounded-space round in
+[`dogfood/protocol-v7/protocol.json`](../../dogfood/protocol-v7/protocol.json).
 The process-only receipt and feedback schemas are under
 [`dogfood/schemas/`](../../dogfood/schemas/), and the evidence layout and
 immutability rules are in [`dogfood/README.md`](../../dogfood/README.md).

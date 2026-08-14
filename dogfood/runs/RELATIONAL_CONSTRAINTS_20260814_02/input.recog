@@ -1,0 +1,284 @@
+llmrecog 0.1
+
+document RELATIONAL_CONSTRAINTS_20260814_02:
+  title "Phase 4 relational constraints dogfood replay"
+
+source REQUIREMENTS_DOC:
+  kind text
+  locator "../../../docs/requirements.md"
+  media_type "text/markdown"
+  digest "sha256:d7e3b3deae826f27a7dcc5ea1a88aac47cbf5e607783c486e1267a0ad7f493c8"
+
+source SEMANTIC_MODEL_DOC:
+  kind text
+  locator "../../../docs/semantic-model.md"
+  media_type "text/markdown"
+  digest "sha256:eddf66547cc6b83e62774a49259cda790cdf7b862bc4daf16bd6d56fcd1263e0"
+
+source PHASE4_ADR_DOC:
+  kind text
+  locator "../../../docs/adr/0010-phase-4-complete-core-contract.md"
+  media_type "text/markdown"
+  digest "sha256:e3bb18f938281e2d1d61bc5dc029a12df6e42bf898247078fd5519cc142cc272"
+
+source IMPLEMENTATION_PHASES_DOC:
+  kind text
+  locator "../../../docs/implementation-phases.md"
+  media_type "text/markdown"
+  digest "sha256:e8bd6715df47193d17c4cec2a3447cfb3ef270fb5767f3730f65145f52419a9b"
+
+span S_REQ_CONSTRAINTS:
+  source REQUIREMENTS_DOC
+  range 90:1..127:1
+
+span S_SEM_RELATIONAL:
+  source SEMANTIC_MODEL_DOC
+  range 155:1..237:1
+
+span S_ADR_ASSIGNMENTS:
+  source PHASE4_ADR_DOC
+  range 33:1..124:1
+
+span S_ADR_QUERY_BOUNDARY:
+  source PHASE4_ADR_DOC
+  range 125:1..173:1
+
+span S_PHASE4_SEQUENCE:
+  source IMPLEMENTATION_PHASES_DOC
+  range 121:1..153:1
+
+observation O_DOGFOOD_REPLAY:
+  surface "Corrected relational dogfood precedes either space route"
+  grounded_in [S_ADR_QUERY_BOUNDARY, S_PHASE4_SEQUENCE]
+
+entity E_PHASE4_CORE:
+  type semantic_slice
+  label "Phase 4 relational core"
+  grounded_in [O_DOGFOOD_REPLAY, S_ADR_ASSIGNMENTS]
+  support explicit
+
+record R_CORE_BOUNDARY:
+  kind property
+  subject E_PHASE4_CORE
+  predicate responsibility
+  value "Deterministic meaning-space classification without choice or persistence"
+  grounded_in [S_REQ_CONSTRAINTS, S_ADR_ASSIGNMENTS]
+  support explicit
+
+variable V_REQ_TRIGGER:
+  value_type symbol
+  candidates [C_REQ_ON]
+  grounded_in [S_SEM_RELATIONAL, S_ADR_ASSIGNMENTS]
+
+candidate C_REQ_ON in V_REQ_TRIGGER:
+  value on
+  grounded_in [S_SEM_RELATIONAL]
+  support explicit
+
+variable V_REQ_MODE:
+  value_type symbol
+  candidates [C_REQ_FAST, C_REQ_SAFE]
+  grounded_in [S_SEM_RELATIONAL, S_ADR_ASSIGNMENTS]
+
+candidate C_REQ_FAST in V_REQ_MODE:
+  value fast
+  grounded_in [S_SEM_RELATIONAL]
+  support explicit
+
+candidate C_REQ_SAFE in V_REQ_MODE:
+  value safe
+  grounded_in [S_SEM_RELATIONAL]
+  support explicit
+
+constraint K_REQ_TRIGGER_ONE_OF:
+  kind one_of
+  variable V_REQ_TRIGGER
+  members [C_REQ_ON]
+  grounded_in [S_REQ_CONSTRAINTS, S_SEM_RELATIONAL]
+  support explicit
+
+constraint K_REQ_MODE_ONE_OF:
+  kind one_of
+  variable V_REQ_MODE
+  members [C_REQ_SAFE]
+  grounded_in [S_REQ_CONSTRAINTS, S_SEM_RELATIONAL]
+  support explicit
+
+constraint K_REQ_ON_REQUIRES_FAST:
+  kind requires
+  antecedent C_REQ_ON
+  consequent C_REQ_FAST
+  grounded_in [S_SEM_RELATIONAL, S_ADR_ASSIGNMENTS]
+  support explicit
+
+variable V_SAME_LEFT:
+  value_type symbol
+  candidates [C_SAME_LEFT_RED]
+  grounded_in [S_SEM_RELATIONAL, S_ADR_ASSIGNMENTS]
+
+candidate C_SAME_LEFT_RED in V_SAME_LEFT:
+  value red
+  grounded_in [S_SEM_RELATIONAL]
+  support explicit
+
+variable V_SAME_RIGHT:
+  value_type symbol
+  candidates [C_SAME_RIGHT_RED, C_SAME_RIGHT_BLUE]
+  grounded_in [S_SEM_RELATIONAL, S_ADR_ASSIGNMENTS]
+
+candidate C_SAME_RIGHT_RED in V_SAME_RIGHT:
+  value red
+  grounded_in [S_SEM_RELATIONAL]
+  support explicit
+
+candidate C_SAME_RIGHT_BLUE in V_SAME_RIGHT:
+  value blue
+  grounded_in [S_SEM_RELATIONAL]
+  support ambiguous
+
+constraint K_SAME_LEFT_ONE_OF:
+  kind one_of
+  variable V_SAME_LEFT
+  members [C_SAME_LEFT_RED]
+  grounded_in [S_REQ_CONSTRAINTS, S_SEM_RELATIONAL]
+  support explicit
+
+constraint K_SAME_RIGHT_ONE_OF:
+  kind one_of
+  variable V_SAME_RIGHT
+  members [C_SAME_RIGHT_RED, C_SAME_RIGHT_BLUE]
+  grounded_in [S_REQ_CONSTRAINTS, S_SEM_RELATIONAL]
+  support explicit
+
+constraint K_VALUES_SAME:
+  kind same_as
+  left V_SAME_LEFT
+  right V_SAME_RIGHT
+  grounded_in [S_SEM_RELATIONAL, S_ADR_ASSIGNMENTS]
+  support explicit
+
+variable V_DISTINCT_LEFT:
+  value_type symbol
+  candidates [C_DISTINCT_LEFT_RED]
+  grounded_in [S_SEM_RELATIONAL, S_ADR_ASSIGNMENTS]
+
+candidate C_DISTINCT_LEFT_RED in V_DISTINCT_LEFT:
+  value red
+  grounded_in [S_SEM_RELATIONAL]
+  support explicit
+
+variable V_DISTINCT_RIGHT:
+  value_type symbol
+  candidates [C_DISTINCT_RIGHT_RED]
+  grounded_in [S_SEM_RELATIONAL, S_ADR_ASSIGNMENTS]
+
+candidate C_DISTINCT_RIGHT_RED in V_DISTINCT_RIGHT:
+  value red
+  grounded_in [S_SEM_RELATIONAL]
+  support explicit
+
+constraint K_DISTINCT_LEFT_ONE_OF:
+  kind one_of
+  variable V_DISTINCT_LEFT
+  members [C_DISTINCT_LEFT_RED]
+  grounded_in [S_REQ_CONSTRAINTS, S_SEM_RELATIONAL]
+  support explicit
+
+constraint K_DISTINCT_RIGHT_ONE_OF:
+  kind one_of
+  variable V_DISTINCT_RIGHT
+  members [C_DISTINCT_RIGHT_RED]
+  grounded_in [S_REQ_CONSTRAINTS, S_SEM_RELATIONAL]
+  support explicit
+
+constraint K_VALUES_DISTINCT:
+  kind distinct_from
+  left V_DISTINCT_LEFT
+  right V_DISTINCT_RIGHT
+  grounded_in [S_SEM_RELATIONAL, S_ADR_ASSIGNMENTS]
+  support explicit
+
+variable V_OPEN_LEFT:
+  value_type symbol
+  candidates [C_OPEN_LEFT_RED]
+  grounded_in [S_SEM_RELATIONAL, S_ADR_ASSIGNMENTS]
+
+candidate C_OPEN_LEFT_RED in V_OPEN_LEFT:
+  value red
+  grounded_in [S_SEM_RELATIONAL]
+  support explicit
+
+variable V_OPEN_RIGHT:
+  value_type symbol
+  candidates [C_OPEN_RIGHT_BLUE]
+  grounded_in [S_SEM_RELATIONAL, S_ADR_ASSIGNMENTS]
+
+candidate C_OPEN_RIGHT_BLUE in V_OPEN_RIGHT:
+  value blue
+  grounded_in [S_SEM_RELATIONAL]
+  support ambiguous
+
+constraint K_OPEN_LEFT_ONE_OF:
+  kind one_of
+  variable V_OPEN_LEFT
+  members [C_OPEN_LEFT_RED]
+  grounded_in [S_REQ_CONSTRAINTS, S_SEM_RELATIONAL]
+  support explicit
+
+constraint K_OPEN_VALUES_SAME:
+  kind same_as
+  left V_OPEN_LEFT
+  right V_OPEN_RIGHT
+  grounded_in [S_SEM_RELATIONAL, S_ADR_ASSIGNMENTS]
+  support explicit
+
+variable V_NAV_STATE:
+  value_type symbol
+  candidates [C_NAV_ON, C_NAV_OFF]
+  grounded_in [S_ADR_QUERY_BOUNDARY, S_PHASE4_SEQUENCE]
+
+candidate C_NAV_ON in V_NAV_STATE:
+  value on
+  grounded_in [S_ADR_QUERY_BOUNDARY]
+  support explicit
+
+candidate C_NAV_OFF in V_NAV_STATE:
+  value off
+  grounded_in [S_ADR_QUERY_BOUNDARY]
+  support explicit
+
+variable V_NAV_MODE:
+  value_type symbol
+  candidates [C_NAV_FAST, C_NAV_SAFE]
+  grounded_in [S_ADR_QUERY_BOUNDARY, S_PHASE4_SEQUENCE]
+
+candidate C_NAV_FAST in V_NAV_MODE:
+  value fast
+  grounded_in [S_ADR_QUERY_BOUNDARY]
+  support explicit
+
+candidate C_NAV_SAFE in V_NAV_MODE:
+  value safe
+  grounded_in [S_ADR_QUERY_BOUNDARY]
+  support explicit
+
+constraint K_NAV_STATE_ONE_OF:
+  kind one_of
+  variable V_NAV_STATE
+  members [C_NAV_ON, C_NAV_OFF]
+  grounded_in [S_REQ_CONSTRAINTS, S_ADR_QUERY_BOUNDARY]
+  support explicit
+
+constraint K_NAV_MODE_ONE_OF:
+  kind one_of
+  variable V_NAV_MODE
+  members [C_NAV_FAST, C_NAV_SAFE]
+  grounded_in [S_REQ_CONSTRAINTS, S_ADR_QUERY_BOUNDARY]
+  support explicit
+
+constraint K_NAV_ON_REQUIRES_FAST:
+  kind requires
+  antecedent C_NAV_ON
+  consequent C_NAV_FAST
+  grounded_in [S_ADR_ASSIGNMENTS, S_ADR_QUERY_BOUNDARY]
+  support explicit

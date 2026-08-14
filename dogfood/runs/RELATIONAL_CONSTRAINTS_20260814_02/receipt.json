@@ -1,0 +1,487 @@
+{
+  "schema": "Llmrecog.Internal.DogfoodRunReceipt.v1",
+  "run_id": "RELATIONAL_CONSTRAINTS_20260814_02",
+  "round_id": "relational_constraints_v6",
+  "started_at": "2026-08-14T08:33:08Z",
+  "finished_at": "2026-08-14T08:33:16Z",
+  "tool": {
+    "repository_revision": "10ba58ea60f7914f362580d0a113706a34990fab",
+    "semantic_version": "0.1",
+    "node_version": "v25.1.0",
+    "platform": "linux-x64",
+    "working_directory": "."
+  },
+  "protocol": {
+    "path": "dogfood/protocol-v6/protocol.json",
+    "digest": "sha256:c61ff3ea091d9d22b7064523eaf26146123e65e2b470a9b0046b04374fce458d"
+  },
+  "question_results": [
+    {
+      "question_id": "DGF-CORE-001",
+      "status": "answered",
+      "summary": "C_REQ_ON remains source-supported but is excluded because K_REQ_MODE_ONE_OF leaves C_REQ_SAFE and K_REQ_ON_REQUIRES_FAST cannot satisfy C_REQ_FAST.",
+      "evidence": [
+        "REQUIRES_EXPLAIN_JSON reports effective scope V_REQ_TRIGGER,V_REQ_MODE and the ordered RCG-RSN-201/203/206 chain.",
+        "RCG-RSN-203 names C_REQ_ON, C_REQ_FAST, and K_REQ_ON_REQUIRES_FAST without selecting the missing consequent or reversing the implication."
+      ]
+    },
+    {
+      "question_id": "DGF-CORE-002",
+      "status": "answered",
+      "summary": "Exact symbol red values satisfy same_as across different candidate IDs, exact red versus blue values yield RCG-RSN-204, and the open operand remains unknown with RCG-RSN-001.",
+      "evidence": [
+        "SAME_AS_EXPLAIN_JSON reports the allowed C_SAME_LEFT_RED plus C_SAME_RIGHT_RED witness even though the candidate IDs differ.",
+        "SAME_AS_MISMATCH_EXPLAIN_JSON reports RCG-RSN-204 for C_SAME_LEFT_RED plus C_SAME_RIGHT_BLUE, while OPEN_RELATIONAL_EXPLAIN_JSON reports unknown with RCG-RSN-001 and no fabricated derivation."
+      ]
+    },
+    {
+      "question_id": "DGF-CORE-003",
+      "status": "answered",
+      "summary": "The known red/red assignment violates K_VALUES_DISTINCT and excludes C_DISTINCT_LEFT_RED through deterministic RCG-RSN-201/205/206 composition.",
+      "evidence": [
+        "DISTINCT_FROM_EXPLAIN_JSON reports C_DISTINCT_LEFT_RED and C_DISTINCT_RIGHT_RED as the RCG-RSN-205 inputs with K_VALUES_DISTINCT.",
+        "The result retains every effective constraint and the authored grounding through S_SEM_RELATIONAL and S_ADR_ASSIGNMENTS."
+      ]
+    },
+    {
+      "question_id": "DGF-CORE-004",
+      "status": "answered",
+      "summary": "Two target-specific results answer the compound question: C_NAV_SAFE proves the allowed OFF plus SAFE witness, while K_NAV_ON_REQUIRES_FAST exposes the blocked ON plus SAFE relationship through RCG-RSN-203; no composed query or wider candidate reason chain is required.",
+      "evidence": [
+        "COMPOUND_TARGET_EXPLAIN_JSON reports C_NAV_OFF plus C_NAV_SAFE, RCG-RSN-101, and all three relevant constraints.",
+        "COMPOUND_CONSTRAINT_EXPLAIN_JSON reports the exact requires operands and RCG-RSN-203 with inputs C_NAV_ON,C_NAV_FAST; both cases are complete, non-truncated, and byte-identical across repetitions."
+      ]
+    },
+    {
+      "question_id": "DGF-CORE-005",
+      "status": "answered",
+      "summary": "Every allowed relational candidate inspected by the protocol retains one complete joint witness over all effective-scope constraints.",
+      "evidence": [
+        "SAME_AS_EXPLAIN_JSON reports the joint red/red witness and all left, right, and equality constraints.",
+        "COMPOUND_TARGET_EXPLAIN_JSON reports the joint OFF plus SAFE witness and both one_of constraints plus K_NAV_ON_REQUIRES_FAST."
+      ]
+    }
+  ],
+  "artifact": {
+    "path": "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_02/input.recog",
+    "digest": "sha256:6188fce2da98b08b52ada856216edd526ba7acf86006fec21aadb0d4d979dfd2"
+  },
+  "executions": [
+    {
+      "case_id": "DOCUMENT_VALIDATE_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "document",
+        "validate",
+        "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_02/input.recog",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:7e8716337c82ef1afe9b202b119b32673062c67391c8467d2aa564dbf78bd3d1",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "REQUIRES_EXPLAIN_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_REQ_ON",
+        "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_02/input.recog",
+        "--scope",
+        "V_REQ_TRIGGER",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:cdbf0575ffec3323357132dc8379fc4670e1ec5ead6b146fc33694035c16c3f8",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "REQUIRES_EXPLAIN_TEXT",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_REQ_ON",
+        "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_02/input.recog",
+        "--scope",
+        "V_REQ_TRIGGER",
+        "--format",
+        "text"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:9af2764632da514daf843c5739f38331196ee5721103c869e2780335f08b47cb",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "SAME_AS_EXPLAIN_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_SAME_LEFT_RED",
+        "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_02/input.recog",
+        "--scope",
+        "V_SAME_LEFT",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:00cd5e1fe25d8d52ff55bc0d85ca84febcc3d796c89cc215fc5567079ddc7889",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "SAME_AS_MISMATCH_EXPLAIN_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_SAME_RIGHT_BLUE",
+        "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_02/input.recog",
+        "--scope",
+        "V_SAME_LEFT,V_SAME_RIGHT",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:473035095eed91330de4a4953f565d649540ca967ac6a63bbe334ae7dfe40beb",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "DISTINCT_FROM_EXPLAIN_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_DISTINCT_LEFT_RED",
+        "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_02/input.recog",
+        "--scope",
+        "V_DISTINCT_LEFT",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:366dee0594cc3aa80936d46f07fb2f0166a969dcc81d0d2f8ff014e919d1daac",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "OPEN_RELATIONAL_EXPLAIN_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_OPEN_LEFT_RED",
+        "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_02/input.recog",
+        "--scope",
+        "V_OPEN_LEFT",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:2a91f92993e396e2e936fff92e77a47abe6915520822b93eb5dedb807d4abe04",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "COMPOUND_TARGET_EXPLAIN_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_NAV_SAFE",
+        "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_02/input.recog",
+        "--limit",
+        "100",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:3bc19dbfa04e6392e4895afe8be891c1e3850de379963db9e81652f9a882d55e",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "COMPOUND_CONSTRAINT_EXPLAIN_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "K_NAV_ON_REQUIRES_FAST",
+        "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_02/input.recog",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:261a55413d46150b41c7aee9b8fb727fc50635f98d7123321fd25a844c8e5b65",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "DOCUMENT_AUDIT_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "document",
+        "audit",
+        "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_02/input.recog",
+        "--profile",
+        "base",
+        "--fail-on",
+        "error",
+        "--format",
+        "json"
+      ],
+      "exit_status": 1,
+      "stdout_digest": "sha256:094d24b0511d58a601993bc4eef7b7c91db9288182f565ce3f8df7d3d769641f",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "DOCUMENT_VALIDATE_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "document",
+        "validate",
+        "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_02/input.recog",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:7e8716337c82ef1afe9b202b119b32673062c67391c8467d2aa564dbf78bd3d1",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "REQUIRES_EXPLAIN_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_REQ_ON",
+        "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_02/input.recog",
+        "--scope",
+        "V_REQ_TRIGGER",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:cdbf0575ffec3323357132dc8379fc4670e1ec5ead6b146fc33694035c16c3f8",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "REQUIRES_EXPLAIN_TEXT",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_REQ_ON",
+        "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_02/input.recog",
+        "--scope",
+        "V_REQ_TRIGGER",
+        "--format",
+        "text"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:9af2764632da514daf843c5739f38331196ee5721103c869e2780335f08b47cb",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "SAME_AS_EXPLAIN_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_SAME_LEFT_RED",
+        "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_02/input.recog",
+        "--scope",
+        "V_SAME_LEFT",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:00cd5e1fe25d8d52ff55bc0d85ca84febcc3d796c89cc215fc5567079ddc7889",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "SAME_AS_MISMATCH_EXPLAIN_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_SAME_RIGHT_BLUE",
+        "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_02/input.recog",
+        "--scope",
+        "V_SAME_LEFT,V_SAME_RIGHT",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:473035095eed91330de4a4953f565d649540ca967ac6a63bbe334ae7dfe40beb",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "DISTINCT_FROM_EXPLAIN_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_DISTINCT_LEFT_RED",
+        "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_02/input.recog",
+        "--scope",
+        "V_DISTINCT_LEFT",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:366dee0594cc3aa80936d46f07fb2f0166a969dcc81d0d2f8ff014e919d1daac",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "OPEN_RELATIONAL_EXPLAIN_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_OPEN_LEFT_RED",
+        "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_02/input.recog",
+        "--scope",
+        "V_OPEN_LEFT",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:2a91f92993e396e2e936fff92e77a47abe6915520822b93eb5dedb807d4abe04",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "COMPOUND_TARGET_EXPLAIN_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_NAV_SAFE",
+        "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_02/input.recog",
+        "--limit",
+        "100",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:3bc19dbfa04e6392e4895afe8be891c1e3850de379963db9e81652f9a882d55e",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "COMPOUND_CONSTRAINT_EXPLAIN_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "K_NAV_ON_REQUIRES_FAST",
+        "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_02/input.recog",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:261a55413d46150b41c7aee9b8fb727fc50635f98d7123321fd25a844c8e5b65",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "DOCUMENT_AUDIT_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "document",
+        "audit",
+        "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_02/input.recog",
+        "--profile",
+        "base",
+        "--fail-on",
+        "error",
+        "--format",
+        "json"
+      ],
+      "exit_status": 1,
+      "stdout_digest": "sha256:094d24b0511d58a601993bc4eef7b7c91db9288182f565ce3f8df7d3d769641f",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "outcome": "completed",
+  "complete": true,
+  "truncated": false,
+  "observations": []
+}

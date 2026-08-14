@@ -98,6 +98,7 @@ task APPLY_RELATIONAL_DOGFOOD_FEEDBACK RELATIONAL_DOGFOOD_OBSERVED -> RELATIONAL
   title "Disposition relational feedback before query and materialization"
   description "Classify every first-round observation, preserve unknowns, and update an ADR before any accepted semantic or result-contract change. Spend the reserved 1p evaluating whether the compound question needs a composed bounded query, navigation links, or no contract change. Spend the additional observed 1p creating an immutable successor protocol with the missing known-mismatch case and rerunning the relational round to completion. Revise the remaining point estimates, query/materialization fixtures, and protocol command cases before either space route is implemented."
   duration 4p
+  status done
   priority 60
   requires:
     IMPLEMENTER 1
@@ -123,8 +124,7 @@ task IMPLEMENT_BOUNDED_MATERIALIZATION BOUNDED_QUERY_ACCEPTED -> BOUNDED_MATERIA
 
 task RUN_SPACE_VIEW_DOGFOOD BOUNDED_MATERIALIZATION_ACCEPTED -> SPACE_DOGFOOD_OBSERVED:
   title "Dogfood bounded query and materialization"
-  description |
-    Run protocol v5 grounded-provenance filters, compound navigation, joint-witness, open-domain, ordering, low-limit, truncation, and require-complete cases through the actual private routes. Capture immutable command, artifact, output, and replay identities; inspect whether the views imply preference, silently close domains, fabricate source support, hide incomplete scopes, or encourage persisted world state.
+  description "Run active protocol v7 grounded-provenance filters, compound target discovery, joint-witness, open-domain, ordering, low-limit, truncation, and require-complete cases through the actual private routes. Capture immutable command, artifact, output, and replay identities; inspect whether the views imply preference, silently close domains, fabricate source support, hide incomplete scopes, or encourage persisted world state."
   duration 2p
   priority 30
   requires:
@@ -206,3 +206,17 @@ work_event FINISH_RUN_RELATIONAL_CONSTRAINT_DOGFOOD_20260814:
   kind finish
   occurred_at 2026-08-14T17:26:04+09:00
   effort 0.1641666667ph
+
+work_event START_APPLY_RELATIONAL_DOGFOOD_FEEDBACK_20260814:
+  model 1
+  task APPLY_RELATIONAL_DOGFOOD_FEEDBACK
+  kind start
+  occurred_at 2026-08-14T17:28:00+09:00
+  planned_value 4p
+
+work_event FINISH_APPLY_RELATIONAL_DOGFOOD_FEEDBACK_20260814:
+  model 1
+  task APPLY_RELATIONAL_DOGFOOD_FEEDBACK
+  kind finish
+  occurred_at 2026-08-14T17:39:39+09:00
+  effort 0.1941666667ph

@@ -12,7 +12,9 @@ const protocolPath = "dogfood/protocol-v1/protocol.json";
 const phase3ProtocolV2Path = "dogfood/protocol-v2/protocol.json";
 const phase3ProtocolV3Path = "dogfood/protocol-v3/protocol.json";
 const phase4ProtocolV4Path = "dogfood/protocol-v4/protocol.json";
-const activeProtocolPath = "dogfood/protocol-v5/protocol.json";
+const phase4ProtocolV5Path = "dogfood/protocol-v5/protocol.json";
+const phase4ProtocolV6Path = "dogfood/protocol-v6/protocol.json";
+const activeProtocolPath = "dogfood/protocol-v7/protocol.json";
 const runExamplePath = "dogfood/protocol-v1/examples/run-receipt.example.json";
 const grammarRunReceiptPath =
   "dogfood/runs/GRAMMAR_AUTHORING_20260814_01/receipt.json";
@@ -24,6 +26,8 @@ const exclusionRunReceiptPath =
   "dogfood/runs/EXCLUSION_CONFLICT_20260814_01/receipt.json";
 const relationalRunReceiptPath =
   "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_01/receipt.json";
+const relationalReplayReceiptPath =
+  "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_02/receipt.json";
 const feedbackExamplePath =
   "dogfood/protocol-v1/examples/feedback.example.json";
 const grammarFeedbackPath =
@@ -34,6 +38,10 @@ const ambiguityFeedbackPath =
   "dogfood/runs/AMBIGUITY_EXPLAIN_20260814_01/feedback.json";
 const exclusionFeedbackPath =
   "dogfood/runs/EXCLUSION_CONFLICT_20260814_01/feedback.json";
+const relationalFeedbackPath =
+  "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_01/feedback.json";
+const relationalReplayFeedbackPath =
+  "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_02/feedback.json";
 
 interface ProtocolDocument {
   readonly id: string;
@@ -152,6 +160,8 @@ function sha256(relativePath: string): string {
 
 const protocol = readJson<DogfoodProtocol>(protocolPath);
 const activeProtocol = readJson<DogfoodProtocol>(activeProtocolPath);
+const relationalReplayProtocol =
+  readJson<DogfoodProtocol>(phase4ProtocolV6Path);
 
 function requiredCommandCase(
   protocolDocument: DogfoodProtocol,
@@ -309,18 +319,26 @@ test("the active dogfood protocol freezes corpus, questions, commands, and gates
     "sha256:e9161272674284cd3f3a551f1de59938cfbdcbc88107836c23ac77b98bc7730b",
   );
   assert.equal(
-    sha256(activeProtocolPath),
+    sha256(phase4ProtocolV5Path),
     "sha256:29c91b743677a0c14ad65e41a40a27ec942063d12d1c31987e5b9cc8971613b9",
   );
+  assert.equal(
+    sha256(phase4ProtocolV6Path),
+    "sha256:c61ff3ea091d9d22b7064523eaf26146123e65e2b470a9b0046b04374fce458d",
+  );
+  assert.equal(
+    sha256(activeProtocolPath),
+    "sha256:ed06b9ea40e1595d52981333309b1a456ca600f58a8f4d02961f6a6e19c32fd7",
+  );
   assert.equal(activeProtocol.schema, "Llmrecog.Internal.DogfoodProtocol.v1");
-  assert.equal(activeProtocol.protocol_version, 5);
+  assert.equal(activeProtocol.protocol_version, 7);
   assert.equal(activeProtocol.semantic_version, "0.1");
   assert.equal(activeProtocol.status, "active");
   assert.equal(activeProtocol.run_path_pattern, "dogfood/runs/<run-id>");
 
   assert.deepEqual(
     activeProtocol.rounds.map((round) => round.sequence),
-    [5, 6],
+    [6],
   );
   assert.equal(
     new Set(activeProtocol.rounds.map((round) => round.id)).size,
@@ -380,8 +398,18 @@ test("the active dogfood protocol freezes corpus, questions, commands, and gates
     );
   }
   assert(
-    activeProtocol.rounds[0]?.command_case_ids.includes(
+    relationalReplayProtocol.rounds[0]?.command_case_ids.includes(
       "REQUIRES_EXPLAIN_JSON",
+    ),
+  );
+  assert(
+    relationalReplayProtocol.rounds[0]?.command_case_ids.includes(
+      "SAME_AS_MISMATCH_EXPLAIN_JSON",
+    ),
+  );
+  assert(
+    relationalReplayProtocol.rounds[0]?.command_case_ids.includes(
+      "COMPOUND_CONSTRAINT_EXPLAIN_JSON",
     ),
   );
   assert.deepEqual(
@@ -392,7 +420,7 @@ test("the active dogfood protocol freezes corpus, questions, commands, and gates
     ["--require-complete"],
   );
   assert(
-    activeProtocol.rounds[1]?.command_case_ids.includes(
+    activeProtocol.rounds[0]?.command_case_ids.includes(
       "SPACE_MATERIALIZE_REQUIRE_COMPLETE_JSON",
     ),
   );
@@ -423,6 +451,7 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   const ambiguityRun = readJson<RunExample>(ambiguityRunReceiptPath);
   const exclusionRun = readJson<RunExample>(exclusionRunReceiptPath);
   const relationalRun = readJson<RunExample>(relationalRunReceiptPath);
+  const relationalReplay = readJson<RunExample>(relationalReplayReceiptPath);
   const feedbackExample = readJson<FeedbackExample>(feedbackExamplePath);
   const grammarFeedback = readJson<FeedbackExample>(grammarFeedbackPath);
   const specificationFeedback = readJson<FeedbackExample>(
@@ -430,6 +459,10 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   );
   const ambiguityFeedback = readJson<FeedbackExample>(ambiguityFeedbackPath);
   const exclusionFeedback = readJson<FeedbackExample>(exclusionFeedbackPath);
+  const relationalFeedback = readJson<FeedbackExample>(relationalFeedbackPath);
+  const relationalReplayFeedback = readJson<FeedbackExample>(
+    relationalReplayFeedbackPath,
+  );
   const ajv = new Ajv2020({ allErrors: true, strict: true });
   addFormats(ajv);
 
@@ -466,6 +499,11 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
     JSON.stringify(validateRun.errors, null, 2),
   );
   assert.equal(
+    validateRun(relationalReplay),
+    true,
+    JSON.stringify(validateRun.errors, null, 2),
+  );
+  assert.equal(
     validateFeedback(feedbackExample),
     true,
     JSON.stringify(validateFeedback.errors, null, 2),
@@ -487,6 +525,16 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   );
   assert.equal(
     validateFeedback(exclusionFeedback),
+    true,
+    JSON.stringify(validateFeedback.errors, null, 2),
+  );
+  assert.equal(
+    validateFeedback(relationalFeedback),
+    true,
+    JSON.stringify(validateFeedback.errors, null, 2),
+  );
+  assert.equal(
+    validateFeedback(relationalReplayFeedback),
     true,
     JSON.stringify(validateFeedback.errors, null, 2),
   );
@@ -548,7 +596,23 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   assert.equal(relationalRun.outcome, "blocked");
   assert.equal(relationalRun.complete, false);
   assert.equal(relationalRun.truncated, false);
-  assertRunBindings(relationalRun, activeProtocol, activeProtocolPath);
+  const phase4ProtocolV5 = readJson<DogfoodProtocol>(phase4ProtocolV5Path);
+  assertRunBindings(relationalRun, phase4ProtocolV5, phase4ProtocolV5Path);
+  assert.equal(relationalReplay.run_id, "RELATIONAL_CONSTRAINTS_20260814_02");
+  assert(
+    relationalReplay.question_results.every(
+      (result) => result.status === "answered",
+    ),
+  );
+  assert.notEqual(relationalReplay.tool.repository_revision, "0".repeat(40));
+  assert.equal(relationalReplay.outcome, "completed");
+  assert.equal(relationalReplay.complete, true);
+  assert.equal(relationalReplay.truncated, false);
+  assertRunBindings(
+    relationalReplay,
+    relationalReplayProtocol,
+    phase4ProtocolV6Path,
+  );
 
   assert(feedbackExample.feedback_id.startsWith("EXAMPLE_"));
   assertFeedbackBindings(feedbackExample, runExamplePath, runExample);
@@ -663,5 +727,34 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
     exclusionFeedback,
     exclusionRunReceiptPath,
     exclusionRun,
+  );
+  assert.equal(
+    relationalFeedback.feedback_id,
+    "RELATIONAL_CONSTRAINTS_20260814_01_FEEDBACK_01",
+  );
+  assert.deepEqual(relationalFeedback.point_adjustments, [
+    {
+      plan_path: "plans/phase-4-complete-core.pert",
+      task_id: "APPLY_RELATIONAL_DOGFOOD_FEEDBACK",
+      previous_points: 3,
+      revised_points: 4,
+      rationale:
+        "Add 1p for an immutable successor protocol, the missing known-mismatch and compound-constraint command cases, a complete replay receipt, and both feedback bindings discovered by actual v5 use.",
+    },
+  ]);
+  assertFeedbackBindings(
+    relationalFeedback,
+    relationalRunReceiptPath,
+    relationalRun,
+  );
+  assert.equal(
+    relationalReplayFeedback.feedback_id,
+    "RELATIONAL_CONSTRAINTS_20260814_02_FEEDBACK_01",
+  );
+  assert.deepEqual(relationalReplayFeedback.point_adjustments, []);
+  assertFeedbackBindings(
+    relationalReplayFeedback,
+    relationalReplayReceiptPath,
+    relationalReplay,
   );
 });

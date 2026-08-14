@@ -1,0 +1,45 @@
+{
+  "schema": "Llmrecog.Internal.DogfoodFeedback.v1",
+  "feedback_id": "RELATIONAL_CONSTRAINTS_20260814_01_FEEDBACK_01",
+  "receipt": {
+    "path": "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_01/receipt.json",
+    "digest": "sha256:d4f7fab51dcde7d504364b76081faf60a6f2c6d48a4c1b7103d98be346c44d26"
+  },
+  "reviewed_at": "2026-08-14T17:35:30+09:00",
+  "reviewer": "codex",
+  "supersedes": null,
+  "entries": [
+    {
+      "observation_id": "OBS-CORE-001",
+      "disposition": "accepted",
+      "rationale": "The frozen v5 question required a known typed mismatch but its command set could not obtain that evidence. Protocol v6 preserves v5 and adds a repeated C_SAME_RIGHT_BLUE explain case with the complete two-variable scope; the completed replay reports RCG-RSN-204. This corrects internal evidence coverage without changing semantic or public result contracts.",
+      "contract_change": "not_required",
+      "action_task_ids": ["APPLY_RELATIONAL_DOGFOOD_FEEDBACK"]
+    },
+    {
+      "observation_id": "OBS-CORE-002",
+      "disposition": "accepted",
+      "rationale": "The allowed candidate result correctly omits a derivation belonging to a blocked alternative. The v6 replay proves that target-specific candidate and constraint explanations together answer the compound question: C_NAV_SAFE carries the OFF plus SAFE witness and K_NAV_ON_REQUIRES_FAST carries the ON relationship's RCG-RSN-203. Keep ExplainResult v2 target-factored and keep QueryResult v1 as the accepted conjunctive recognition filter; no composed navigation field or wider reason chain is justified.",
+      "contract_change": "not_required",
+      "action_task_ids": ["APPLY_RELATIONAL_DOGFOOD_FEEDBACK"]
+    },
+    {
+      "observation_id": "OBS-CORE-003",
+      "disposition": "accepted",
+      "rationale": "The process schema lagged behind the already frozen Phase 4 protocols. Additive v4 through v6 round and path enums now validate the blocked v5 receipt and completed v6 replay while preserving every earlier receipt binding. The correction is internal process infrastructure only.",
+      "contract_change": "not_required",
+      "action_task_ids": ["RUN_RELATIONAL_CONSTRAINT_DOGFOOD"]
+    }
+  ],
+  "point_adjustments": [
+    {
+      "plan_path": "plans/phase-4-complete-core.pert",
+      "task_id": "APPLY_RELATIONAL_DOGFOOD_FEEDBACK",
+      "previous_points": 3,
+      "revised_points": 4,
+      "rationale": "Add 1p for an immutable successor protocol, the missing known-mismatch and compound-constraint command cases, a complete replay receipt, and both feedback bindings discovered by actual v5 use."
+    }
+  ],
+  "round_complete": true,
+  "unresolved_observation_ids": []
+}
