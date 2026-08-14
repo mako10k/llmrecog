@@ -136,6 +136,7 @@ task ACCEPT_PHASE_3_SLICE AUDIT_DECLARATION_SPANS_ACCEPTED -> PHASE_3_ACCEPTED:
   description |
     Run focused schema and fixture checks, repeated deterministic explain and audit cases, supported Node target validation, npm run check including jscpd, npm audit, and git diff --check. Review dependency direction, source-support and viability separation, joint witnesses, grounded exclusion chains, open and unsupported unknowns, conflict reporting, bounds, no persistence, no source locator I/O, and no provider or related-project runtime; record unresolved work without starting Phase 4 or publishing, releasing, tagging, or pushing.
   duration 2p
+  status done
   priority 20
   requires:
     IMPLEMENTER 1
@@ -305,3 +306,17 @@ work_event FINISH_IMPLEMENT_AUDIT_DECLARATION_SPANS_20260814:
   kind finish
   occurred_at 2026-08-14T15:27:47+09:00
   effort 0.08ph
+
+work_event START_ACCEPT_PHASE_3_SLICE_20260814:
+  model 1
+  task ACCEPT_PHASE_3_SLICE
+  kind start
+  occurred_at 2026-08-14T15:29:06+09:00
+  planned_value 2p
+
+work_event FINISH_ACCEPT_PHASE_3_SLICE_20260814:
+  model 1
+  task ACCEPT_PHASE_3_SLICE
+  kind finish
+  occurred_at 2026-08-14T15:36:24+09:00
+  effort 0.1216666667ph

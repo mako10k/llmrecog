@@ -20,6 +20,7 @@ This directory is the design and implementation-contract authority.
 | [examples/boundary-cases.md](examples/boundary-cases.md) | Required boundary examples |
 | [implementation-phases.md](implementation-phases.md) | Small implementation phases after design acceptance |
 | [phase-2-acceptance.md](phase-2-acceptance.md) | Exact candidate evidence and Phase 2 acceptance boundary |
+| [phase-3-acceptance.md](phase-3-acceptance.md) | Exact candidate evidence and Phase 3 acceptance boundary |
 | [../plans/initial-roadmap.pert](../plans/initial-roadmap.pert) | Original coarse roadmap and Phase 0/1 history |
 | [../plans/phase-2-parse-validate-show.pert](../plans/phase-2-parse-validate-show.pert) | Detailed perttool plan for the separately gated Phase 2 vertical slice |
 | [../plans/phase-3-explainable-csp.pert](../plans/phase-3-explainable-csp.pert) | Detailed dogfood-first plan for the separately gated Phase 3 explainable CSP slice |

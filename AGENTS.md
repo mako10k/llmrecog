@@ -17,16 +17,16 @@ until it exists in the current checkout and has been verified.
 ## Current phase and scope lock
 
 `llmrecog` has a design baseline, a frozen executable contract 0.1, an accepted
-private Phase 2 parse/validate/show read path, the accepted Phase 3 explain and
-focused-audit contract in ADR 0008, and the Phase 3 dogfood protocol v2. It has
-no constraint solver, Phase 3 runtime, public CLI, or released package. The
-next task in the accepted point-based plan is the fixture-first finite
-`one_of` candidate-explain slice; later Phase 3 behavior remains gated by its
-two dogfood reviews.
+private Phase 2 parse/validate/show read path, and an accepted private Phase 3
+finite `one_of` and `excludes` explain/focused-audit slice. It has no Phase 4
+constraint runtime, public CLI, or released package. The next separately gated
+phase is Phase 4 in `docs/implementation-phases.md`; its contract and dogfood
+baseline must be reviewed before implementation begins.
 
-Completion of the Phase 2 read path does not authorize:
+Completion of the Phase 3 slice does not authorize:
 
-- solver, materializer, source-verification, or provider implementation;
+- `requires`, `same_as`, `distinct_from`, query, materializer,
+  source-verification, or provider implementation;
 - changes in `llmthink`, `perttool`, SEMDL, or STDL;
 - publication, release, tagging, remote pushes, or registry writes;
 - adding MCP, LSP, VSIX, databases, embeddings, or network dependencies.
