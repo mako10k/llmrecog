@@ -1,0 +1,45 @@
+{
+  "schema": "Llmrecog.Internal.DogfoodFeedback.v1",
+  "feedback_id": "GRAMMAR_AUTHORING_20260814_01_FEEDBACK_01",
+  "receipt": {
+    "path": "dogfood/runs/GRAMMAR_AUTHORING_20260814_01/receipt.json",
+    "digest": "sha256:b15a090cc6004a3e3fb1af2982cca1fdaa4396f0fbcdcbab31549c1890b5e444"
+  },
+  "reviewed_at": "2026-08-14T11:36:36+09:00",
+  "reviewer": "codex",
+  "supersedes": null,
+  "entries": [
+    {
+      "observation_id": "OBS-GRAMMAR-001",
+      "disposition": "deferred",
+      "rationale": "The navigation friction is supported by the run, but the bootstrap inventory omits later Phase 2 declaration kinds. Re-evaluating the affordance with the complete read path avoids freezing a public result change from a deliberately incomplete projection.",
+      "contract_change": "deferred",
+      "action_task_ids": ["APPLY_SPECIFICATION_DOGFOOD_FEEDBACK"]
+    },
+    {
+      "observation_id": "OBS-GRAMMAR-002",
+      "disposition": "accepted",
+      "rationale": "The explicit scope error preserves the accepted bootstrap boundary. The missing declaration and normalization structure is already authorized and estimated only in the complete Phase 2 read-path task, so it is not a bootstrap defect or new scope.",
+      "contract_change": "not_required",
+      "action_task_ids": ["IMPLEMENT_COMPLETE_PHASE_2_READ_PATH"]
+    },
+    {
+      "observation_id": "OBS-GRAMMAR-003",
+      "disposition": "accepted",
+      "rationale": "No locator I/O is an explicit Phase 2 boundary. Independent protocol and receipt digests preserve this run's corpus identity without falsely reporting source verification.",
+      "contract_change": "not_required",
+      "action_task_ids": ["ACCEPT_PHASE_2_SLICE"]
+    }
+  ],
+  "point_adjustments": [
+    {
+      "plan_path": "plans/phase-2-parse-validate-show.pert",
+      "task_id": "APPLY_SPECIFICATION_DOGFOOD_FEEDBACK",
+      "previous_points": 5,
+      "revised_points": 7,
+      "rationale": "Reserve 2p to reassess grounded-summary or filtering navigation using the complete declaration set before deciding whether an ADR and public contract change are justified."
+    }
+  ],
+  "round_complete": true,
+  "unresolved_observation_ids": []
+}

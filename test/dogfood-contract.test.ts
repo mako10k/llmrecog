@@ -14,6 +14,8 @@ const grammarRunReceiptPath =
   "dogfood/runs/GRAMMAR_AUTHORING_20260814_01/receipt.json";
 const feedbackExamplePath =
   "dogfood/protocol-v1/examples/feedback.example.json";
+const grammarFeedbackPath =
+  "dogfood/runs/GRAMMAR_AUTHORING_20260814_01/feedback.json";
 
 interface ProtocolDocument {
   readonly id: string;
@@ -106,6 +108,11 @@ interface FeedbackExample {
   readonly feedback_id: string;
   readonly receipt: { readonly path: string; readonly digest: string };
   readonly entries: readonly FeedbackEntry[];
+  readonly point_adjustments: readonly {
+    readonly task_id: string;
+    readonly previous_points: number;
+    readonly revised_points: number;
+  }[];
   readonly round_complete: boolean;
   readonly unresolved_observation_ids: readonly string[];
 }
@@ -159,6 +166,21 @@ function assertRunBindings(run: RunExample): void {
     assert.equal(executions[0]?.stdout_digest, executions[1]?.stdout_digest);
     assert.equal(executions[0]?.stderr_digest, executions[1]?.stderr_digest);
   }
+}
+
+function assertFeedbackBindings(
+  feedback: FeedbackExample,
+  receiptPath: string,
+  run: RunExample,
+): void {
+  assert.equal(feedback.receipt.path, receiptPath);
+  assert.equal(feedback.receipt.digest, sha256(receiptPath));
+  assert.deepEqual(
+    feedback.entries.map((entry) => entry.observation_id).sort(),
+    run.observations.map((observation) => observation.id).sort(),
+  );
+  assert.equal(feedback.round_complete, true);
+  assert.deepEqual(feedback.unresolved_observation_ids, []);
 }
 
 test("the dogfood protocol freezes corpus, questions, commands, and gates", () => {
@@ -234,7 +256,7 @@ test("the dogfood protocol freezes corpus, questions, commands, and gates", () =
   assert(Object.values(protocol.acceptance).every(Boolean));
 });
 
-test("dogfood receipts and the feedback example satisfy their process schemas", () => {
+test("dogfood receipts and feedback satisfy their process schemas", () => {
   const runSchema = readJson<Record<string, unknown>>(protocol.receipt_schema);
   const feedbackSchema = readJson<Record<string, unknown>>(
     protocol.feedback_schema,
@@ -242,6 +264,7 @@ test("dogfood receipts and the feedback example satisfy their process schemas", 
   const runExample = readJson<RunExample>(runExamplePath);
   const grammarRun = readJson<RunExample>(grammarRunReceiptPath);
   const feedbackExample = readJson<FeedbackExample>(feedbackExamplePath);
+  const grammarFeedback = readJson<FeedbackExample>(grammarFeedbackPath);
   const ajv = new Ajv2020({ allErrors: true, strict: true });
   addFormats(ajv);
 
@@ -262,6 +285,11 @@ test("dogfood receipts and the feedback example satisfy their process schemas", 
     true,
     JSON.stringify(validateFeedback.errors, null, 2),
   );
+  assert.equal(
+    validateFeedback(grammarFeedback),
+    true,
+    JSON.stringify(validateFeedback.errors, null, 2),
+  );
 
   assert(runExample.run_id.startsWith("EXAMPLE_"));
   assert.equal(runExample.tool.repository_revision, "0".repeat(40));
@@ -277,12 +305,20 @@ test("dogfood receipts and the feedback example satisfy their process schemas", 
   assertRunBindings(grammarRun);
 
   assert(feedbackExample.feedback_id.startsWith("EXAMPLE_"));
-  assert.equal(feedbackExample.receipt.path, runExamplePath);
-  assert.equal(feedbackExample.receipt.digest, sha256(runExamplePath));
-  assert.deepEqual(
-    feedbackExample.entries.map((entry) => entry.observation_id).sort(),
-    runExample.observations.map((observation) => observation.id).sort(),
+  assertFeedbackBindings(feedbackExample, runExamplePath, runExample);
+  assert.equal(
+    grammarFeedback.feedback_id,
+    "GRAMMAR_AUTHORING_20260814_01_FEEDBACK_01",
   );
-  assert.equal(feedbackExample.round_complete, true);
-  assert.deepEqual(feedbackExample.unresolved_observation_ids, []);
+  assert.deepEqual(grammarFeedback.point_adjustments, [
+    {
+      plan_path: "plans/phase-2-parse-validate-show.pert",
+      task_id: "APPLY_SPECIFICATION_DOGFOOD_FEEDBACK",
+      previous_points: 5,
+      revised_points: 7,
+      rationale:
+        "Reserve 2p to reassess grounded-summary or filtering navigation using the complete declaration set before deciding whether an ADR and public contract change are justified.",
+    },
+  ]);
+  assertFeedbackBindings(grammarFeedback, grammarRunReceiptPath, grammarRun);
 });
