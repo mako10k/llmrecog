@@ -1,0 +1,399 @@
+{
+  "schema": "Llmrecog.Internal.DogfoodRunReceipt.v1",
+  "run_id": "BOUNDED_SPACE_VIEWS_20260814_01",
+  "round_id": "bounded_space_views_v9",
+  "started_at": "2026-08-14T09:12:48Z",
+  "finished_at": "2026-08-14T09:12:52Z",
+  "tool": {
+    "repository_revision": "dcec67dd0ee15b0a6349de42a7a0b17c64ed5f38",
+    "semantic_version": "0.1",
+    "node_version": "v25.1.0",
+    "platform": "linux-x64",
+    "working_directory": "."
+  },
+  "protocol": {
+    "path": "dogfood/protocol-v9/protocol.json",
+    "digest": "sha256:8ce28da57255e62dce10a0daf1bb599650c3b0388bf2fbdc3176a5e29b36522f"
+  },
+  "question_results": [
+    {
+      "question_id": "DGF-SPACE-001",
+      "status": "answered",
+      "summary": "The variable plus viability conjunction returns only C_OPEN_LEFT_RED and retains its source support separately from unknown CSP viability over the two-variable relational scope.",
+      "evidence": [
+        "SPACE_QUERY_JSON reports the exact filter object kind=null, variable_id=V_OPEN_LEFT, support=null, viability=unknown, and grounded_in_span_id=null.",
+        "Its single typed candidate item is supported by S_ADR_SPACE_VIEWS, has viability unknown with RCG-RSN-001, and reports requested scope V_OPEN_LEFT plus effective scope V_OPEN_LEFT,V_OPEN_RIGHT without ranking, joining, or deriving a conclusion."
+      ]
+    },
+    {
+      "question_id": "DGF-SPACE-002",
+      "status": "answered",
+      "summary": "Every bound JSON and text case is byte-identical across its two repetitions, and materialization preserves variable declaration order, candidate order, and consecutive emitted-world indices.",
+      "evidence": [
+        "All seven repeat pairs have identical exit statuses, stdout digests, and empty-stderr digests.",
+        "SPACE_MATERIALIZE_JSON emits world 1 as V_TRIGGER=C_TRIGGER_ON,V_MODE=C_MODE_FAST, world 2 as V_TRIGGER=C_TRIGGER_OFF,V_MODE=C_MODE_FAST, and world 3 as V_TRIGGER=C_TRIGGER_OFF,V_MODE=C_MODE_SAFE; SPACE_MATERIALIZE_TEXT projects the same order."
+      ]
+    },
+    {
+      "question_id": "DGF-SPACE-003",
+      "status": "answered",
+      "summary": "Limits count inspected assignments or query matches and report completion only after the represented generator is known to be exhausted.",
+      "evidence": [
+        "SPACE_QUERY_LIMIT_JSON uses result_limit=1 and assignment_limit=1, returns one item with complete=false and truncated=true, and exits 1 because further query results remain.",
+        "SPACE_MATERIALIZE_JSON uses limit=4, inspects all four Cartesian assignments, emits the three constraint-satisfying worlds, and reports complete=true and truncated=false after exact exhaustion rather than treating the three emitted worlds as the inspection count."
+      ]
+    },
+    {
+      "question_id": "DGF-SPACE-004",
+      "status": "blocked",
+      "summary": "The require-complete execution preserves a low-limit typed prefix, reports RCG-RSN-007, and exits 5, but protocol v9 has no otherwise-identical low-limit execution without the flag to prove status 0 and payload equivalence.",
+      "evidence": [
+        "SPACE_MATERIALIZE_REQUIRE_COMPLETE_JSON at limit 2 emits the first ON plus FAST world, reports complete=false, truncated=true, require_complete=true, RCG-RSN-007, and exits 5 in both repetitions.",
+        "SPACE_MATERIALIZE_JSON exits 0 but is bound to limit 4 and a complete three-world result, so it cannot establish the required same-limit typed-prefix comparison or prove that only the exit boundary changes."
+      ]
+    },
+    {
+      "question_id": "DGF-SPACE-005",
+      "status": "answered",
+      "summary": "A fully inspected open same_as branch is computationally complete without being semantically decided: it emits no world and records the indeterminate open branch explicitly.",
+      "evidence": [
+        "SPACE_MATERIALIZE_OPEN_JSON reports inspected_assignment_count=2, complete=true, truncated=false, worlds=[], and indeterminate_assignment_count=1.",
+        "The same result names V_OPEN_RIGHT in open_variable_ids and RCG-RSN-001 in unknown_reasons, without inventing a candidate for the open variable or classifying the branch as satisfied or violated."
+      ]
+    }
+  ],
+  "artifact": {
+    "path": "dogfood/runs/BOUNDED_SPACE_VIEWS_20260814_01/input.recog",
+    "digest": "sha256:6bbacba79d53cb3095ef8fbe8859eafcbddf0254acaf410165366b9e7e94563b"
+  },
+  "executions": [
+    {
+      "case_id": "SPACE_QUERY_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "space",
+        "query",
+        "dogfood/runs/BOUNDED_SPACE_VIEWS_20260814_01/input.recog",
+        "--variable",
+        "V_OPEN_LEFT",
+        "--viability",
+        "unknown",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:f2f1eb016ae14c47c9604d24d60269dbc7b88f8ba66a4a336fe1dd0e7dbb231d",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "SPACE_QUERY_TEXT",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "space",
+        "query",
+        "dogfood/runs/BOUNDED_SPACE_VIEWS_20260814_01/input.recog",
+        "--variable",
+        "V_OPEN_LEFT",
+        "--viability",
+        "unknown",
+        "--format",
+        "text"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:8afd2218d7ffd4295ae18da6819a0e32eb2bba60a123e8eb64cf0a6c65632279",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "SPACE_QUERY_LIMIT_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "space",
+        "query",
+        "dogfood/runs/BOUNDED_SPACE_VIEWS_20260814_01/input.recog",
+        "--limit",
+        "1",
+        "--format",
+        "json"
+      ],
+      "exit_status": 1,
+      "stdout_digest": "sha256:20ece5a56f11c74150724b1ec41597df77847fd56bc75fafda02c45916c7a72b",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "SPACE_MATERIALIZE_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "space",
+        "materialize",
+        "dogfood/runs/BOUNDED_SPACE_VIEWS_20260814_01/input.recog",
+        "--scope",
+        "V_TRIGGER",
+        "--limit",
+        "4",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:344076d3763eabab87f14d4772e79b922ddcb9f20eb83b89f59620f688bb263b",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "SPACE_MATERIALIZE_TEXT",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "space",
+        "materialize",
+        "dogfood/runs/BOUNDED_SPACE_VIEWS_20260814_01/input.recog",
+        "--scope",
+        "V_TRIGGER",
+        "--limit",
+        "4",
+        "--format",
+        "text"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:6254a82d5e5b2063f2911d97cfbfd6a261e481a81877d6f03aec6033ccd66af9",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "SPACE_MATERIALIZE_REQUIRE_COMPLETE_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "space",
+        "materialize",
+        "dogfood/runs/BOUNDED_SPACE_VIEWS_20260814_01/input.recog",
+        "--scope",
+        "V_TRIGGER",
+        "--limit",
+        "2",
+        "--require-complete",
+        "--format",
+        "json"
+      ],
+      "exit_status": 5,
+      "stdout_digest": "sha256:4160925fc96629f8bcae12130048ae77fe832647268eddd3ca934b368e674712",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "SPACE_MATERIALIZE_OPEN_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "space",
+        "materialize",
+        "dogfood/runs/BOUNDED_SPACE_VIEWS_20260814_01/input.recog",
+        "--scope",
+        "V_OPEN_LEFT",
+        "--limit",
+        "2",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:61fc8675d8dcaaf595622fc71958ea3745656a77e2b2e97470abcc7566f0dda2",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "SPACE_QUERY_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "space",
+        "query",
+        "dogfood/runs/BOUNDED_SPACE_VIEWS_20260814_01/input.recog",
+        "--variable",
+        "V_OPEN_LEFT",
+        "--viability",
+        "unknown",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:f2f1eb016ae14c47c9604d24d60269dbc7b88f8ba66a4a336fe1dd0e7dbb231d",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "SPACE_QUERY_TEXT",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "space",
+        "query",
+        "dogfood/runs/BOUNDED_SPACE_VIEWS_20260814_01/input.recog",
+        "--variable",
+        "V_OPEN_LEFT",
+        "--viability",
+        "unknown",
+        "--format",
+        "text"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:8afd2218d7ffd4295ae18da6819a0e32eb2bba60a123e8eb64cf0a6c65632279",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "SPACE_QUERY_LIMIT_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "space",
+        "query",
+        "dogfood/runs/BOUNDED_SPACE_VIEWS_20260814_01/input.recog",
+        "--limit",
+        "1",
+        "--format",
+        "json"
+      ],
+      "exit_status": 1,
+      "stdout_digest": "sha256:20ece5a56f11c74150724b1ec41597df77847fd56bc75fafda02c45916c7a72b",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "SPACE_MATERIALIZE_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "space",
+        "materialize",
+        "dogfood/runs/BOUNDED_SPACE_VIEWS_20260814_01/input.recog",
+        "--scope",
+        "V_TRIGGER",
+        "--limit",
+        "4",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:344076d3763eabab87f14d4772e79b922ddcb9f20eb83b89f59620f688bb263b",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "SPACE_MATERIALIZE_TEXT",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "space",
+        "materialize",
+        "dogfood/runs/BOUNDED_SPACE_VIEWS_20260814_01/input.recog",
+        "--scope",
+        "V_TRIGGER",
+        "--limit",
+        "4",
+        "--format",
+        "text"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:6254a82d5e5b2063f2911d97cfbfd6a261e481a81877d6f03aec6033ccd66af9",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "SPACE_MATERIALIZE_REQUIRE_COMPLETE_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "space",
+        "materialize",
+        "dogfood/runs/BOUNDED_SPACE_VIEWS_20260814_01/input.recog",
+        "--scope",
+        "V_TRIGGER",
+        "--limit",
+        "2",
+        "--require-complete",
+        "--format",
+        "json"
+      ],
+      "exit_status": 5,
+      "stdout_digest": "sha256:4160925fc96629f8bcae12130048ae77fe832647268eddd3ca934b368e674712",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "SPACE_MATERIALIZE_OPEN_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "space",
+        "materialize",
+        "dogfood/runs/BOUNDED_SPACE_VIEWS_20260814_01/input.recog",
+        "--scope",
+        "V_OPEN_LEFT",
+        "--limit",
+        "2",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:61fc8675d8dcaaf595622fc71958ea3745656a77e2b2e97470abcc7566f0dda2",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "outcome": "blocked",
+  "complete": false,
+  "truncated": false,
+  "observations": [
+    {
+      "id": "OBS-SPACE-001",
+      "category": "documentation",
+      "summary": "Protocol v9 requires a same-low-limit status and payload comparison for DGF-SPACE-004 but binds only the require-complete variant at limit 2.",
+      "evidence": "SPACE_MATERIALIZE_REQUIRE_COMPLETE_JSON proves the limit-2 status-5 result, while the only no-flag materialization case uses limit 4 and produces a complete result with a different payload; the frozen command set therefore cannot prove the requested status-0 counterpart or typed-prefix identity.",
+      "reproduction_steps": [
+        "Run SPACE_MATERIALIZE_REQUIRE_COMPLETE_JSON exactly as bound and observe limit=2, require_complete=true, complete=false, RCG-RSN-007, and exit status 5.",
+        "Run SPACE_MATERIALIZE_JSON exactly as bound and observe limit=4, require_complete=false, complete=true, and exit status 0.",
+        "Compare bounded_space_views_v9 command cases with DGF-SPACE-004 required_evidence and observe that no no-flag limit-2 case exists."
+      ],
+      "proposed_action": "Create an immutable successor protocol with a repeated no-flag materialization case at scope V_TRIGGER and limit 2, replay the bounded-space round under a new run ID, and compare the typed payloads apart from require_complete before completing the dogfood review.",
+      "affected_contracts": [
+        "dogfood/protocol-v9/protocol.json",
+        "Llmrecog.Internal.DogfoodRunReceipt.v1"
+      ],
+      "point_impact": 1
+    }
+  ]
+}

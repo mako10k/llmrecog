@@ -128,6 +128,7 @@ task RUN_SPACE_VIEW_DOGFOOD BOUNDED_MATERIALIZATION_ACCEPTED -> SPACE_DOGFOOD_OB
   title "Dogfood bounded query and materialization"
   description "Run active protocol v9 grounded-provenance filters, compound target discovery, joint-witness, open-domain, ordering, low-limit, truncation, and require-complete cases through the actual private routes. Capture immutable command, artifact, output, and replay identities; inspect whether the views imply preference, silently close domains, fabricate source support, hide incomplete scopes, or encourage persisted world state."
   duration 2p
+  status done
   priority 30
   requires:
     IMPLEMENTER 1
@@ -135,9 +136,8 @@ task RUN_SPACE_VIEW_DOGFOOD BOUNDED_MATERIALIZATION_ACCEPTED -> SPACE_DOGFOOD_OB
 
 task APPLY_CORE_DOGFOOD_FEEDBACK SPACE_DOGFOOD_OBSERVED -> CORE_DOGFOOD_REVIEWED:
   title "Disposition complete-core feedback and re-estimate source verification"
-  description |
-    Review both Phase 4 rounds against exact protocol and artifact identities, disposition every observation, apply accepted contract feedback ADR-first, and revise the separately gated local-source-verification plan in points. Do not start source verification, provider work, llmthink integration, publication, or release.
-  duration 2p
+  description "Review both Phase 4 rounds against exact protocol and artifact identities, disposition every observation, apply accepted contract feedback ADR-first, and revise the separately gated local-source-verification plan in points. Spend the additional observed 1p creating an immutable successor protocol with the missing no-flag limit-2 materialization case and replaying the bounded-space round to completion. Do not start source verification, provider work, llmthink integration, publication, or release."
+  duration 3p
   priority 20
   requires:
     IMPLEMENTER 1
@@ -250,3 +250,17 @@ work_event FINISH_IMPLEMENT_BOUNDED_MATERIALIZATION_20260814:
   kind finish
   occurred_at 2026-08-14T18:08:43+09:00
   effort 0.1480555556ph
+
+work_event START_RUN_SPACE_VIEW_DOGFOOD_20260814:
+  model 1
+  task RUN_SPACE_VIEW_DOGFOOD
+  kind start
+  occurred_at 2026-08-14T18:09:28+09:00
+  planned_value 2p
+
+work_event FINISH_RUN_SPACE_VIEW_DOGFOOD_20260814:
+  model 1
+  task RUN_SPACE_VIEW_DOGFOOD
+  kind finish
+  occurred_at 2026-08-14T18:15:52+09:00
+  effort 0.1066666667ph

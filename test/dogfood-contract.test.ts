@@ -30,6 +30,8 @@ const relationalRunReceiptPath =
   "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_01/receipt.json";
 const relationalReplayReceiptPath =
   "dogfood/runs/RELATIONAL_CONSTRAINTS_20260814_02/receipt.json";
+const boundedSpaceRunReceiptPath =
+  "dogfood/runs/BOUNDED_SPACE_VIEWS_20260814_01/receipt.json";
 const feedbackExamplePath =
   "dogfood/protocol-v1/examples/feedback.example.json";
 const grammarFeedbackPath =
@@ -462,6 +464,7 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   const exclusionRun = readJson<RunExample>(exclusionRunReceiptPath);
   const relationalRun = readJson<RunExample>(relationalRunReceiptPath);
   const relationalReplay = readJson<RunExample>(relationalReplayReceiptPath);
+  const boundedSpaceRun = readJson<RunExample>(boundedSpaceRunReceiptPath);
   const feedbackExample = readJson<FeedbackExample>(feedbackExamplePath);
   const grammarFeedback = readJson<FeedbackExample>(grammarFeedbackPath);
   const specificationFeedback = readJson<FeedbackExample>(
@@ -510,6 +513,11 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   );
   assert.equal(
     validateRun(relationalReplay),
+    true,
+    JSON.stringify(validateRun.errors, null, 2),
+  );
+  assert.equal(
+    validateRun(boundedSpaceRun),
     true,
     JSON.stringify(validateRun.errors, null, 2),
   );
@@ -623,6 +631,17 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
     relationalReplayProtocol,
     phase4ProtocolV6Path,
   );
+  assert.equal(boundedSpaceRun.run_id, "BOUNDED_SPACE_VIEWS_20260814_01");
+  assert(
+    boundedSpaceRun.question_results.some(
+      (result) => result.status === "blocked",
+    ),
+  );
+  assert.notEqual(boundedSpaceRun.tool.repository_revision, "0".repeat(40));
+  assert.equal(boundedSpaceRun.outcome, "blocked");
+  assert.equal(boundedSpaceRun.complete, false);
+  assert.equal(boundedSpaceRun.truncated, false);
+  assertRunBindings(boundedSpaceRun, activeProtocol, activeProtocolPath);
 
   assert(feedbackExample.feedback_id.startsWith("EXAMPLE_"));
   assertFeedbackBindings(feedbackExample, runExamplePath, runExample);
