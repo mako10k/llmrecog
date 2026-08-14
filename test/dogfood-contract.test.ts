@@ -28,6 +28,8 @@ const specificationFeedbackPath =
   "dogfood/runs/SPECIFICATION_AUTHORING_20260814_01/feedback.json";
 const ambiguityFeedbackPath =
   "dogfood/runs/AMBIGUITY_EXPLAIN_20260814_01/feedback.json";
+const exclusionFeedbackPath =
+  "dogfood/runs/EXCLUSION_CONFLICT_20260814_01/feedback.json";
 
 interface ProtocolDocument {
   readonly id: string;
@@ -393,6 +395,7 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
     specificationFeedbackPath,
   );
   const ambiguityFeedback = readJson<FeedbackExample>(ambiguityFeedbackPath);
+  const exclusionFeedback = readJson<FeedbackExample>(exclusionFeedbackPath);
   const ajv = new Ajv2020({ allErrors: true, strict: true });
   addFormats(ajv);
 
@@ -440,6 +443,11 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   );
   assert.equal(
     validateFeedback(ambiguityFeedback),
+    true,
+    JSON.stringify(validateFeedback.errors, null, 2),
+  );
+  assert.equal(
+    validateFeedback(exclusionFeedback),
     true,
     JSON.stringify(validateFeedback.errors, null, 2),
   );
@@ -569,5 +577,40 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
     ambiguityFeedback,
     ambiguityRunReceiptPath,
     ambiguityRun,
+  );
+  assert.equal(
+    exclusionFeedback.feedback_id,
+    "EXCLUSION_CONFLICT_20260814_01_FEEDBACK_01",
+  );
+  assert.deepEqual(exclusionFeedback.point_adjustments, [
+    {
+      plan_path: "plans/phase-3-explainable-csp.pert",
+      task_id: "IMPLEMENT_AUDIT_DECLARATION_SPANS",
+      previous_points: 0,
+      revised_points: 3,
+      rationale:
+        "Add exact CSP001 and CSP002 span fixtures, the AST-to-semantic declaration mapping, equivalent JSON and text projections, and ordering regression coverage before Phase 3 acceptance.",
+    },
+    {
+      plan_path: "plans/dogfooding-roadmap.pert",
+      task_id: "IMPLEMENT_AND_DOGFOOD_EXPLAIN",
+      previous_points: 32,
+      revised_points: 35,
+      rationale:
+        "Synchronize the coarse Phase 3 slice with the detailed plan after inserting the 3p audit declaration-span correction discovered by Round 3b.",
+    },
+    {
+      plan_path: "plans/dogfooding-roadmap.pert",
+      task_id: "COMPLETE_AND_DOGFOOD_CORE",
+      previous_points: 34,
+      revised_points: 35,
+      rationale:
+        "Reserve 1p in Phase 4 to evaluate composed query or navigation behavior for a compound allowed-plus-forbidden question before changing the explain contract.",
+    },
+  ]);
+  assertFeedbackBindings(
+    exclusionFeedback,
+    exclusionRunReceiptPath,
+    exclusionRun,
   );
 });

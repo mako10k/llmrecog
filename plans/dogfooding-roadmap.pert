@@ -4,7 +4,7 @@ project LLMRECOG_DOGFOODING_ROADMAP:
   description |
     Sequence the deterministic core, repeated self-use, provider-produced drafts, and the optional llmthink handoff so that evidence from each dogfood round changes the next design and estimate before implementation resumes.
     Relative complexity points are planning estimates, not elapsed time or dates; velocity remains unspecified until comparable completed work exists.
-    This roadmap is the current phase-selection authority after the Phase 2 public result and fixture contract; plans/phase-2-parse-validate-show.pert remains the detailed Phase 2 task authority.
+    This roadmap is the current phase-selection authority; plans/phase-3-explainable-csp.pert is the active detailed Phase 3 task authority, while plans/phase-2-parse-validate-show.pert remains historical Phase 2 detail.
     The roadmap does not itself authorize implementation, network/provider access, related-repository changes, release, publication, tagging, or push.
   duration_unit point
   finish DOGFOODING_ROADMAP_ACCEPTED
@@ -64,7 +64,7 @@ task DELIVER_PHASE_2_DOGFOOD_SLICE PHASE_2_CONTRACT_ACCEPTED -> PHASE_2_DOGFOOD_
 task IMPLEMENT_AND_DOGFOOD_EXPLAIN PHASE_2_DOGFOOD_SLICE_ACCEPTED -> EXPLAIN_DOGFOOD_REVIEWED:
   title "Implement the explainable CSP slice and dogfood ambiguity questions"
   description "Implement finite one_of and excludes behavior, joint witnesses, exclusion chains, unknown reasons, candidate explain, and focused audit rules; rerun the versioned corpus and disposition all explain, conflict, and unknown feedback before extending constraint semantics"
-  duration 32p
+  duration 35p
   priority 90
   requires:
     IMPLEMENTER 1
@@ -72,8 +72,8 @@ task IMPLEMENT_AND_DOGFOOD_EXPLAIN PHASE_2_DOGFOOD_SLICE_ACCEPTED -> EXPLAIN_DOG
 
 task COMPLETE_AND_DOGFOOD_CORE EXPLAIN_DOGFOOD_REVIEWED -> CORE_DOGFOOD_REVIEWED:
   title "Complete and dogfood the deterministic semantic core"
-  description "Add requires, same_as, distinct_from, bounded query/materialization, limit behavior, and reason composition; use cross-document and joint-witness questions, disposition the evidence, and revise the source-verification plan"
-  duration 34p
+  description "Add requires, same_as, distinct_from, bounded query/materialization, limit behavior, and reason composition; use cross-document and joint-witness questions, evaluate whether one compound allowed-plus-forbidden question needs a composed query or navigation surface before changing the explain contract, disposition the evidence, and revise the source-verification plan"
+  duration 35p
   priority 80
   requires:
     IMPLEMENTER 1

@@ -125,12 +125,13 @@ task APPLY_EXPLAIN_DOGFOOD_FEEDBACK EXCLUSION_DOGFOOD_OBSERVED -> EXPLAIN_DOGFOO
   description |
     Review both Phase 3 rounds against exact protocol and artifact identities, disposition every finding, apply accepted contract feedback ADR-first, and re-estimate Phase 4 and later dogfood work in points. Keep requires, same_as, distinct_from, query, materialization, local source verification, provider work, and llmthink integration behind their separate gates.
   duration 3p
+  status done
   priority 30
   requires:
     IMPLEMENTER 1
     SEMANTIC_REVIEWER 1
 
-task ACCEPT_PHASE_3_SLICE EXPLAIN_DOGFOOD_REVIEWED -> PHASE_3_ACCEPTED:
+task ACCEPT_PHASE_3_SLICE AUDIT_DECLARATION_SPANS_ACCEPTED -> PHASE_3_ACCEPTED:
   title "Audit and accept the Phase 3 vertical slice"
   description |
     Run focused schema and fixture checks, repeated deterministic explain and audit cases, supported Node target validation, npm run check including jscpd, npm audit, and git diff --check. Review dependency direction, source-support and viability separation, joint witnesses, grounded exclusion chains, open and unsupported unknowns, conflict reporting, bounds, no persistence, no source locator I/O, and no provider or related-project runtime; record unresolved work without starting Phase 4 or publishing, releasing, tagging, or pushing.
@@ -146,6 +147,14 @@ task IMPLEMENT_TYPED_EXPLAIN_TARGET AMBIGUITY_DOGFOOD_REVIEWED -> TYPED_EXPLAIN_
   duration 3p
   status done
   priority 55
+  requires:
+    IMPLEMENTER 1
+
+task IMPLEMENT_AUDIT_DECLARATION_SPANS EXPLAIN_DOGFOOD_REVIEWED -> AUDIT_DECLARATION_SPANS_ACCEPTED:
+  title "Bind focused audit diagnostics to authored declarations"
+  description "Add exact fixtures first, then map validated semantic entity IDs back to parsed declaration spans at the application boundary and populate the RCG-CSP-001 variable and RCG-CSP-002 candidate audit diagnostics. Preserve the existing optional diagnostic shape, stable ordering, support and viability semantics, pure core boundary, and equivalent JSON and text projections; do not add a public CLI, new audit rules, source locator I/O, or Phase 4 constraint kinds."
+  duration 3p
+  priority 25
   requires:
     IMPLEMENTER 1
 
@@ -263,3 +272,21 @@ work_event FINISH_RUN_EXCLUSION_CONFLICT_DOGFOOD_20260814:
   kind finish
   occurred_at 2026-08-14T15:14:27+09:00
   effort 0.3441666667ph
+
+work_event START_APPLY_EXPLAIN_DOGFOOD_FEEDBACK_20260814:
+  model 1
+  task APPLY_EXPLAIN_DOGFOOD_FEEDBACK
+  kind start
+  occurred_at 2026-08-14T15:15:25+09:00
+  planned_value 3p
+
+milestone AUDIT_DECLARATION_SPANS_ACCEPTED:
+  title "Audit declaration spans accepted"
+  description "The focused CSP audit diagnostics navigate to their authored variable or candidate declarations without changing recognition, support, viability, or constraint semantics."
+
+work_event FINISH_APPLY_EXPLAIN_DOGFOOD_FEEDBACK_20260814:
+  model 1
+  task APPLY_EXPLAIN_DOGFOOD_FEEDBACK
+  kind finish
+  occurred_at 2026-08-14T15:21:23+09:00
+  effort 0.0994444444ph

@@ -1,0 +1,52 @@
+{
+  "schema": "Llmrecog.Internal.DogfoodFeedback.v1",
+  "feedback_id": "EXCLUSION_CONFLICT_20260814_01_FEEDBACK_01",
+  "receipt": {
+    "path": "dogfood/runs/EXCLUSION_CONFLICT_20260814_01/receipt.json",
+    "digest": "sha256:571446d2c76ad52bd9e1efe521ea59dcfa256c651a8616fe081179a1a0739aff"
+  },
+  "reviewed_at": "2026-08-14T15:20:22+09:00",
+  "reviewer": "codex",
+  "supersedes": null,
+  "entries": [
+    {
+      "observation_id": "OBS-EXPLAIN-004",
+      "disposition": "accepted",
+      "rationale": "The actual audit cannot navigate any focused CSP finding to its authored declaration even though validated AST spans are already available and the accepted diagnostic contract permits a span. Populate RCG-CSP-001 from the variable declaration and RCG-CSP-002 from the candidate declaration at the application boundary. This is a fixture-backed implementation and presentation correction, not a semantic or public result-shape change.",
+      "contract_change": "not_required",
+      "action_task_ids": ["IMPLEMENT_AUDIT_DECLARATION_SPANS"]
+    },
+    {
+      "observation_id": "OBS-EXPLAIN-005",
+      "disposition": "deferred",
+      "rationale": "Candidate and constraint explain currently provide valid target-specific projections, and widening an allowed candidate's reason chain to include a blocked alternative would change the accepted explain contract without evidence that the alternative belongs to that target. Re-evaluate multi-target navigation with the Phase 4 bounded query slice before deciding whether a composed read surface is required.",
+      "contract_change": "deferred",
+      "action_task_ids": ["COMPLETE_AND_DOGFOOD_CORE"]
+    }
+  ],
+  "point_adjustments": [
+    {
+      "plan_path": "plans/phase-3-explainable-csp.pert",
+      "task_id": "IMPLEMENT_AUDIT_DECLARATION_SPANS",
+      "previous_points": 0,
+      "revised_points": 3,
+      "rationale": "Add exact CSP001 and CSP002 span fixtures, the AST-to-semantic declaration mapping, equivalent JSON and text projections, and ordering regression coverage before Phase 3 acceptance."
+    },
+    {
+      "plan_path": "plans/dogfooding-roadmap.pert",
+      "task_id": "IMPLEMENT_AND_DOGFOOD_EXPLAIN",
+      "previous_points": 32,
+      "revised_points": 35,
+      "rationale": "Synchronize the coarse Phase 3 slice with the detailed plan after inserting the 3p audit declaration-span correction discovered by Round 3b."
+    },
+    {
+      "plan_path": "plans/dogfooding-roadmap.pert",
+      "task_id": "COMPLETE_AND_DOGFOOD_CORE",
+      "previous_points": 34,
+      "revised_points": 35,
+      "rationale": "Reserve 1p in Phase 4 to evaluate composed query or navigation behavior for a compound allowed-plus-forbidden question before changing the explain contract."
+    }
+  ],
+  "round_complete": true,
+  "unresolved_observation_ids": []
+}
