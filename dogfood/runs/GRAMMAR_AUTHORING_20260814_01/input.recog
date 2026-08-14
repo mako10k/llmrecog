@@ -1,0 +1,261 @@
+llmrecog 0.1
+
+document GRAMMAR_AUTHORING_20260814_01:
+  title "Grammar and scanner contract recognition"
+
+source GRAMMAR_DOC:
+  kind text
+  locator "docs/grammar.md"
+  media_type "text/markdown"
+  digest "sha256:c2669a616a5d4fae46e39aa55d17d16382473dfd2fd7a4522eec9be5da92cc9d"
+
+source GRAMMAR_EBNF:
+  kind text
+  locator "contracts/llmrecog-0.1.ebnf"
+  media_type "text/plain"
+  digest "sha256:bece61e408892aaf1c5bd010b7d8b482dbf10c1d81d7dd471fd2fcda476ce490"
+
+span S_EBNF_DOCUMENT:
+  source GRAMMAR_EBNF
+  range 6:1..7:1
+  quote "document = version_header, document_declaration, { declaration }, EOF ;"
+
+span S_EBNF_DECLARATIONS:
+  source GRAMMAR_EBNF
+  range 13:1..21:1
+
+span S_EBNF_ENTITY:
+  source GRAMMAR_EBNF
+  range 32:1..35:1
+
+span S_EBNF_RECORD:
+  source GRAMMAR_EBNF
+  range 36:1..39:1
+
+span S_EBNF_NORMALIZATION:
+  source GRAMMAR_EBNF
+  range 72:1..75:1
+
+span S_SCANNER_UTF8:
+  source GRAMMAR_DOC
+  range 12:1..14:1
+
+span S_SCANNER_NEWLINES:
+  source GRAMMAR_DOC
+  range 14:1..18:1
+
+span S_SCANNER_INDENTATION:
+  source GRAMMAR_DOC
+  range 18:1..22:1
+
+span S_SCANNER_IDENTIFIER:
+  source GRAMMAR_DOC
+  range 26:1..29:1
+
+span S_SCANNER_STRING:
+  source GRAMMAR_DOC
+  range 29:1..31:1
+
+span S_SCANNER_POSITION:
+  source GRAMMAR_DOC
+  range 31:1..33:1
+
+span S_RECOVERY_STEPS:
+  source GRAMMAR_DOC
+  range 83:1..100:1
+
+span S_RECOVERY_RESULT:
+  source GRAMMAR_DOC
+  range 100:1..105:1
+
+span S_EBNF_OBSERVATION:
+  source GRAMMAR_EBNF
+  range 29:1..31:1
+
+span S_EBNF_VARIABLE:
+  source GRAMMAR_EBNF
+  range 53:1..55:1
+
+span S_EBNF_CANDIDATE:
+  source GRAMMAR_EBNF
+  range 56:1..59:1
+
+span S_EBNF_CONSTRAINT:
+  source GRAMMAR_EBNF
+  range 60:1..63:1
+
+entity E_DECLARATION_SYNTAX:
+  type grammar_area
+  label "Declaration kinds, field sequences, and nesting"
+  grounded_in [S_EBNF_DOCUMENT, S_EBNF_DECLARATIONS, S_EBNF_ENTITY, S_EBNF_RECORD, S_EBNF_NORMALIZATION]
+  support explicit
+
+entity E_SCANNER_RULES:
+  type grammar_area
+  label "Input and scanner rules"
+  grounded_in [S_SCANNER_UTF8, S_SCANNER_NEWLINES, S_SCANNER_INDENTATION, S_SCANNER_IDENTIFIER, S_SCANNER_STRING, S_SCANNER_POSITION]
+  support explicit
+
+entity E_RECOVERY_CONTRACT:
+  type grammar_area
+  label "Recovery and diagnostic result contract"
+  grounded_in [S_RECOVERY_STEPS, S_RECOVERY_RESULT]
+  support explicit
+
+entity E_BOOTSTRAP_BOUNDARY:
+  type implementation_boundary
+  label "Grammar meanings beyond the bootstrap declaration subset"
+  grounded_in [S_EBNF_OBSERVATION, S_EBNF_VARIABLE, S_EBNF_CANDIDATE, S_EBNF_CONSTRAINT, S_EBNF_NORMALIZATION]
+  support explicit
+
+record R_DOCUMENT_SEQUENCE:
+  kind property
+  subject E_DECLARATION_SYNTAX
+  predicate top_level_sequence
+  value "version header, document declaration, zero or more declarations, EOF"
+  grounded_in [S_EBNF_DOCUMENT]
+  support explicit
+
+record R_DECLARATION_KINDS:
+  kind property
+  subject E_DECLARATION_SYNTAX
+  predicate declaration_kinds
+  value "source, span, observation, entity, record, variable, candidate, constraint"
+  grounded_in [S_EBNF_DECLARATIONS]
+  support explicit
+
+record R_ENTITY_FIELDS:
+  kind property
+  subject E_DECLARATION_SYNTAX
+  predicate entity_field_sequence
+  value "type, label, grounded_in, optional support and confidence"
+  grounded_in [S_EBNF_ENTITY]
+  support explicit
+
+record R_RECORD_FIELDS:
+  kind property
+  subject E_DECLARATION_SYNTAX
+  predicate record_field_sequence
+  value "kind, shape fields, grounded_in, optional support and confidence, optional normalization"
+  grounded_in [S_EBNF_RECORD]
+  support explicit
+
+record R_NORMALIZATION_NESTING:
+  kind property
+  subject E_DECLARATION_SYNTAX
+  predicate nested_block
+  value "normalization contains surface, rule, grounded_in, and optional anchors"
+  grounded_in [S_EBNF_NORMALIZATION]
+  support explicit
+
+record R_UTF8_INPUT:
+  kind property
+  subject E_SCANNER_RULES
+  predicate utf8_input
+  value "Invalid UTF-8 and a UTF-8 BOM are errors"
+  grounded_in [S_SCANNER_UTF8]
+  support explicit
+
+record R_NEWLINE_IDENTITY:
+  kind property
+  subject E_SCANNER_RULES
+  predicate newline_identity
+  value "LF and CRLF each form NL; bare CR is invalid; exact input bytes are retained"
+  grounded_in [S_SCANNER_NEWLINES]
+  support explicit
+
+record R_INDENTATION:
+  kind property
+  subject E_SCANNER_RULES
+  predicate indentation
+  value "Each level is exactly two ASCII spaces; tabs and non-multiples of two are invalid"
+  grounded_in [S_SCANNER_INDENTATION]
+  support explicit
+
+record R_IDENTIFIER:
+  kind property
+  subject E_SCANNER_RULES
+  predicate identifier
+  value "Identifiers use ASCII letters first and a document-wide declaration namespace"
+  grounded_in [S_SCANNER_IDENTIFIER]
+  support explicit
+
+record R_STRING:
+  kind property
+  subject E_SCANNER_RULES
+  predicate string
+  value "Strings use JSON escaping, forbid physical newlines, and preserve Unicode normalization"
+  grounded_in [S_SCANNER_STRING]
+  support explicit
+
+record R_POSITION:
+  kind property
+  subject E_SCANNER_RULES
+  predicate position
+  value "Positions are one-based, columns count Unicode scalars, and ranges are start-inclusive and end-exclusive"
+  grounded_in [S_SCANNER_POSITION]
+  support explicit
+
+record R_RECOVERY_UNREADABLE:
+  kind property
+  subject E_RECOVERY_CONTRACT
+  predicate unreadable_input_recovery
+  value "Unreadable UTF-8 or an invalid or missing version header prevents declaration parsing"
+  grounded_in [S_RECOVERY_STEPS]
+  support explicit
+
+record R_RECOVERY_BOUNDARIES:
+  kind property
+  subject E_RECOVERY_CONTRACT
+  predicate structural_recovery
+  value "Top-level, same-indent field, deeper subtree, and physical-line string recovery have distinct boundaries"
+  grounded_in [S_RECOVERY_STEPS]
+  support explicit
+
+record R_RECOVERY_PRESERVATION:
+  kind property
+  subject E_RECOVERY_CONTRACT
+  predicate recovered_node_preservation
+  value "Duplicate and missing fields remain represented and only one primary syntax diagnostic is emitted per byte offset"
+  grounded_in [S_RECOVERY_STEPS]
+  support explicit
+
+record R_RECOVERED_AST:
+  kind property
+  subject E_RECOVERY_CONTRACT
+  predicate recovered_ast
+  value "A syntax error marks the AST recovered, blocks a valid semantic document, and still permits checks of independent declarations"
+  grounded_in [S_RECOVERY_RESULT]
+  support explicit
+
+record R_DIAGNOSTIC_ORDERING:
+  kind property
+  subject E_RECOVERY_CONTRACT
+  predicate diagnostic_ordering
+  value "Diagnostics are ordered by source span, then code, then entity ID"
+  grounded_in [S_RECOVERY_RESULT]
+  support explicit
+
+record R_DIAGNOSTIC_LIMIT:
+  kind property
+  subject E_RECOVERY_CONTRACT
+  predicate diagnostic_limit
+  value "A diagnostic limit sets complete false and truncated true without changing valid to true"
+  grounded_in [S_RECOVERY_RESULT]
+  support explicit
+
+record R_BOOTSTRAP_MISSING_DECLARATIONS:
+  kind property
+  subject E_BOOTSTRAP_BOUNDARY
+  predicate missing_declarations
+  value "observation, variable, candidate, and constraint"
+  grounded_in [S_EBNF_OBSERVATION, S_EBNF_VARIABLE, S_EBNF_CANDIDATE, S_EBNF_CONSTRAINT]
+  support explicit
+
+record R_BOOTSTRAP_MISSING_NESTING:
+  kind property
+  subject E_BOOTSTRAP_BOUNDARY
+  predicate missing_nested_projection
+  value "record normalization block"
+  grounded_in [S_EBNF_NORMALIZATION]
+  support explicit

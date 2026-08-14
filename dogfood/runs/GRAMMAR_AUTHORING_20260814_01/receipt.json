@@ -1,0 +1,293 @@
+{
+  "schema": "Llmrecog.Internal.DogfoodRunReceipt.v1",
+  "run_id": "GRAMMAR_AUTHORING_20260814_01",
+  "round_id": "grammar_authoring_v1",
+  "started_at": "2026-08-14T11:27:32+09:00",
+  "finished_at": "2026-08-14T11:30:54+09:00",
+  "tool": {
+    "repository_revision": "977cd93ed1952cbcabf77ac6c725064a9a2de09b",
+    "semantic_version": "0.1",
+    "node_version": "v25.1.0",
+    "platform": "linux-x64",
+    "working_directory": "."
+  },
+  "protocol": {
+    "path": "dogfood/protocol-v1/protocol.json",
+    "digest": "sha256:d9cd79dfb7a614bf42c2966ee27535e99dbf9c9d2e5259b05317a306104f201f"
+  },
+  "question_results": [
+    {
+      "question_id": "DGF-GRAMMAR-001",
+      "status": "answered",
+      "summary": "The EBNF defines one version header and document declaration followed by eight top-level declaration alternatives, ordered field sequences for each declaration, and a normalization block nested only within a record.",
+      "evidence": [
+        "R_DOCUMENT_SEQUENCE and R_DECLARATION_KINDS cite S_EBNF_DOCUMENT and S_EBNF_DECLARATIONS.",
+        "R_ENTITY_FIELDS, R_RECORD_FIELDS, and R_NORMALIZATION_NESTING preserve field sequence and nesting as separate recognitions."
+      ]
+    },
+    {
+      "question_id": "DGF-GRAMMAR-002",
+      "status": "answered",
+      "summary": "The scanner requires UTF-8 without a BOM; distinguishes LF, CRLF, bare CR, and exact bytes; uses exact two-space indentation; constrains identifiers and JSON strings; and uses one-based Unicode-scalar, half-open positions.",
+      "evidence": [
+        "R_UTF8_INPUT, R_NEWLINE_IDENTITY, R_INDENTATION, R_IDENTIFIER, R_STRING, and R_POSITION represent the six rule groups separately.",
+        "Each rule is grounded in its corresponding S_SCANNER_* span from docs/grammar.md."
+      ]
+    },
+    {
+      "question_id": "DGF-GRAMMAR-003",
+      "status": "answered",
+      "summary": "Recovery has bounded units for unreadable input, top-level declarations, fields, deeper indentation, and unterminated strings; it retains malformed field state, orders diagnostics deterministically, and reports completeness and truncation independently from validity.",
+      "evidence": [
+        "R_RECOVERY_UNREADABLE, R_RECOVERY_BOUNDARIES, and R_RECOVERY_PRESERVATION cite S_RECOVERY_STEPS.",
+        "R_RECOVERED_AST, R_DIAGNOSTIC_ORDERING, and R_DIAGNOSTIC_LIMIT cite S_RECOVERY_RESULT and keep the result behaviors distinct."
+      ]
+    },
+    {
+      "question_id": "DGF-GRAMMAR-004",
+      "status": "answered",
+      "summary": "The bootstrap subset cannot structurally author or inspect observation, variable, candidate, or constraint declarations, nor a record's nested normalization block; these are accepted later Phase 2 meanings, not bootstrap defects.",
+      "evidence": [
+        "R_BOOTSTRAP_MISSING_DECLARATIONS cites the four exact EBNF declaration spans and R_BOOTSTRAP_MISSING_NESTING cites the normalization block span.",
+        "Running document validate against docs/examples/minimal.recog exited 3 with the explicit bootstrap scope error that variable is not implemented."
+      ]
+    }
+  ],
+  "artifact": {
+    "path": "dogfood/runs/GRAMMAR_AUTHORING_20260814_01/input.recog",
+    "digest": "sha256:6a33d3518d4f8dfff8d22a480f8f072f11f859e14fc9fe54f34441c91b925fa3"
+  },
+  "executions": [
+    {
+      "case_id": "DOCUMENT_VALIDATE_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "document",
+        "validate",
+        "dogfood/runs/GRAMMAR_AUTHORING_20260814_01/input.recog",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:83e39f470be3ba1ced9b8ab2d312d4b71e028bad10004f968eb84d30b6b73511",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "DOCUMENT_VALIDATE_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "document",
+        "validate",
+        "dogfood/runs/GRAMMAR_AUTHORING_20260814_01/input.recog",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:83e39f470be3ba1ced9b8ab2d312d4b71e028bad10004f968eb84d30b6b73511",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "DOCUMENT_SHOW_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "document",
+        "show",
+        "dogfood/runs/GRAMMAR_AUTHORING_20260814_01/input.recog",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:342f6f25313ac3893e5a9545763f5f3601c46c4ba87e3e0c2b1bdef21d9aa6b2",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "DOCUMENT_SHOW_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "document",
+        "show",
+        "dogfood/runs/GRAMMAR_AUTHORING_20260814_01/input.recog",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:342f6f25313ac3893e5a9545763f5f3601c46c4ba87e3e0c2b1bdef21d9aa6b2",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "DOCUMENT_SHOW_TEXT",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "document",
+        "show",
+        "dogfood/runs/GRAMMAR_AUTHORING_20260814_01/input.recog",
+        "--format",
+        "text"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:30401d392cb7c7dcf54fce2bdab9d70942e5d7d745416dd5bfb54f3ce62adb45",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "DOCUMENT_SHOW_TEXT",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "document",
+        "show",
+        "dogfood/runs/GRAMMAR_AUTHORING_20260814_01/input.recog",
+        "--format",
+        "text"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:30401d392cb7c7dcf54fce2bdab9d70942e5d7d745416dd5bfb54f3ce62adb45",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "RECOGNITION_SHOW_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "show",
+        "R_BOOTSTRAP_MISSING_DECLARATIONS",
+        "dogfood/runs/GRAMMAR_AUTHORING_20260814_01/input.recog",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:367a11ce701cea5315f91abc1d771601e326b0af5791c9954c4f259b810254b9",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "RECOGNITION_SHOW_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "show",
+        "R_BOOTSTRAP_MISSING_DECLARATIONS",
+        "dogfood/runs/GRAMMAR_AUTHORING_20260814_01/input.recog",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:367a11ce701cea5315f91abc1d771601e326b0af5791c9954c4f259b810254b9",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "RECOGNITION_SHOW_TEXT",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "show",
+        "R_BOOTSTRAP_MISSING_DECLARATIONS",
+        "dogfood/runs/GRAMMAR_AUTHORING_20260814_01/input.recog",
+        "--format",
+        "text"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:79e78446af0cefcc408b355fbd6094649b589a5ba222218eebe139382600fd50",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "RECOGNITION_SHOW_TEXT",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "show",
+        "R_BOOTSTRAP_MISSING_DECLARATIONS",
+        "dogfood/runs/GRAMMAR_AUTHORING_20260814_01/input.recog",
+        "--format",
+        "text"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:79e78446af0cefcc408b355fbd6094649b589a5ba222218eebe139382600fd50",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "outcome": "completed",
+  "complete": true,
+  "truncated": false,
+  "observations": [
+    {
+      "id": "OBS-GRAMMAR-001",
+      "category": "diagnostics_presentation",
+      "summary": "Document show is a useful inventory but does not show how recognition IDs group by question or grounding span.",
+      "evidence": "The artifact contains 23 recognitions for four questions. Document show reports their IDs and counts, while recognition show expands only one exact ID, so reviewing all supporting relationships requires external grouping or repeated commands.",
+      "reproduction_steps": [
+        "Run npm run dogfood:cli -- document show dogfood/runs/GRAMMAR_AUTHORING_20260814_01/input.recog --format text.",
+        "Run npm run dogfood:cli -- recognition show R_BOOTSTRAP_MISSING_DECLARATIONS dogfood/runs/GRAMMAR_AUTHORING_20260814_01/input.recog --format text."
+      ],
+      "proposed_action": "During feedback review, evaluate a compact grounded-summary or filtering affordance; require an ADR before changing a public result contract.",
+      "affected_contracts": [
+        "Llmrecog.DocumentResult.v1",
+        "Llmrecog.RecognitionResult.v1"
+      ],
+      "point_impact": 2
+    },
+    {
+      "id": "OBS-GRAMMAR-002",
+      "category": "product_boundary",
+      "summary": "The bootstrap boundary is explicit and blocks later Phase 2 declaration structure instead of silently degrading it.",
+      "evidence": "The EBNF includes observation, variable, candidate, constraint, and nested normalization meanings. The private parser enumerates those later declarations and throws a bootstrap scope error; docs/examples/minimal.recog exited 3 at variable.",
+      "reproduction_steps": [
+        "Run npm run dogfood:cli -- document validate docs/examples/minimal.recog --format json.",
+        "Observe exit status 3 and stderr naming variable as outside the private bootstrap implementation."
+      ],
+      "proposed_action": "Keep this as planned later Phase 2 work and do not classify it as a bootstrap implementation defect.",
+      "affected_contracts": [],
+      "point_impact": 0
+    },
+    {
+      "id": "OBS-GRAMMAR-003",
+      "category": "product_boundary",
+      "summary": "Grounding is inspectable but source bytes are not verified by the Phase 2 bootstrap route.",
+      "evidence": "All successful outputs report source_verification as none/not_requested. The dogfood protocol and receipt therefore bind the independently checked corpus digests rather than treating locator data as verified input.",
+      "reproduction_steps": [
+        "Run npm run dogfood:cli -- recognition show R_POSITION dogfood/runs/GRAMMAR_AUTHORING_20260814_01/input.recog --format text.",
+        "Observe the grounding ID and source_verification none/not_requested."
+      ],
+      "proposed_action": "Retain the Phase 2 no-locator-I/O boundary and keep independent corpus digest verification in the dogfood procedure.",
+      "affected_contracts": [],
+      "point_impact": 0
+    }
+  ]
+}

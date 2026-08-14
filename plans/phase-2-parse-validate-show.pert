@@ -86,6 +86,7 @@ task RUN_GRAMMAR_AUTHORING_DOGFOOD STATIC_DUPLICATION_CHECK_ACCEPTED -> GRAMMAR_
   description |
     Read the normative grammar and EBNF, answer the frozen questions by authoring a bounded .recog document, then run validate and show repeatedly through the actual implementation. Capture reproducible receipts for authoring friction, parser and diagnostic behavior, semantic expressiveness, output usefulness, and responsibility-boundary pressure without treating the operator's interpretation or an LLM response as a golden oracle.
   duration 5p
+  status done
   priority 70
   requires:
     IMPLEMENTER 1
@@ -206,3 +207,17 @@ work_event FINISH_INTEGRATE_JSCPD_CHECK_20260814:
   kind finish
   occurred_at 2026-08-14T11:24:52+09:00
   effort 0.0827777778ph
+
+work_event START_RUN_GRAMMAR_AUTHORING_DOGFOOD_20260814:
+  model 1
+  task RUN_GRAMMAR_AUTHORING_DOGFOOD
+  kind start
+  occurred_at 2026-08-14T11:27:32+09:00
+  planned_value 5p
+
+work_event FINISH_RUN_GRAMMAR_AUTHORING_DOGFOOD_20260814:
+  model 1
+  task RUN_GRAMMAR_AUTHORING_DOGFOOD
+  kind finish
+  occurred_at 2026-08-14T11:34:42+09:00
+  effort 0.1194444444ph

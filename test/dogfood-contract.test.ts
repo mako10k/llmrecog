@@ -10,6 +10,8 @@ import addFormats from "ajv-formats";
 const repositoryRoot = process.cwd();
 const protocolPath = "dogfood/protocol-v1/protocol.json";
 const runExamplePath = "dogfood/protocol-v1/examples/run-receipt.example.json";
+const grammarRunReceiptPath =
+  "dogfood/runs/GRAMMAR_AUTHORING_20260814_01/receipt.json";
 const feedbackExamplePath =
   "dogfood/protocol-v1/examples/feedback.example.json";
 
@@ -91,6 +93,9 @@ interface RunExample {
   readonly artifact: { readonly path: string; readonly digest: string };
   readonly executions: readonly RunExecution[];
   readonly observations: readonly RunObservation[];
+  readonly outcome: "completed" | "blocked";
+  readonly complete: boolean;
+  readonly truncated: boolean;
 }
 
 interface FeedbackEntry {
@@ -119,6 +124,42 @@ function sha256(relativePath: string): string {
 }
 
 const protocol = readJson<DogfoodProtocol>(protocolPath);
+
+function assertRunBindings(run: RunExample): void {
+  assert.equal(run.protocol.path, protocolPath);
+  assert.equal(run.protocol.digest, sha256(protocolPath));
+  assert.equal(run.artifact.digest, sha256(run.artifact.path));
+
+  const round = protocol.rounds.find(
+    (candidate) => candidate.id === run.round_id,
+  );
+  assert(round);
+  assert.deepEqual(
+    run.question_results.map((result) => result.question_id).sort(),
+    [...round.question_ids].sort(),
+  );
+  assert(
+    run.question_results.every(
+      (result) =>
+        ["answered", "blocked"].includes(result.status) &&
+        result.summary.length > 0 &&
+        result.evidence.length > 0,
+    ),
+  );
+  for (const commandCase of protocol.command_cases) {
+    const executions = run.executions
+      .filter((execution) => execution.case_id === commandCase.id)
+      .sort((left, right) => left.repeat_index - right.repeat_index);
+    assert.deepEqual(
+      executions.map((execution) => execution.repeat_index),
+      [1, 2],
+    );
+    assert.deepEqual(executions[0]?.argv, executions[1]?.argv);
+    assert.equal(executions[0]?.exit_status, executions[1]?.exit_status);
+    assert.equal(executions[0]?.stdout_digest, executions[1]?.stdout_digest);
+    assert.equal(executions[0]?.stderr_digest, executions[1]?.stderr_digest);
+  }
+}
 
 test("the dogfood protocol freezes corpus, questions, commands, and gates", () => {
   assert.equal(protocol.schema, "Llmrecog.Internal.DogfoodProtocol.v1");
@@ -193,12 +234,13 @@ test("the dogfood protocol freezes corpus, questions, commands, and gates", () =
   assert(Object.values(protocol.acceptance).every(Boolean));
 });
 
-test("dogfood receipt and feedback examples satisfy their process schemas", () => {
+test("dogfood receipts and the feedback example satisfy their process schemas", () => {
   const runSchema = readJson<Record<string, unknown>>(protocol.receipt_schema);
   const feedbackSchema = readJson<Record<string, unknown>>(
     protocol.feedback_schema,
   );
   const runExample = readJson<RunExample>(runExamplePath);
+  const grammarRun = readJson<RunExample>(grammarRunReceiptPath);
   const feedbackExample = readJson<FeedbackExample>(feedbackExamplePath);
   const ajv = new Ajv2020({ allErrors: true, strict: true });
   addFormats(ajv);
@@ -211,6 +253,11 @@ test("dogfood receipt and feedback examples satisfy their process schemas", () =
     JSON.stringify(validateRun.errors, null, 2),
   );
   assert.equal(
+    validateRun(grammarRun),
+    true,
+    JSON.stringify(validateRun.errors, null, 2),
+  );
+  assert.equal(
     validateFeedback(feedbackExample),
     true,
     JSON.stringify(validateFeedback.errors, null, 2),
@@ -218,39 +265,16 @@ test("dogfood receipt and feedback examples satisfy their process schemas", () =
 
   assert(runExample.run_id.startsWith("EXAMPLE_"));
   assert.equal(runExample.tool.repository_revision, "0".repeat(40));
-  assert.equal(runExample.protocol.path, protocolPath);
-  assert.equal(runExample.protocol.digest, sha256(protocolPath));
-  assert.equal(runExample.artifact.digest, sha256(runExample.artifact.path));
-
-  const round = protocol.rounds.find(
-    (candidate) => candidate.id === runExample.round_id,
-  );
-  assert(round);
-  assert.deepEqual(
-    runExample.question_results.map((result) => result.question_id).sort(),
-    [...round.question_ids].sort(),
-  );
+  assertRunBindings(runExample);
+  assert.equal(grammarRun.run_id, "GRAMMAR_AUTHORING_20260814_01");
   assert(
-    runExample.question_results.every(
-      (result) =>
-        ["answered", "blocked"].includes(result.status) &&
-        result.summary.length > 0 &&
-        result.evidence.length > 0,
-    ),
+    grammarRun.question_results.every((result) => result.status === "answered"),
   );
-  for (const commandCase of protocol.command_cases) {
-    const executions = runExample.executions
-      .filter((execution) => execution.case_id === commandCase.id)
-      .sort((left, right) => left.repeat_index - right.repeat_index);
-    assert.deepEqual(
-      executions.map((execution) => execution.repeat_index),
-      [1, 2],
-    );
-    assert.deepEqual(executions[0]?.argv, executions[1]?.argv);
-    assert.equal(executions[0]?.exit_status, executions[1]?.exit_status);
-    assert.equal(executions[0]?.stdout_digest, executions[1]?.stdout_digest);
-    assert.equal(executions[0]?.stderr_digest, executions[1]?.stderr_digest);
-  }
+  assert.notEqual(grammarRun.tool.repository_revision, "0".repeat(40));
+  assert.equal(grammarRun.outcome, "completed");
+  assert.equal(grammarRun.complete, true);
+  assert.equal(grammarRun.truncated, false);
+  assertRunBindings(grammarRun);
 
   assert(feedbackExample.feedback_id.startsWith("EXAMPLE_"));
   assert.equal(feedbackExample.receipt.path, runExamplePath);
