@@ -75,6 +75,7 @@ task IMPLEMENT_ONE_OF_CANDIDATE_EXPLAIN EXPLAIN_DOGFOOD_PROTOCOL_V2_ACCEPTED -> 
   description |
     Add fixtures first, then implement the pure finite one_of scope and assignment engine, independent support-state projection, deterministic joint satisfying witnesses, closed-variable resolution, open and unsupported unknown reasons, candidate explanation, and equivalent text and JSON projections through the real parser, model, application, and private adapter seam. Do not evaluate excludes or any deferred constraint kind in this task; report it as skipped or unknown according to the frozen contract.
   duration 5p
+  status done
   priority 80
   requires:
     IMPLEMENTER 1
@@ -163,3 +164,17 @@ work_event FINISH_FREEZE_EXPLAIN_DOGFOOD_PROTOCOL_V2_20260814:
   kind finish
   occurred_at 2026-08-14T13:58:58+09:00
   effort 0.0522222222ph
+
+work_event START_IMPLEMENT_ONE_OF_CANDIDATE_EXPLAIN_20260814:
+  model 1
+  task IMPLEMENT_ONE_OF_CANDIDATE_EXPLAIN
+  kind start
+  occurred_at 2026-08-14T13:59:52+09:00
+  planned_value 5p
+
+work_event FINISH_IMPLEMENT_ONE_OF_CANDIDATE_EXPLAIN_20260814:
+  model 1
+  task IMPLEMENT_ONE_OF_CANDIDATE_EXPLAIN
+  kind finish
+  occurred_at 2026-08-14T14:12:23+09:00
+  effort 0.2086111111ph

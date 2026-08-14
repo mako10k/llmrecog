@@ -1,0 +1,79 @@
+{
+  "schema": "Llmrecog.ExplainResult.v1",
+  "semantic_version": "0.1",
+  "tool_version": "contract-fixture",
+  "input": {
+    "path": "test/fixtures/contracts/v0.1/valid/one-of-joint.recog",
+    "document_id": "ONE_OF_JOINT",
+    "digest": "sha256:d11300afdde871e7b0dc172fbf24e68ae6bb45183f12ecdc55a36149929c07f5"
+  },
+  "complete": true,
+  "truncated": false,
+  "target": { "id": "C_WEAK", "declaration_kind": "candidate" },
+  "support": {
+    "state": "supported",
+    "records": [
+      {
+        "kind": "ambiguous",
+        "grounded_in": [{ "id": "S1", "kind": "span" }]
+      }
+    ]
+  },
+  "viability": {
+    "state": "allowed",
+    "witness": {
+      "assignments": [
+        {
+          "variable_id": "V_ACTOR",
+          "candidate_id": "C_TANAKA",
+          "value": { "kind": "reference", "id": "E_TANAKA" }
+        },
+        {
+          "variable_id": "V_MODE",
+          "candidate_id": "C_WEAK",
+          "value": { "kind": "symbol", "value": "weak_commitment" }
+        }
+      ],
+      "open_variable_ids": []
+    },
+    "reason_chain": [
+      {
+        "code": "RCG-RSN-101",
+        "name": "candidate_witness_found",
+        "subject_id": "C_WEAK",
+        "constraint_id": null,
+        "inputs": ["C_TANAKA", "C_WEAK"]
+      }
+    ],
+    "unknown_reasons": []
+  },
+  "variable_resolution": {
+    "state": "ambiguous",
+    "unknown_reasons": []
+  },
+  "scope": {
+    "requested_variable_ids": ["V_MODE", "V_ACTOR"],
+    "effective_variable_ids": ["V_ACTOR", "V_MODE"],
+    "limit": 100
+  },
+  "provenance": [{ "kind": "grounded_in", "from": "C_WEAK", "to": "S1" }],
+  "normalization": null,
+  "source_verification": [
+    {
+      "source_id": "SRC",
+      "verification": { "mode": "none", "state": "not_requested" }
+    }
+  ],
+  "relevant_constraint_ids": ["K_ACTOR", "K_MODE"],
+  "skipped_constraints": [],
+  "derivations": [
+    {
+      "code": "RCG-RSN-101",
+      "name": "candidate_witness_found",
+      "subject_id": "C_WEAK",
+      "constraint_id": null,
+      "inputs": ["C_TANAKA", "C_WEAK"]
+    }
+  ],
+  "diagnostics": []
+}

@@ -1,6 +1,8 @@
 import fs from "node:fs";
 
 import {
+  ExplainInputError,
+  explainBootstrapRecognition,
   showBootstrapDocument,
   showBootstrapRecognition,
   validateBootstrapInput,
@@ -16,6 +18,18 @@ interface CommonOptions {
   readonly maximumDiagnostics: number;
 }
 
+interface ParsedOptions extends CommonOptions {
+  readonly requestedVariableIds: readonly string[] | undefined;
+  readonly limit: number;
+}
+
+interface OptionPolicy {
+  readonly verification: boolean;
+  readonly maximumDiagnostics: boolean;
+  readonly scope: boolean;
+  readonly limit: boolean;
+}
+
 type ParsedCommand =
   | (CommonOptions & {
       readonly resource: "document";
@@ -27,6 +41,12 @@ type ParsedCommand =
       readonly action: "show";
       readonly id: string;
       readonly path: string;
+    })
+  | (ParsedOptions & {
+      readonly resource: "recognition";
+      readonly action: "explain";
+      readonly id: string;
+      readonly path: string;
     });
 
 class UsageError extends Error {
@@ -36,77 +56,191 @@ class UsageError extends Error {
   }
 }
 
+interface OptionState {
+  format: OutputFormat;
+  maximumDiagnostics: number;
+  requestedVariableIds: readonly string[] | undefined;
+  limit: number;
+}
+
+function positiveInteger(value: string, option: string): number {
+  const parsed = Number(value);
+  if (!/^[1-9]\d*$/u.test(value) || !Number.isSafeInteger(parsed)) {
+    throw new UsageError(`${option} must be a positive integer.`);
+  }
+  return parsed;
+}
+
+function scopeIds(value: string): readonly string[] {
+  const ids = value.split(",");
+  if (
+    ids.length === 0 ||
+    ids.some((id) => !/^[A-Za-z][A-Za-z0-9_.-]*$/u.test(id)) ||
+    new Set(ids).size !== ids.length
+  ) {
+    throw new UsageError(
+      "--scope must be a duplicate-free comma-separated variable ID list.",
+    );
+  }
+  return ids;
+}
+
+function outputFormat(value: string): OutputFormat {
+  if (value !== "text" && value !== "json") {
+    throw new UsageError("--format must be text or json.");
+  }
+  return value;
+}
+
+function requireAccepted(accepted: boolean, option: string): void {
+  if (!accepted) throw new UsageError(`${option} is not accepted here.`);
+}
+
+function verifySourceOption(policy: OptionPolicy, value: string): void {
+  if (!policy.verification || value !== "none") {
+    throw new UsageError(
+      "The Phase 2 read path accepts only --verify-sources none on validate.",
+    );
+  }
+}
+
+function applyOption(
+  state: OptionState,
+  policy: OptionPolicy,
+  option: string | undefined,
+  value: string,
+): void {
+  switch (option) {
+    case "--format":
+      state.format = outputFormat(value);
+      return;
+    case "--max-diagnostics":
+      requireAccepted(policy.maximumDiagnostics, "--max-diagnostics");
+      state.maximumDiagnostics = positiveInteger(value, "--max-diagnostics");
+      return;
+    case "--verify-sources":
+      verifySourceOption(policy, value);
+      return;
+    case "--scope":
+      requireAccepted(policy.scope, "--scope");
+      state.requestedVariableIds = scopeIds(value);
+      return;
+    case "--limit":
+      requireAccepted(policy.limit, "--limit");
+      state.limit = positiveInteger(value, "--limit");
+      return;
+    default:
+      throw new UsageError(`Unknown option ${String(option)}.`);
+  }
+}
+
 function parseOptions(
   args: readonly string[],
-  allowVerification: boolean,
-): CommonOptions {
-  let format: OutputFormat = "text";
-  let maximumDiagnostics = 100;
+  policy: OptionPolicy,
+): ParsedOptions {
+  const state: OptionState = {
+    format: "text",
+    maximumDiagnostics: 100,
+    requestedVariableIds: undefined,
+    limit: 100,
+  };
   for (let index = 0; index < args.length; index += 2) {
     const option = args[index];
     const value = args[index + 1];
     if (value === undefined)
       throw new UsageError(`Missing value for ${option}.`);
-    if (option === "--format") {
-      if (value !== "text" && value !== "json") {
-        throw new UsageError("--format must be text or json.");
-      }
-      format = value;
-    } else if (option === "--max-diagnostics") {
-      const parsedLimit = Number(value);
-      if (!/^[1-9]\d*$/u.test(value) || !Number.isSafeInteger(parsedLimit)) {
-        throw new UsageError("--max-diagnostics must be a positive integer.");
-      }
-      maximumDiagnostics = parsedLimit;
-    } else if (option === "--verify-sources") {
-      if (!allowVerification || value !== "none") {
-        throw new UsageError(
-          "The Phase 2 read path accepts only --verify-sources none on validate.",
-        );
-      }
-    } else {
-      throw new UsageError(`Unknown option ${String(option)}.`);
-    }
+    applyOption(state, policy, option, value);
   }
-  return { format, maximumDiagnostics };
+  return state;
 }
 
-function parseCommand(args: readonly string[]): ParsedCommand {
-  const resource = args[0];
-  const action = args[1];
-  if (resource === "document" && (action === "validate" || action === "show")) {
-    const path = args[2];
-    if (path === undefined)
-      throw new UsageError("A .recog file path is required.");
-    return {
-      resource,
-      action,
-      path,
-      ...parseOptions(args.slice(3), action === "validate"),
-    };
+const readOptions: OptionPolicy = {
+  verification: false,
+  maximumDiagnostics: true,
+  scope: false,
+  limit: false,
+};
+
+function recognitionOperands(
+  args: readonly string[],
+  action: "show" | "explain",
+): { readonly id: string; readonly path: string } {
+  const id = args[2];
+  const path = args[3];
+  if (id === undefined || path === undefined) {
+    throw new UsageError(
+      `recognition ${action} requires an ID and .recog file path.`,
+    );
   }
-  if (resource === "recognition" && action === "show") {
-    const id = args[2];
-    const path = args[3];
-    if (id === undefined || path === undefined) {
-      throw new UsageError(
-        "recognition show requires an ID and .recog file path.",
-      );
-    }
-    if (!/^[A-Za-z][A-Za-z0-9_.-]*$/u.test(id)) {
-      throw new UsageError(
-        "The recognition ID is not a contract 0.1 identifier.",
-      );
-    }
+  if (!/^[A-Za-z][A-Za-z0-9_.-]*$/u.test(id)) {
+    throw new UsageError(
+      "The recognition ID is not a contract 0.1 identifier.",
+    );
+  }
+  return { id, path };
+}
+
+function parseDocumentCommand(
+  args: readonly string[],
+  action: string | undefined,
+): ParsedCommand {
+  if (action !== "validate" && action !== "show") {
+    throw new UsageError("Expected document validate|show.");
+  }
+  const path = args[2];
+  if (path === undefined)
+    throw new UsageError("A .recog file path is required.");
+  return {
+    resource: "document",
+    action,
+    path,
+    ...parseOptions(args.slice(3), {
+      ...readOptions,
+      verification: action === "validate",
+    }),
+  };
+}
+
+function parseRecognitionCommand(
+  args: readonly string[],
+  action: string | undefined,
+): ParsedCommand {
+  if (action === "show") {
+    const { id, path } = recognitionOperands(args, action);
     return {
-      resource,
+      resource: "recognition",
       action,
       id,
       path,
-      ...parseOptions(args.slice(4), false),
+      ...parseOptions(args.slice(4), readOptions),
     };
   }
-  throw new UsageError("Expected document validate|show or recognition show.");
+  if (action === "explain") {
+    const { id, path } = recognitionOperands(args, action);
+    return {
+      resource: "recognition",
+      action,
+      id,
+      path,
+      ...parseOptions(args.slice(4), {
+        verification: false,
+        maximumDiagnostics: false,
+        scope: true,
+        limit: true,
+      }),
+    };
+  }
+  throw new UsageError("Expected recognition show|explain.");
+}
+
+function parseCommand(args: readonly string[]): ParsedCommand {
+  if (args[0] === "document") return parseDocumentCommand(args, args[1]);
+  if (args[0] === "recognition") {
+    return parseRecognitionCommand(args, args[1]);
+  }
+  throw new UsageError(
+    "Expected document validate|show or recognition show|explain.",
+  );
 }
 
 function execute(command: ParsedCommand): BootstrapReadResult {
@@ -120,6 +254,14 @@ function execute(command: ParsedCommand): BootstrapReadResult {
     return command.action === "validate"
       ? validateBootstrapInput(input)
       : showBootstrapDocument(input);
+  }
+  if (command.action === "explain") {
+    return explainBootstrapRecognition(input, command.id, {
+      ...(command.requestedVariableIds === undefined
+        ? {}
+        : { requestedVariableIds: command.requestedVariableIds }),
+      limit: command.limit,
+    });
   }
   return showBootstrapRecognition(input, command.id);
 }
@@ -159,6 +301,10 @@ function main(args: readonly string[]): number {
     return exitStatus(result);
   } catch (error) {
     if (error instanceof UsageError) {
+      process.stderr.write(`llmrecog usage error: ${error.message}\n`);
+      return 2;
+    }
+    if (error instanceof ExplainInputError) {
       process.stderr.write(`llmrecog usage error: ${error.message}\n`);
       return 2;
     }

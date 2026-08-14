@@ -1,0 +1,42 @@
+llmrecog 0.1
+
+document ONE_OF_CONFLICT:
+  title "Contradictory grounded closures"
+
+source SRC:
+  kind text
+  locator "closure-conflict.txt"
+
+span S1:
+  source SRC
+  range 1:1..1:22
+  quote "Only A and separately B"
+
+variable V_MODE:
+  value_type symbol
+  candidates [C_A, C_B]
+  grounded_in [S1]
+
+candidate C_A in V_MODE:
+  value a
+  grounded_in [S1]
+  support explicit
+
+candidate C_B in V_MODE:
+  value b
+  grounded_in [S1]
+  support explicit
+
+constraint K_ONLY_A:
+  kind one_of
+  variable V_MODE
+  members [C_A]
+  grounded_in [S1]
+  support explicit
+
+constraint K_ONLY_B:
+  kind one_of
+  variable V_MODE
+  members [C_B]
+  grounded_in [S1]
+  support explicit

@@ -1,0 +1,27 @@
+Llmrecog.ExplainResult.v1 semantic=0.1 tool=contract-fixture
+input: test/fixtures/contracts/v0.1/valid/unsupported-allowed.recog
+document: UNSUPPORTED_ALLOWED
+digest: sha256:1860a1504d7ac16ae2538472022c4d8fe104be34b1db8a9d60bb1551bb550ae4
+target: C_SECONDARY kind=candidate
+support: unsupported
+support_records: -
+viability: allowed
+witness:
+  V_MODE = C_SECONDARY (symbol secondary)
+open_variables: -
+reason_chain:
+  RCG-RSN-101 candidate_witness_found subject=C_SECONDARY constraint=- inputs=C_SECONDARY
+unknown_reasons: -
+variable_resolution: ambiguous
+variable_unknown_reasons: -
+scope: requested=V_MODE effective=V_MODE limit=100
+provenance: grounded_in(C_SECONDARY,S1)
+normalization: -
+source_verification: SRC none/not_requested
+constraints: K_MODE
+skipped_constraints: -
+derivations:
+  RCG-RSN-101 candidate_witness_found subject=C_SECONDARY constraint=- inputs=C_SECONDARY
+complete: true
+truncated: false
+diagnostics: 0

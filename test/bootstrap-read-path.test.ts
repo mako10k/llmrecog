@@ -10,6 +10,8 @@ import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 
 import {
+  ExplainInputError,
+  explainBootstrapRecognition,
   showBootstrapDocument,
   showBootstrapRecognition,
   validateBootstrapInput,
@@ -23,6 +25,10 @@ const repositoryRoot = process.cwd();
 const fixtureRoot = "test/fixtures/contracts/v0.1";
 const explicitFactPath = `${fixtureRoot}/valid/explicit-fact.recog`;
 const minimalPath = "docs/examples/minimal.recog";
+const openUnknownPath = `${fixtureRoot}/valid/open-unknown.recog`;
+const unsupportedAllowedPath = `${fixtureRoot}/valid/unsupported-allowed.recog`;
+const oneOfJointPath = `${fixtureRoot}/valid/one-of-joint.recog`;
+const oneOfConflictPath = `${fixtureRoot}/valid/one-of-conflict.recog`;
 
 const schemaPaths = [
   "schemas/Llmrecog.Common.v1.schema.json",
@@ -31,6 +37,7 @@ const schemaPaths = [
   "schemas/Llmrecog.ValidationResult.v1.schema.json",
   "schemas/Llmrecog.DocumentResult.v1.schema.json",
   "schemas/Llmrecog.RecognitionResult.v1.schema.json",
+  "schemas/Llmrecog.ExplainResult.v1.schema.json",
 ];
 
 const resultSchemaIds: Readonly<Record<BootstrapReadResult["schema"], string>> =
@@ -41,6 +48,8 @@ const resultSchemaIds: Readonly<Record<BootstrapReadResult["schema"], string>> =
       "https://mako10k.github.io/llmrecog/schemas/Llmrecog.DocumentResult.v1.schema.json",
     "Llmrecog.RecognitionResult.v1":
       "https://mako10k.github.io/llmrecog/schemas/Llmrecog.RecognitionResult.v1.schema.json",
+    "Llmrecog.ExplainResult.v1":
+      "https://mako10k.github.io/llmrecog/schemas/Llmrecog.ExplainResult.v1.schema.json",
   };
 
 interface ExpectedDiagnostic {
@@ -483,6 +492,92 @@ test("text is a deterministic projection of the same typed results", () => {
   assert(recognitionText.includes("value: symbol failed"));
 });
 
+test("finite one_of explanation matches support, witness, and unknown contracts", () => {
+  const contractInput = (relativePath: string): BootstrapReadInput => ({
+    ...readInput(relativePath),
+    toolVersion: "contract-fixture",
+  });
+  const unsupported = explainBootstrapRecognition(
+    contractInput(unsupportedAllowedPath),
+    "C_SECONDARY",
+  );
+  const unknown = explainBootstrapRecognition(
+    contractInput(openUnknownPath),
+    "V_ACTOR",
+  );
+  const joint = explainBootstrapRecognition(
+    contractInput(oneOfJointPath),
+    "C_WEAK",
+    { requestedVariableIds: ["V_MODE", "V_ACTOR"] },
+  );
+  const conflict = explainBootstrapRecognition(
+    contractInput(oneOfConflictPath),
+    "C_A",
+  );
+  assert.equal(unsupported.schema, "Llmrecog.ExplainResult.v1");
+  assert.equal(unknown.schema, "Llmrecog.ExplainResult.v1");
+  assert.equal(joint.schema, "Llmrecog.ExplainResult.v1");
+  assert.equal(conflict.schema, "Llmrecog.ExplainResult.v1");
+  assertResultSchema(unsupported);
+  assertResultSchema(unknown);
+  assertResultSchema(joint);
+  assertResultSchema(conflict);
+  assert.deepEqual(
+    unsupported,
+    readJson(`${fixtureRoot}/expected/unsupported-allowed.explain.json`),
+  );
+  assert.deepEqual(
+    unknown,
+    readJson(`${fixtureRoot}/expected/candidate-unknown.explain.json`),
+  );
+  assert.deepEqual(
+    joint,
+    readJson(`${fixtureRoot}/expected/one-of-joint.explain.json`),
+  );
+  assert.deepEqual(
+    conflict,
+    readJson(`${fixtureRoot}/expected/one-of-conflict.explain.json`),
+  );
+  assert.equal(
+    renderBootstrapText(unsupported),
+    fs.readFileSync(
+      absolutePath(`${fixtureRoot}/expected/unsupported-allowed.explain.txt`),
+      "utf8",
+    ),
+  );
+});
+
+test("the one_of slice exposes deferred constraints instead of inventing a witness", () => {
+  const result = explainBootstrapRecognition(
+    readInput(minimalPath),
+    "C_WEAK_COMMITMENT",
+  );
+  assert.equal(result.schema, "Llmrecog.ExplainResult.v1");
+  if (result.schema !== "Llmrecog.ExplainResult.v1") return;
+  assert.equal(result.complete, false);
+  assert.equal(result.truncated, false);
+  assert.deepEqual(result.viability, {
+    state: "unknown",
+    witness: null,
+    reason_chain: [],
+    unknown_reasons: ["RCG-RSN-006"],
+  });
+  assert.deepEqual(result.skipped_constraints, [
+    {
+      constraint_id: "K_TANAKA_NOT_WEAK",
+      reason_code: "RCG-RSN-006",
+    },
+  ]);
+
+  assert.throws(
+    () =>
+      explainBootstrapRecognition(readInput(minimalPath), "C_DESIRE", {
+        requestedVariableIds: ["V_ACTOR"],
+      }),
+    ExplainInputError,
+  );
+});
+
 test("the private CLI is read-only and byte-deterministic for dogfood routes", () => {
   const beforeDigest = digest(minimalPath);
   const cases = [
@@ -491,6 +586,32 @@ test("the private CLI is read-only and byte-deterministic for dogfood routes", (
     ["document", "show", minimalPath, "--format", "text"],
     ["recognition", "show", "R_DEADLINE", minimalPath, "--format", "json"],
     ["recognition", "show", "R_DEADLINE", minimalPath, "--format", "text"],
+    [
+      "recognition",
+      "explain",
+      "C_SECONDARY",
+      unsupportedAllowedPath,
+      "--format",
+      "json",
+    ],
+    [
+      "recognition",
+      "explain",
+      "C_SECONDARY",
+      unsupportedAllowedPath,
+      "--limit",
+      "1",
+      "--format",
+      "json",
+    ],
+    [
+      "recognition",
+      "explain",
+      "C_SECONDARY",
+      unsupportedAllowedPath,
+      "--format",
+      "text",
+    ],
   ] as const;
 
   for (const args of cases) {
@@ -518,6 +639,29 @@ test("the private CLI is read-only and byte-deterministic for dogfood routes", (
   ]);
   assert.equal(missing.status, 1);
   assertResultSchema(JSON.parse(missing.stdout) as BootstrapReadResult);
+
+  const missingExplain = runPrivateCli([
+    "recognition",
+    "explain",
+    "R_MISSING",
+    minimalPath,
+    "--format",
+    "json",
+  ]);
+  assert.equal(missingExplain.status, 1);
+  assertResultSchema(JSON.parse(missingExplain.stdout) as BootstrapReadResult);
+
+  const invalidScope = runPrivateCli([
+    "recognition",
+    "explain",
+    "C_SECONDARY",
+    unsupportedAllowedPath,
+    "--scope",
+    "V_MISSING",
+  ]);
+  assert.equal(invalidScope.status, 2);
+  assert.equal(invalidScope.stdout, "");
+  assert.match(invalidScope.stderr, /scope/u);
 });
 
 test("the private CLI reports encoding failures on stderr with status 3", () => {

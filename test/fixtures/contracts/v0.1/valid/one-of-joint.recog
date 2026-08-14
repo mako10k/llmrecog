@@ -1,0 +1,69 @@
+llmrecog 0.1
+
+document ONE_OF_JOINT:
+  title "Two-variable one_of witness"
+
+source SRC:
+  kind text
+  locator "joint.txt"
+
+span S1:
+  source SRC
+  range 1:1..1:26
+  quote "Either actor and either mode"
+
+entity E_TANAKA:
+  type person
+  label "Tanaka"
+  grounded_in [S1]
+  support explicit
+
+entity E_SATO:
+  type person
+  label "Sato"
+  grounded_in [S1]
+  support explicit
+
+variable V_ACTOR:
+  value_type entity_ref
+  candidates [C_TANAKA, C_SATO]
+  grounded_in [S1]
+
+candidate C_TANAKA in V_ACTOR:
+  value E_TANAKA
+  grounded_in [S1]
+  support ambiguous
+
+candidate C_SATO in V_ACTOR:
+  value E_SATO
+  grounded_in [S1]
+  support ambiguous
+
+variable V_MODE:
+  value_type symbol
+  candidates [C_DESIRE, C_WEAK]
+  grounded_in [S1]
+
+candidate C_DESIRE in V_MODE:
+  value desire
+  grounded_in [S1]
+  support ambiguous
+
+candidate C_WEAK in V_MODE:
+  value weak_commitment
+  grounded_in [S1]
+  support ambiguous
+
+constraint K_ACTOR:
+  kind one_of
+  variable V_ACTOR
+  members [C_TANAKA, C_SATO]
+  grounded_in [S1]
+  support explicit
+
+constraint K_MODE:
+  kind one_of
+  variable V_MODE
+  members [C_DESIRE, C_WEAK]
+  grounded_in [S1]
+  support explicit

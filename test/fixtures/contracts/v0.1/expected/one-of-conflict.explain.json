@@ -1,0 +1,57 @@
+{
+  "schema": "Llmrecog.ExplainResult.v1",
+  "semantic_version": "0.1",
+  "tool_version": "contract-fixture",
+  "input": {
+    "path": "test/fixtures/contracts/v0.1/valid/one-of-conflict.recog",
+    "document_id": "ONE_OF_CONFLICT",
+    "digest": "sha256:dfe20bb037a16807cfaaab5113b5666c03ebebfe887cee0196bd3a0cfe95685f"
+  },
+  "complete": true,
+  "truncated": false,
+  "target": { "id": "C_A", "declaration_kind": "candidate" },
+  "support": {
+    "state": "supported",
+    "records": [
+      {
+        "kind": "explicit",
+        "grounded_in": [{ "id": "S1", "kind": "span" }]
+      }
+    ]
+  },
+  "viability": {
+    "state": "excluded",
+    "witness": null,
+    "reason_chain": [
+      {
+        "code": "RCG-RSN-206",
+        "name": "no_satisfying_witness",
+        "subject_id": "C_A",
+        "constraint_id": null,
+        "inputs": ["K_ONLY_A", "K_ONLY_B"]
+      }
+    ],
+    "unknown_reasons": []
+  },
+  "variable_resolution": {
+    "state": "inconsistent",
+    "unknown_reasons": []
+  },
+  "scope": {
+    "requested_variable_ids": ["V_MODE"],
+    "effective_variable_ids": ["V_MODE"],
+    "limit": 100
+  },
+  "provenance": [{ "kind": "grounded_in", "from": "C_A", "to": "S1" }],
+  "normalization": null,
+  "source_verification": [
+    {
+      "source_id": "SRC",
+      "verification": { "mode": "none", "state": "not_requested" }
+    }
+  ],
+  "relevant_constraint_ids": ["K_ONLY_A", "K_ONLY_B"],
+  "skipped_constraints": [],
+  "derivations": [],
+  "diagnostics": []
+}

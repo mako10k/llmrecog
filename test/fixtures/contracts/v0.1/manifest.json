@@ -128,6 +128,20 @@
       "covers_grammar": []
     },
     {
+      "id": "one_of_joint",
+      "path": "test/fixtures/contracts/v0.1/valid/one-of-joint.recog",
+      "expectation": "valid",
+      "expected_diagnostics": [],
+      "covers_grammar": []
+    },
+    {
+      "id": "one_of_conflict",
+      "path": "test/fixtures/contracts/v0.1/valid/one-of-conflict.recog",
+      "expectation": "valid",
+      "expected_diagnostics": [],
+      "covers_grammar": []
+    },
+    {
       "id": "limit_unknown",
       "path": "test/fixtures/contracts/v0.1/valid/limit-unknown.recog",
       "expectation": "valid",
@@ -246,6 +260,8 @@
     "test/fixtures/contracts/v0.1/expected/minimal-weak.explain.json",
     "test/fixtures/contracts/v0.1/expected/minimal-excludes.constraint-explain.json",
     "test/fixtures/contracts/v0.1/expected/unsupported-allowed.explain.json",
+    "test/fixtures/contracts/v0.1/expected/one-of-joint.explain.json",
+    "test/fixtures/contracts/v0.1/expected/one-of-conflict.explain.json",
     "test/fixtures/contracts/v0.1/expected/limit-unknown.explain.json",
     "test/fixtures/contracts/v0.1/expected/propagated-exclusion.audit.json",
     "test/fixtures/contracts/v0.1/expected/closed-conflict.audit.json"
@@ -263,6 +279,7 @@
     "test/fixtures/contracts/v0.1/expected/minimal-missing.recognition-show.txt",
     "test/fixtures/contracts/v0.1/expected/minimal-weak.explain.txt",
     "test/fixtures/contracts/v0.1/expected/minimal-excludes.constraint-explain.txt",
+    "test/fixtures/contracts/v0.1/expected/unsupported-allowed.explain.txt",
     "test/fixtures/contracts/v0.1/expected/limit-unknown.explain.txt",
     "test/fixtures/contracts/v0.1/expected/propagated-exclusion.audit.txt"
   ]

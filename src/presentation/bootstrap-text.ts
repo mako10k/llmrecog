@@ -1,6 +1,7 @@
 import type {
   BootstrapReadResult,
   DocumentResult,
+  ExplainResult,
   RecognitionResult,
   ValidationResult,
 } from "../application/bootstrap-read-path.js";
@@ -206,6 +207,126 @@ function renderRecognition(result: RecognitionResult): string {
   return lines.join("\n");
 }
 
+function renderExplainReason(
+  reason: ExplainResult["derivations"][number],
+): string {
+  return `${reason.code} ${reason.name} subject=${reason.subject_id} constraint=${reason.constraint_id ?? "-"} inputs=${reason.inputs.join(",") || "-"}`;
+}
+
+function renderExplainViability(
+  viability: ExplainResult["viability"],
+): readonly string[] {
+  if (viability === null) return ["viability: -"];
+  const lines = [`viability: ${viability.state}`];
+  if (viability.witness === null) {
+    lines.push("witness: -");
+  } else {
+    lines.push(
+      "witness:",
+      ...viability.witness.assignments.map(
+        (assignment) =>
+          `  ${assignment.variable_id} = ${assignment.candidate_id} (${renderValue(assignment.value)})`,
+      ),
+      `open_variables: ${viability.witness.open_variable_ids.join(",") || "-"}`,
+    );
+  }
+  if (viability.reason_chain.length === 0) {
+    lines.push("reason_chain: -");
+  } else {
+    lines.push(
+      "reason_chain:",
+      ...viability.reason_chain.map(
+        (reason) => `  ${renderExplainReason(reason)}`,
+      ),
+    );
+  }
+  lines.push(`unknown_reasons: ${viability.unknown_reasons.join(",") || "-"}`);
+  return lines;
+}
+
+function renderExplainResolution(
+  resolution: ExplainResult["variable_resolution"],
+): readonly string[] {
+  if (resolution === null) return ["variable_resolution: -"];
+  return [
+    `variable_resolution: ${resolution.state}`,
+    `variable_unknown_reasons: ${resolution.unknown_reasons.join(",") || "-"}`,
+  ];
+}
+
+function renderExplainScope(scope: ExplainResult["scope"]): string {
+  if (scope === null) return "scope: -";
+  return `scope: requested=${scope.requested_variable_ids.join(",") || "-"} effective=${scope.effective_variable_ids.join(",") || "-"} limit=${String(scope.limit)}`;
+}
+
+function renderExplainProvenance(result: ExplainResult): string {
+  const edges = result.provenance.map(
+    (edge) => `${edge.kind}(${edge.from},${edge.to})`,
+  );
+  return `provenance: ${edges.join(", ") || "-"}`;
+}
+
+function renderExplainNormalization(result: ExplainResult): string {
+  const normalization = result.normalization;
+  if (normalization === null) return "normalization: -";
+  const grounded = normalization.grounded_in
+    .map((reference) => reference.id)
+    .join(",");
+  const anchors = normalization.anchors
+    .map((reference) => reference.id)
+    .join(",");
+  return `normalization: surface=${JSON.stringify(normalization.surface)} rule=${normalization.rule} grounded_in=${grounded} anchors=${anchors || "-"}`;
+}
+
+function renderExplainSourceVerification(result: ExplainResult): string {
+  const entries = result.source_verification.map(
+    (entry) =>
+      `${entry.source_id} ${entry.verification.mode}/${entry.verification.state}`,
+  );
+  return `source_verification: ${entries.join(", ") || "-"}`;
+}
+
+function renderSkippedConstraints(result: ExplainResult): string {
+  const entries = result.skipped_constraints.map(
+    (entry) => `${entry.constraint_id}:${entry.reason_code}`,
+  );
+  return `skipped_constraints: ${entries.join(", ") || "-"}`;
+}
+
+function renderExplain(result: ExplainResult): string {
+  const supportRecords = result.support.records
+    .map(
+      (support) =>
+        `${support.kind} grounded_in=${support.grounded_in.map((reference) => reference.id).join(",")}`,
+    )
+    .join("; ");
+  return [
+    ...renderBase(result),
+    `target: ${result.target.id} kind=${result.target.declaration_kind}`,
+    `support: ${result.support.state}`,
+    `support_records: ${supportRecords || "-"}`,
+    ...renderExplainViability(result.viability),
+    ...renderExplainResolution(result.variable_resolution),
+    renderExplainScope(result.scope),
+    renderExplainProvenance(result),
+    renderExplainNormalization(result),
+    renderExplainSourceVerification(result),
+    `constraints: ${result.relevant_constraint_ids.join(", ") || "-"}`,
+    renderSkippedConstraints(result),
+    ...(result.derivations.length === 0
+      ? ["derivations: -"]
+      : [
+          "derivations:",
+          ...result.derivations.map(
+            (reason) => `  ${renderExplainReason(reason)}`,
+          ),
+        ]),
+    `complete: ${String(result.complete)}`,
+    `truncated: ${String(result.truncated)}`,
+    ...renderDiagnostics(result.diagnostics),
+  ].join("\n");
+}
+
 export function renderBootstrapText(result: BootstrapReadResult): string {
   switch (result.schema) {
     case "Llmrecog.ValidationResult.v1":
@@ -214,5 +335,7 @@ export function renderBootstrapText(result: BootstrapReadResult): string {
       return `${renderDocument(result)}\n`;
     case "Llmrecog.RecognitionResult.v1":
       return `${renderRecognition(result)}\n`;
+    case "Llmrecog.ExplainResult.v1":
+      return `${renderExplain(result)}\n`;
   }
 }
