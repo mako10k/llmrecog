@@ -9,7 +9,8 @@ import addFormats from "ajv-formats";
 
 const repositoryRoot = process.cwd();
 const protocolPath = "dogfood/protocol-v1/protocol.json";
-const activeProtocolPath = "dogfood/protocol-v2/protocol.json";
+const phase3ProtocolV2Path = "dogfood/protocol-v2/protocol.json";
+const activeProtocolPath = "dogfood/protocol-v3/protocol.json";
 const runExamplePath = "dogfood/protocol-v1/examples/run-receipt.example.json";
 const grammarRunReceiptPath =
   "dogfood/runs/GRAMMAR_AUTHORING_20260814_01/receipt.json";
@@ -17,6 +18,8 @@ const specificationRunReceiptPath =
   "dogfood/runs/SPECIFICATION_AUTHORING_20260814_01/receipt.json";
 const ambiguityRunReceiptPath =
   "dogfood/runs/AMBIGUITY_EXPLAIN_20260814_01/receipt.json";
+const exclusionRunReceiptPath =
+  "dogfood/runs/EXCLUSION_CONFLICT_20260814_01/receipt.json";
 const feedbackExamplePath =
   "dogfood/protocol-v1/examples/feedback.example.json";
 const grammarFeedbackPath =
@@ -143,6 +146,83 @@ function sha256(relativePath: string): string {
 const protocol = readJson<DogfoodProtocol>(protocolPath);
 const activeProtocol = readJson<DogfoodProtocol>(activeProtocolPath);
 
+function requiredCommandCase(
+  protocolDocument: DogfoodProtocol,
+  commandCaseId: string,
+): CommandCase {
+  const commandCase = protocolDocument.command_cases.find(
+    (candidate) => candidate.id === commandCaseId,
+  );
+  assert(commandCase);
+  return commandCase;
+}
+
+function assertRequiredOptions(
+  argv: readonly string[],
+  requiredOptions: readonly string[],
+): void {
+  for (let index = 0; index < requiredOptions.length; index += 2) {
+    const option = requiredOptions[index]!;
+    const value = requiredOptions[index + 1]!;
+    const optionIndex = argv.indexOf(option);
+    assert.notEqual(optionIndex, -1);
+    assert.equal(argv[optionIndex + 1], value);
+  }
+}
+
+function assertCommandExecutionBindings(
+  run: RunExample,
+  commandCase: CommandCase,
+): void {
+  const executions = run.executions
+    .filter((execution) => execution.case_id === commandCase.id)
+    .sort((left, right) => left.repeat_index - right.repeat_index);
+  assert.deepEqual(
+    executions.map((execution) => execution.repeat_index),
+    Array.from({ length: commandCase.repeat_count }, (_, index) => index + 1),
+  );
+  assert.deepEqual(executions[0]?.argv, executions[1]?.argv);
+  assert.equal(executions[0]?.exit_status, executions[1]?.exit_status);
+  assert.equal(executions[0]?.stdout_digest, executions[1]?.stdout_digest);
+  assert.equal(executions[0]?.stderr_digest, executions[1]?.stderr_digest);
+  const argv = executions[0]!.argv;
+  const routeIndex = argv.findIndex(
+    (argument, index) =>
+      argument === commandCase.route[0] &&
+      argv[index + 1] === commandCase.route[1],
+  );
+  assert.notEqual(routeIndex, -1);
+  const formatIndex = argv.indexOf("--format");
+  assert.notEqual(formatIndex, -1);
+  assert.equal(argv[formatIndex + 1], commandCase.format);
+  assertRequiredOptions(argv, commandCase.required_options ?? []);
+}
+
+function assertExecutionBindings(
+  run: RunExample,
+  round: ProtocolRound,
+  protocolDocument: DogfoodProtocol,
+): void {
+  const commandCases = round.command_case_ids.map((commandCaseId) =>
+    requiredCommandCase(protocolDocument, commandCaseId),
+  );
+  assert.equal(
+    run.executions.length,
+    commandCases.reduce(
+      (total, commandCase) => total + commandCase.repeat_count,
+      0,
+    ),
+  );
+  assert(
+    run.executions.every((execution) =>
+      round.command_case_ids.includes(execution.case_id),
+    ),
+  );
+  for (const commandCase of commandCases) {
+    assertCommandExecutionBindings(run, commandCase);
+  }
+}
+
 function assertRunBindings(
   run: RunExample,
   boundProtocol: DogfoodProtocol = protocol,
@@ -183,23 +263,7 @@ function assertRunBindings(
         result.evidence.length > 0,
     ),
   );
-  for (const commandCaseId of round.command_case_ids) {
-    const commandCase = boundProtocol.command_cases.find(
-      (candidate) => candidate.id === commandCaseId,
-    );
-    assert(commandCase);
-    const executions = run.executions
-      .filter((execution) => execution.case_id === commandCase.id)
-      .sort((left, right) => left.repeat_index - right.repeat_index);
-    assert.deepEqual(
-      executions.map((execution) => execution.repeat_index),
-      [1, 2],
-    );
-    assert.deepEqual(executions[0]?.argv, executions[1]?.argv);
-    assert.equal(executions[0]?.exit_status, executions[1]?.exit_status);
-    assert.equal(executions[0]?.stdout_digest, executions[1]?.stdout_digest);
-    assert.equal(executions[0]?.stderr_digest, executions[1]?.stderr_digest);
-  }
+  assertExecutionBindings(run, round, boundProtocol);
 }
 
 function assertFeedbackBindings(
@@ -222,15 +286,23 @@ test("the active dogfood protocol freezes corpus, questions, commands, and gates
     sha256(protocolPath),
     "sha256:d9cd79dfb7a614bf42c2966ee27535e99dbf9c9d2e5259b05317a306104f201f",
   );
+  assert.equal(
+    sha256(phase3ProtocolV2Path),
+    "sha256:f86c886a9bb5b5ac801cd15bd1a94edac26b5afc7546d762d70a3bb1ffafc0b7",
+  );
+  assert.equal(
+    sha256(activeProtocolPath),
+    "sha256:868c33d5157f5d83355347247000bad4ec15901776bc22b4bcb6b10d356f6320",
+  );
   assert.equal(activeProtocol.schema, "Llmrecog.Internal.DogfoodProtocol.v1");
-  assert.equal(activeProtocol.protocol_version, 2);
+  assert.equal(activeProtocol.protocol_version, 3);
   assert.equal(activeProtocol.semantic_version, "0.1");
   assert.equal(activeProtocol.status, "active");
   assert.equal(activeProtocol.run_path_pattern, "dogfood/runs/<run-id>");
 
   assert.deepEqual(
     activeProtocol.rounds.map((round) => round.sequence),
-    [3, 4],
+    [4],
   );
   assert.equal(
     new Set(activeProtocol.rounds.map((round) => round.id)).size,
@@ -287,12 +359,7 @@ test("the active dogfood protocol freezes corpus, questions, commands, and gates
     );
   }
   assert(
-    !activeProtocol.rounds[0]?.command_case_ids.some((commandCaseId) =>
-      commandCaseId.startsWith("DOCUMENT_AUDIT"),
-    ),
-  );
-  assert(
-    activeProtocol.rounds[1]?.command_case_ids.includes("DOCUMENT_AUDIT_JSON"),
+    activeProtocol.rounds[0]?.command_case_ids.includes("DOCUMENT_AUDIT_JSON"),
   );
 
   assert.deepEqual(activeProtocol.observation_categories, [
@@ -319,6 +386,7 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   const grammarRun = readJson<RunExample>(grammarRunReceiptPath);
   const specificationRun = readJson<RunExample>(specificationRunReceiptPath);
   const ambiguityRun = readJson<RunExample>(ambiguityRunReceiptPath);
+  const exclusionRun = readJson<RunExample>(exclusionRunReceiptPath);
   const feedbackExample = readJson<FeedbackExample>(feedbackExamplePath);
   const grammarFeedback = readJson<FeedbackExample>(grammarFeedbackPath);
   const specificationFeedback = readJson<FeedbackExample>(
@@ -347,6 +415,11 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   );
   assert.equal(
     validateRun(ambiguityRun),
+    true,
+    JSON.stringify(validateRun.errors, null, 2),
+  );
+  assert.equal(
+    validateRun(exclusionRun),
     true,
     JSON.stringify(validateRun.errors, null, 2),
   );
@@ -404,7 +477,19 @@ test("dogfood receipts and feedback satisfy their process schemas", () => {
   assert.equal(ambiguityRun.outcome, "completed");
   assert.equal(ambiguityRun.complete, true);
   assert.equal(ambiguityRun.truncated, false);
-  assertRunBindings(ambiguityRun, activeProtocol, activeProtocolPath);
+  const phase3ProtocolV2 = readJson<DogfoodProtocol>(phase3ProtocolV2Path);
+  assertRunBindings(ambiguityRun, phase3ProtocolV2, phase3ProtocolV2Path);
+  assert.equal(exclusionRun.run_id, "EXCLUSION_CONFLICT_20260814_01");
+  assert(
+    exclusionRun.question_results.every(
+      (result) => result.status === "answered",
+    ),
+  );
+  assert.notEqual(exclusionRun.tool.repository_revision, "0".repeat(40));
+  assert.equal(exclusionRun.outcome, "completed");
+  assert.equal(exclusionRun.complete, true);
+  assert.equal(exclusionRun.truncated, false);
+  assertRunBindings(exclusionRun, activeProtocol, activeProtocolPath);
 
   assert(feedbackExample.feedback_id.startsWith("EXAMPLE_"));
   assertFeedbackBindings(feedbackExample, runExamplePath, runExample);

@@ -1,6 +1,6 @@
 # Dogfooding workflow
 
-Status: active Phase 2 process; each implementation slice remains plan-gated
+Status: active Phase 3 process; each implementation slice remains plan-gated
 
 This workflow makes llmrecog consume evidence about its own specifications as
 soon as a real read path exists. Dogfooding is an input to design and planning;
@@ -49,11 +49,14 @@ The corpus is identified by repository-relative path and digest. A corpus
 change starts a new comparison baseline; it must not silently invalidate an
 older receipt.
 
-## Frozen Phase 2 protocol
+## Versioned active protocol
 
 The exact Phase 2 corpus digests, question IDs, command cases, declaration
 coverage, round gates, and acceptance flags are frozen in
 [`dogfood/protocol-v1/protocol.json`](../../dogfood/protocol-v1/protocol.json).
+The completed Phase 3 ambiguity run remains bound to immutable protocol v2.
+The active exclusion/conflict corpus and command cases are frozen in protocol
+v3 after the finite `excludes` and focused-audit implementation gate.
 The process-only receipt and feedback schemas are under
 [`dogfood/schemas/`](../../dogfood/schemas/), and the evidence layout and
 immutability rules are in [`dogfood/README.md`](../../dogfood/README.md).

@@ -1,0 +1,468 @@
+{
+  "schema": "Llmrecog.Internal.DogfoodRunReceipt.v1",
+  "run_id": "EXCLUSION_CONFLICT_20260814_01",
+  "round_id": "exclusion_explain_v3",
+  "started_at": "2026-08-14T06:05:51.897Z",
+  "finished_at": "2026-08-14T06:06:04.190Z",
+  "tool": {
+    "repository_revision": "d51e892a306a507edb3ec46d72ff92163f76bb05",
+    "semantic_version": "0.1",
+    "node_version": "v25.1.0",
+    "platform": "linux-x64",
+    "working_directory": "."
+  },
+  "protocol": {
+    "path": "dogfood/protocol-v3/protocol.json",
+    "digest": "sha256:868c33d5157f5d83355347247000bad4ec15901776bc22b4bcb6b10d356f6320"
+  },
+  "question_results": [
+    {
+      "question_id": "DGF-EXPLAIN-005",
+      "status": "answered",
+      "summary": "C_MEETING_WEAK remains source-supported and allowed by the ordered Sato plus weak-commitment witness, while grounded K_MEETING_NOT_WEAK separately derives that the Tanaka plus weak-commitment pair is forbidden.",
+      "evidence": [
+        "MEETING_WEAK_EXPLAIN_JSON reports support supported, viability allowed, the joint assignments V_MEETING_ACTOR=C_MEETING_SATO and V_MEETING_COMMITMENT=C_MEETING_WEAK, and all three meeting constraint IDs.",
+        "MEETING_EXCLUDES_EXPLAIN_JSON reports typed excludes operands C_MEETING_TANAKA and C_MEETING_WEAK plus RCG-RSN-202 grounded through S_ADR_MINIMAL_MEETING and S_PROV_EXCLUSION_CHAIN."
+      ]
+    },
+    {
+      "question_id": "DGF-EXPLAIN-006",
+      "status": "answered",
+      "summary": "C_FIXED_WEAK retains positive explicit support while viability is excluded; explain and audit report RCG-CSP-002 without changing support to conflicted.",
+      "evidence": [
+        "SUPPORTED_EXCLUDED_EXPLAIN_JSON reports support supported, viability excluded, RCG-RSN-201/202/206, and applies(C_FIXED_WEAK,K_FIXED_NOT_WEAK).",
+        "Its RCG-CSP-002 names K_FIXED_ACTOR and K_FIXED_NOT_WEAK, and DOCUMENT_AUDIT_JSON repeats that finding while preserving support and viability as separate projections."
+      ]
+    },
+    {
+      "question_id": "DGF-EXPLAIN-007",
+      "status": "answered",
+      "summary": "V_CONFLICT_LEFT and V_CONFLICT_RIGHT are the two closed variables with no satisfying represented world, and audit reports them deterministically before the supported-but-excluded warnings.",
+      "evidence": [
+        "DOCUMENT_AUDIT_JSON reports RCG-CSP-001 for V_CONFLICT_LEFT then V_CONFLICT_RIGHT, each naming K_CONFLICT_LEFT, K_CONFLICT_RIGHT, and K_CONFLICT_PAIR.",
+        "The complete non-truncated audit reports two errors and three warnings, fails the error threshold, and does not invent an unspecified candidate or weaken a closure."
+      ]
+    },
+    {
+      "question_id": "DGF-EXPLAIN-008",
+      "status": "answered",
+      "summary": "With limit 1, C_LIMIT_B1 remains unknown because the first represented pair is blocked and the next pair cannot be inspected; both repetitions report the same incomplete result rather than false or excluded.",
+      "evidence": [
+        "LIMIT_UNKNOWN_EXPLAIN_JSON reports viability unknown and variable resolution unknown with RCG-RSN-007, complete false, truncated true, and exit status 1.",
+        "Both repetitions have identical stdout digest sha256:f0f8f926fdc9429fb44064cb97ce76b469d675573c131c36ae63a2ef52271ce8 and retain RCG-RSN-202 for the attempted C_LIMIT_A1 plus C_LIMIT_B1 pair."
+      ]
+    }
+  ],
+  "artifact": {
+    "path": "dogfood/runs/EXCLUSION_CONFLICT_20260814_01/input.recog",
+    "digest": "sha256:4c60589584caef878bbea1c8e47a29691fbc417129417f76e8c2257768ef4b6d"
+  },
+  "executions": [
+    {
+      "case_id": "DOCUMENT_VALIDATE_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "document",
+        "validate",
+        "dogfood/runs/EXCLUSION_CONFLICT_20260814_01/input.recog",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:620bf7b907a242897cc0fbc0b7a215e4642faa6e1ac9072eca76aa7a88654ce6",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "DOCUMENT_VALIDATE_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "document",
+        "validate",
+        "dogfood/runs/EXCLUSION_CONFLICT_20260814_01/input.recog",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:620bf7b907a242897cc0fbc0b7a215e4642faa6e1ac9072eca76aa7a88654ce6",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "MEETING_WEAK_EXPLAIN_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_MEETING_WEAK",
+        "dogfood/runs/EXCLUSION_CONFLICT_20260814_01/input.recog",
+        "--scope",
+        "V_MEETING_ACTOR,V_MEETING_COMMITMENT",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:6859ccf2403635aa7690ef17fa5b5b5d975a481b0ab067e3e3cbd73ef704556f",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "MEETING_WEAK_EXPLAIN_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_MEETING_WEAK",
+        "dogfood/runs/EXCLUSION_CONFLICT_20260814_01/input.recog",
+        "--scope",
+        "V_MEETING_ACTOR,V_MEETING_COMMITMENT",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:6859ccf2403635aa7690ef17fa5b5b5d975a481b0ab067e3e3cbd73ef704556f",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "MEETING_WEAK_EXPLAIN_TEXT",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_MEETING_WEAK",
+        "dogfood/runs/EXCLUSION_CONFLICT_20260814_01/input.recog",
+        "--scope",
+        "V_MEETING_ACTOR,V_MEETING_COMMITMENT",
+        "--format",
+        "text"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:27639d5f34f8663ad56f87124b90f807c40f199d2227034e2f8aa0a5a418415f",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "MEETING_WEAK_EXPLAIN_TEXT",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_MEETING_WEAK",
+        "dogfood/runs/EXCLUSION_CONFLICT_20260814_01/input.recog",
+        "--scope",
+        "V_MEETING_ACTOR,V_MEETING_COMMITMENT",
+        "--format",
+        "text"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:27639d5f34f8663ad56f87124b90f807c40f199d2227034e2f8aa0a5a418415f",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "MEETING_EXCLUDES_EXPLAIN_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "K_MEETING_NOT_WEAK",
+        "dogfood/runs/EXCLUSION_CONFLICT_20260814_01/input.recog",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:c7876cbe2e2b961a7f821dc73e1064c2445b13ae761475f87925cae70f6c1ca8",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "MEETING_EXCLUDES_EXPLAIN_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "K_MEETING_NOT_WEAK",
+        "dogfood/runs/EXCLUSION_CONFLICT_20260814_01/input.recog",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:c7876cbe2e2b961a7f821dc73e1064c2445b13ae761475f87925cae70f6c1ca8",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "SUPPORTED_EXCLUDED_EXPLAIN_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_FIXED_WEAK",
+        "dogfood/runs/EXCLUSION_CONFLICT_20260814_01/input.recog",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:741d660e5b6bf6f0af785ab91b8b6cf0a6259fe2264cfa61a3b51ef2fe51a010",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "SUPPORTED_EXCLUDED_EXPLAIN_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_FIXED_WEAK",
+        "dogfood/runs/EXCLUSION_CONFLICT_20260814_01/input.recog",
+        "--format",
+        "json"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:741d660e5b6bf6f0af785ab91b8b6cf0a6259fe2264cfa61a3b51ef2fe51a010",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "SUPPORTED_EXCLUDED_EXPLAIN_TEXT",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_FIXED_WEAK",
+        "dogfood/runs/EXCLUSION_CONFLICT_20260814_01/input.recog",
+        "--format",
+        "text"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:03c1c6a21544fe515189b6d85a1defa4f466613239b0c427e080ca2ee138a001",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "SUPPORTED_EXCLUDED_EXPLAIN_TEXT",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_FIXED_WEAK",
+        "dogfood/runs/EXCLUSION_CONFLICT_20260814_01/input.recog",
+        "--format",
+        "text"
+      ],
+      "exit_status": 0,
+      "stdout_digest": "sha256:03c1c6a21544fe515189b6d85a1defa4f466613239b0c427e080ca2ee138a001",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "LIMIT_UNKNOWN_EXPLAIN_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_LIMIT_B1",
+        "dogfood/runs/EXCLUSION_CONFLICT_20260814_01/input.recog",
+        "--limit",
+        "1",
+        "--format",
+        "json"
+      ],
+      "exit_status": 1,
+      "stdout_digest": "sha256:f0f8f926fdc9429fb44064cb97ce76b469d675573c131c36ae63a2ef52271ce8",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "LIMIT_UNKNOWN_EXPLAIN_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "recognition",
+        "explain",
+        "C_LIMIT_B1",
+        "dogfood/runs/EXCLUSION_CONFLICT_20260814_01/input.recog",
+        "--limit",
+        "1",
+        "--format",
+        "json"
+      ],
+      "exit_status": 1,
+      "stdout_digest": "sha256:f0f8f926fdc9429fb44064cb97ce76b469d675573c131c36ae63a2ef52271ce8",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "DOCUMENT_AUDIT_JSON",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "document",
+        "audit",
+        "dogfood/runs/EXCLUSION_CONFLICT_20260814_01/input.recog",
+        "--profile",
+        "base",
+        "--fail-on",
+        "error",
+        "--format",
+        "json"
+      ],
+      "exit_status": 1,
+      "stdout_digest": "sha256:e1863512d18ef5be96901f6d713743a3cf0fbf3c6c1a9c5bd1ccdc9db0cca81a",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "DOCUMENT_AUDIT_JSON",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "document",
+        "audit",
+        "dogfood/runs/EXCLUSION_CONFLICT_20260814_01/input.recog",
+        "--profile",
+        "base",
+        "--fail-on",
+        "error",
+        "--format",
+        "json"
+      ],
+      "exit_status": 1,
+      "stdout_digest": "sha256:e1863512d18ef5be96901f6d713743a3cf0fbf3c6c1a9c5bd1ccdc9db0cca81a",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "DOCUMENT_AUDIT_TEXT",
+      "repeat_index": 1,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "document",
+        "audit",
+        "dogfood/runs/EXCLUSION_CONFLICT_20260814_01/input.recog",
+        "--profile",
+        "base",
+        "--fail-on",
+        "error",
+        "--format",
+        "text"
+      ],
+      "exit_status": 1,
+      "stdout_digest": "sha256:be0bfd67bfd9ef92a631aeb8b6067993fe4f70f58e456b4ef86501b62a5330d8",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case_id": "DOCUMENT_AUDIT_TEXT",
+      "repeat_index": 2,
+      "argv": [
+        "npm",
+        "run",
+        "dogfood:cli",
+        "--",
+        "document",
+        "audit",
+        "dogfood/runs/EXCLUSION_CONFLICT_20260814_01/input.recog",
+        "--profile",
+        "base",
+        "--fail-on",
+        "error",
+        "--format",
+        "text"
+      ],
+      "exit_status": 1,
+      "stdout_digest": "sha256:be0bfd67bfd9ef92a631aeb8b6067993fe4f70f58e456b4ef86501b62a5330d8",
+      "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "outcome": "completed",
+  "complete": true,
+  "truncated": false,
+  "observations": [
+    {
+      "id": "OBS-EXPLAIN-004",
+      "category": "diagnostics_presentation",
+      "summary": "All five focused-audit findings omit the authored .recog declaration span, so the accepted span-first ordering and direct navigation boundary cannot be observed in actual audit output.",
+      "evidence": "DOCUMENT_AUDIT_JSON reports RCG-CSP-001 for V_CONFLICT_LEFT and V_CONFLICT_RIGHT plus RCG-CSP-002 for C_CONFLICT_LEFT, C_CONFLICT_RIGHT, and C_FIXED_WEAK, but every diagnostic span is null even though those declarations begin at input.recog lines 229, 239, 234, 244, and 203.",
+      "reproduction_steps": [
+        "Check out tool revision d51e892a306a507edb3ec46d72ff92163f76bb05.",
+        "Run DOCUMENT_AUDIT_JSON from this receipt against the bound artifact.",
+        "Compare each diagnostic span with the corresponding authored declaration location and ADR 0008 span-first finding order."
+      ],
+      "proposed_action": "Before Phase 3 acceptance, map validated semantic IDs back to AST declaration spans, populate RCG-CSP-001 and RCG-CSP-002 spans, and update exact audit goldens without changing support or viability semantics.",
+      "affected_contracts": [
+        "Llmrecog.AuditResult.v1",
+        "docs/adr/0008-phase-3-explainable-csp-contract.md",
+        "test/fixtures/contracts/v0.1/expected/propagated-exclusion.audit.json",
+        "test/fixtures/contracts/v0.1/expected/closed-conflict.audit.json"
+      ],
+      "point_impact": 3
+    },
+    {
+      "id": "OBS-EXPLAIN-005",
+      "category": "diagnostics_presentation",
+      "summary": "Answering one compound exclusion question requires separate candidate and constraint explain targets because an allowed candidate reports its satisfying witness but not the blocked alternative encountered before that witness.",
+      "evidence": "MEETING_WEAK_EXPLAIN_JSON proves the Sato plus weak witness but exposes only RCG-RSN-101; the Tanaka plus weak RCG-RSN-202 is available only from MEETING_EXCLUDES_EXPLAIN_JSON, so protocol v3 required two target-specific command cases for DGF-EXPLAIN-005.",
+      "reproduction_steps": [
+        "Run MEETING_WEAK_EXPLAIN_JSON and inspect derivations.",
+        "Observe that K_MEETING_NOT_WEAK is relevant but its forbidden pair is not projected for the allowed target.",
+        "Run MEETING_EXCLUDES_EXPLAIN_JSON to obtain the missing RCG-RSN-202 pair derivation."
+      ],
+      "proposed_action": "Review whether this is desirable target factoring or navigation friction; do not widen allowed-candidate reason chains without a contract decision, and consider the later read-only query slice if multi-target inspection remains necessary.",
+      "affected_contracts": [
+        "Llmrecog.ExplainResult.v2",
+        "docs/provenance-and-explainability.md",
+        "docs/cli-contract.md"
+      ],
+      "point_impact": 1
+    }
+  ]
+}

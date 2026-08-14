@@ -1,0 +1,319 @@
+llmrecog 0.1
+
+document EXCLUSION_CONFLICT_20260814_01:
+  title "Exclusion, conflict, limit, and audit boundary recognition"
+
+source REQUIREMENTS_DOC:
+  kind text
+  locator "../../../docs/requirements.md"
+  media_type "text/markdown"
+  digest "sha256:973cd64ea58e9e9bb5c294dd25365c629dadff10fd46ccd7b7d87256e8b0f27d"
+
+source TERMINOLOGY_DOC:
+  kind text
+  locator "../../../docs/terminology.md"
+  media_type "text/markdown"
+  digest "sha256:0c36a1145bb41495d4b28a3c60b0e2c0687aab605b02713d2418a4e70ace7f0c"
+
+source ARCHITECTURE_DOC:
+  kind text
+  locator "../../../docs/architecture.md"
+  media_type "text/markdown"
+  digest "sha256:33b1b346379ff1e643ed79c92547bf8d3c395c581e8b75698c0fc002205395bf"
+
+source SEMANTIC_MODEL_DOC:
+  kind text
+  locator "../../../docs/semantic-model.md"
+  media_type "text/markdown"
+  digest "sha256:4dc66ad8364b79734f3740aa20ce503d3062c4e8d871fd3428458cbe31f359f3"
+
+source PROVENANCE_DOC:
+  kind text
+  locator "../../../docs/provenance-and-explainability.md"
+  media_type "text/markdown"
+  digest "sha256:b1105283685d3025fafeaaf1792c68693f66051e07817fa964fbe8f50fb1694c"
+
+source PHASE3_ADR_DOC:
+  kind text
+  locator "../../../docs/adr/0008-phase-3-explainable-csp-contract.md"
+  media_type "text/markdown"
+  digest "sha256:45a7e7b23a395a2d48e23ed09b738b8089f62de27d4e3fffbc96bbfa5dee1d1e"
+
+source IMPLEMENTATION_PHASES_DOC:
+  kind text
+  locator "../../../docs/implementation-phases.md"
+  media_type "text/markdown"
+  digest "sha256:3b32cf7eecf621054798e7db2f5aba017b8918266eeafd3972d9feceb470dab6"
+
+source DOGFOOD_PROCESS_DOC:
+  kind text
+  locator "../../../docs/process/dogfooding.md"
+  media_type "text/markdown"
+  digest "sha256:7677d5359d8a33acd478b1eab1925615642ea85beb504a86948d3aed364c29e4"
+
+span S_REQ_CONSTRAINT_RESULTS:
+  source REQUIREMENTS_DOC
+  range 85:1..144:1
+
+span S_TERM_SUPPORT_VIABILITY:
+  source TERMINOLOGY_DOC
+  range 97:1..127:1
+
+span S_ARCH_DERIVED_BOUNDARY:
+  source ARCHITECTURE_DOC
+  range 17:1..54:1
+
+span S_SEM_EXCLUDES:
+  source SEMANTIC_MODEL_DOC
+  range 136:1..205:1
+
+span S_SEM_CONFLICT:
+  source SEMANTIC_MODEL_DOC
+  range 227:1..254:1
+
+span S_PROV_EXCLUSION_CHAIN:
+  source PROVENANCE_DOC
+  range 96:1..164:1
+
+span S_ADR_PHASE3_RESULTS:
+  source PHASE3_ADR_DOC
+  range 51:1..136:1
+
+span S_ADR_MINIMAL_MEETING:
+  source PHASE3_ADR_DOC
+  range 154:1..160:1
+
+span S_PHASE3_FRONTIER:
+  source IMPLEMENTATION_PHASES_DOC
+  range 90:1..122:1
+
+span S_DOGFOOD_ROUND3B:
+  source DOGFOOD_PROCESS_DOC
+  range 88:1..101:1
+
+observation O_SUPPORT_AND_VIABILITY_SEPARATE:
+  surface "Support and viability remain independent when constraints exclude a candidate"
+  grounded_in [S_TERM_SUPPORT_VIABILITY, S_ADR_PHASE3_RESULTS]
+
+entity E_TANAKA:
+  type participant
+  label "Tanaka"
+  grounded_in [S_ADR_MINIMAL_MEETING, S_PROV_EXCLUSION_CHAIN]
+  support explicit
+
+entity E_SATO:
+  type participant
+  label "Sato"
+  grounded_in [S_ADR_MINIMAL_MEETING]
+  support explicit
+
+entity E_PHASE3_DERIVATION:
+  type derived_projection
+  label "Phase 3 bounded derivation"
+  grounded_in [S_ARCH_DERIVED_BOUNDARY, S_PHASE3_FRONTIER]
+  support explicit
+
+record R_DERIVATION_AUTHORITY:
+  kind property
+  subject E_PHASE3_DERIVATION
+  predicate authority_role
+  value "Derived bounded report that is not persisted as a source recognition"
+  grounded_in [S_ARCH_DERIVED_BOUNDARY, S_PROV_EXCLUSION_CHAIN]
+  support explicit
+
+record R_ROUND3B_GATE:
+  kind property
+  subject E_PHASE3_DERIVATION
+  predicate feedback_boundary
+  value "Exclusion and conflict findings are reviewed before Phase 3 acceptance"
+  grounded_in [S_DOGFOOD_ROUND3B, S_PHASE3_FRONTIER]
+  support explicit
+
+variable V_MEETING_ACTOR:
+  value_type entity_ref
+  candidates [C_MEETING_TANAKA, C_MEETING_SATO]
+  grounded_in [S_ADR_MINIMAL_MEETING]
+
+candidate C_MEETING_TANAKA in V_MEETING_ACTOR:
+  value E_TANAKA
+  grounded_in [S_ADR_MINIMAL_MEETING]
+  support explicit
+
+candidate C_MEETING_SATO in V_MEETING_ACTOR:
+  value E_SATO
+  grounded_in [S_ADR_MINIMAL_MEETING]
+  support explicit
+
+variable V_MEETING_COMMITMENT:
+  value_type symbol
+  candidates [C_MEETING_DESIRE, C_MEETING_WEAK]
+  grounded_in [S_ADR_MINIMAL_MEETING]
+
+candidate C_MEETING_DESIRE in V_MEETING_COMMITMENT:
+  value desire
+  grounded_in [S_ADR_MINIMAL_MEETING]
+  support explicit
+
+candidate C_MEETING_WEAK in V_MEETING_COMMITMENT:
+  value weak_commitment
+  grounded_in [S_ADR_MINIMAL_MEETING]
+  support ambiguous
+
+constraint K_MEETING_ACTOR:
+  kind one_of
+  variable V_MEETING_ACTOR
+  members [C_MEETING_TANAKA, C_MEETING_SATO]
+  grounded_in [S_ADR_MINIMAL_MEETING]
+  support explicit
+
+constraint K_MEETING_COMMITMENT:
+  kind one_of
+  variable V_MEETING_COMMITMENT
+  members [C_MEETING_DESIRE, C_MEETING_WEAK]
+  grounded_in [S_ADR_MINIMAL_MEETING]
+  support explicit
+
+constraint K_MEETING_NOT_WEAK:
+  kind excludes
+  left C_MEETING_TANAKA
+  right C_MEETING_WEAK
+  grounded_in [S_ADR_MINIMAL_MEETING, S_PROV_EXCLUSION_CHAIN]
+  support explicit
+
+variable V_FIXED_ACTOR:
+  value_type entity_ref
+  candidates [C_FIXED_TANAKA]
+  grounded_in [S_ADR_PHASE3_RESULTS]
+
+candidate C_FIXED_TANAKA in V_FIXED_ACTOR:
+  value E_TANAKA
+  grounded_in [S_ADR_PHASE3_RESULTS]
+  support explicit
+
+variable V_FIXED_COMMITMENT:
+  value_type symbol
+  candidates [C_FIXED_DESIRE, C_FIXED_WEAK]
+  grounded_in [S_TERM_SUPPORT_VIABILITY, S_ADR_PHASE3_RESULTS]
+
+candidate C_FIXED_DESIRE in V_FIXED_COMMITMENT:
+  value desire
+  grounded_in [S_ADR_PHASE3_RESULTS]
+  support explicit
+
+candidate C_FIXED_WEAK in V_FIXED_COMMITMENT:
+  value weak_commitment
+  grounded_in [O_SUPPORT_AND_VIABILITY_SEPARATE, S_TERM_SUPPORT_VIABILITY]
+  support explicit
+
+constraint K_FIXED_ACTOR:
+  kind one_of
+  variable V_FIXED_ACTOR
+  members [C_FIXED_TANAKA]
+  grounded_in [S_ADR_PHASE3_RESULTS]
+  support explicit
+
+constraint K_FIXED_COMMITMENT:
+  kind one_of
+  variable V_FIXED_COMMITMENT
+  members [C_FIXED_DESIRE, C_FIXED_WEAK]
+  grounded_in [S_ADR_PHASE3_RESULTS]
+  support explicit
+
+constraint K_FIXED_NOT_WEAK:
+  kind excludes
+  left C_FIXED_TANAKA
+  right C_FIXED_WEAK
+  grounded_in [S_SEM_EXCLUDES, S_ADR_PHASE3_RESULTS]
+  support explicit
+
+variable V_CONFLICT_LEFT:
+  value_type symbol
+  candidates [C_CONFLICT_LEFT]
+  grounded_in [S_REQ_CONSTRAINT_RESULTS, S_SEM_CONFLICT]
+
+candidate C_CONFLICT_LEFT in V_CONFLICT_LEFT:
+  value left
+  grounded_in [S_SEM_CONFLICT]
+  support explicit
+
+variable V_CONFLICT_RIGHT:
+  value_type symbol
+  candidates [C_CONFLICT_RIGHT]
+  grounded_in [S_REQ_CONSTRAINT_RESULTS, S_SEM_CONFLICT]
+
+candidate C_CONFLICT_RIGHT in V_CONFLICT_RIGHT:
+  value right
+  grounded_in [S_SEM_CONFLICT]
+  support explicit
+
+constraint K_CONFLICT_LEFT:
+  kind one_of
+  variable V_CONFLICT_LEFT
+  members [C_CONFLICT_LEFT]
+  grounded_in [S_REQ_CONSTRAINT_RESULTS, S_SEM_CONFLICT]
+  support explicit
+
+constraint K_CONFLICT_RIGHT:
+  kind one_of
+  variable V_CONFLICT_RIGHT
+  members [C_CONFLICT_RIGHT]
+  grounded_in [S_REQ_CONSTRAINT_RESULTS, S_SEM_CONFLICT]
+  support explicit
+
+constraint K_CONFLICT_PAIR:
+  kind excludes
+  left C_CONFLICT_LEFT
+  right C_CONFLICT_RIGHT
+  grounded_in [S_REQ_CONSTRAINT_RESULTS, S_SEM_EXCLUDES, S_SEM_CONFLICT]
+  support explicit
+
+variable V_LIMIT_A:
+  value_type symbol
+  candidates [C_LIMIT_A1, C_LIMIT_A2]
+  grounded_in [S_ADR_PHASE3_RESULTS]
+
+candidate C_LIMIT_A1 in V_LIMIT_A:
+  value a1
+  grounded_in [S_ADR_PHASE3_RESULTS]
+  support explicit
+
+candidate C_LIMIT_A2 in V_LIMIT_A:
+  value a2
+  grounded_in [S_ADR_PHASE3_RESULTS]
+  support explicit
+
+variable V_LIMIT_B:
+  value_type symbol
+  candidates [C_LIMIT_B1, C_LIMIT_B2]
+  grounded_in [S_ADR_PHASE3_RESULTS]
+
+candidate C_LIMIT_B1 in V_LIMIT_B:
+  value b1
+  grounded_in [S_ADR_PHASE3_RESULTS]
+  support explicit
+
+candidate C_LIMIT_B2 in V_LIMIT_B:
+  value b2
+  grounded_in [S_ADR_PHASE3_RESULTS]
+  support explicit
+
+constraint K_LIMIT_A:
+  kind one_of
+  variable V_LIMIT_A
+  members [C_LIMIT_A1, C_LIMIT_A2]
+  grounded_in [S_ADR_PHASE3_RESULTS]
+  support explicit
+
+constraint K_LIMIT_B:
+  kind one_of
+  variable V_LIMIT_B
+  members [C_LIMIT_B1, C_LIMIT_B2]
+  grounded_in [S_ADR_PHASE3_RESULTS]
+  support explicit
+
+constraint K_LIMIT_A1_NOT_B1:
+  kind excludes
+  left C_LIMIT_A1
+  right C_LIMIT_B1
+  grounded_in [S_ADR_PHASE3_RESULTS, S_SEM_EXCLUDES]
+  support explicit

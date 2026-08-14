@@ -1,0 +1,211 @@
+{
+  "schema": "Llmrecog.Internal.DogfoodProtocol.v1",
+  "protocol_version": 3,
+  "semantic_version": "0.1",
+  "status": "active",
+  "receipt_schema": "dogfood/schemas/Llmrecog.Internal.DogfoodRunReceipt.v1.schema.json",
+  "feedback_schema": "dogfood/schemas/Llmrecog.Internal.DogfoodFeedback.v1.schema.json",
+  "run_path_pattern": "dogfood/runs/<run-id>",
+  "rounds": [
+    {
+      "id": "exclusion_explain_v3",
+      "sequence": 4,
+      "earliest_gate": "EXCLUDES_AUDIT_ACCEPTED",
+      "documents": [
+        {
+          "id": "r4v3_product_requirements",
+          "path": "docs/requirements.md",
+          "digest": "sha256:973cd64ea58e9e9bb5c294dd25365c629dadff10fd46ccd7b7d87256e8b0f27d",
+          "authority": "normative_requirements"
+        },
+        {
+          "id": "r4v3_normative_terminology",
+          "path": "docs/terminology.md",
+          "digest": "sha256:0c36a1145bb41495d4b28a3c60b0e2c0687aab605b02713d2418a4e70ace7f0c",
+          "authority": "normative_vocabulary"
+        },
+        {
+          "id": "r4v3_architecture_boundaries",
+          "path": "docs/architecture.md",
+          "digest": "sha256:33b1b346379ff1e643ed79c92547bf8d3c395c581e8b75698c0fc002205395bf",
+          "authority": "architecture_and_responsibility"
+        },
+        {
+          "id": "r4v3_semantic_model",
+          "path": "docs/semantic-model.md",
+          "digest": "sha256:4dc66ad8364b79734f3740aa20ce503d3062c4e8d871fd3428458cbe31f359f3",
+          "authority": "support_viability_and_constraint_semantics"
+        },
+        {
+          "id": "r4v3_explainability",
+          "path": "docs/provenance-and-explainability.md",
+          "digest": "sha256:b1105283685d3025fafeaaf1792c68693f66051e07817fa964fbe8f50fb1694c",
+          "authority": "provenance_derivation_and_explain_contract"
+        },
+        {
+          "id": "r4v3_phase_contract",
+          "path": "docs/adr/0008-phase-3-explainable-csp-contract.md",
+          "digest": "sha256:45a7e7b23a395a2d48e23ed09b738b8089f62de27d4e3fffbc96bbfa5dee1d1e",
+          "authority": "accepted_phase_3_contract"
+        },
+        {
+          "id": "r4v3_implementation_sequence",
+          "path": "docs/implementation-phases.md",
+          "digest": "sha256:3b32cf7eecf621054798e7db2f5aba017b8918266eeafd3972d9feceb470dab6",
+          "authority": "implementation_sequence"
+        },
+        {
+          "id": "r4v3_dogfood_process",
+          "path": "docs/process/dogfooding.md",
+          "digest": "sha256:7677d5359d8a33acd478b1eab1925615642ea85beb504a86948d3aed364c29e4",
+          "authority": "dogfood_sequence_and_feedback_gates"
+        }
+      ],
+      "question_ids": [
+        "DGF-EXPLAIN-005",
+        "DGF-EXPLAIN-006",
+        "DGF-EXPLAIN-007",
+        "DGF-EXPLAIN-008"
+      ],
+      "required_declarations": [
+        "document",
+        "source",
+        "span",
+        "observation",
+        "entity",
+        "record",
+        "variable",
+        "candidate",
+        "constraint"
+      ],
+      "command_case_ids": [
+        "DOCUMENT_VALIDATE_JSON",
+        "MEETING_WEAK_EXPLAIN_JSON",
+        "MEETING_WEAK_EXPLAIN_TEXT",
+        "MEETING_EXCLUDES_EXPLAIN_JSON",
+        "SUPPORTED_EXCLUDED_EXPLAIN_JSON",
+        "SUPPORTED_EXCLUDED_EXPLAIN_TEXT",
+        "LIMIT_UNKNOWN_EXPLAIN_JSON",
+        "DOCUMENT_AUDIT_JSON",
+        "DOCUMENT_AUDIT_TEXT"
+      ],
+      "next_gate": "EXPLAIN_DOGFOOD_REVIEWED"
+    }
+  ],
+  "questions": [
+    {
+      "id": "DGF-EXPLAIN-005",
+      "round_id": "exclusion_explain_v3",
+      "prompt": "Which grounded chain forbids the Tanaka and weak-commitment joint assignment while leaving weak commitment allowed with Sato?",
+      "required_evidence": "Named one_of and excludes constraints, Sato witness, forbidden pair derivation, and source grounding",
+      "non_goal": "Reporting weak commitment as globally excluded"
+    },
+    {
+      "id": "DGF-EXPLAIN-006",
+      "round_id": "exclusion_explain_v3",
+      "prompt": "Where does positive support coexist with constraint exclusion, and how does audit report that conflict?",
+      "required_evidence": "Separate support and viability fields plus RCG-CSP-002 and its constraint IDs",
+      "non_goal": "Changing support to conflicted or deleting a constraint to repair viability"
+    },
+    {
+      "id": "DGF-EXPLAIN-007",
+      "round_id": "exclusion_explain_v3",
+      "prompt": "Which closed variable scopes have no satisfying represented world?",
+      "required_evidence": "Closed variable IDs, complete scoped enumeration, RCG-CSP-001 findings, and deterministic ordering",
+      "non_goal": "Inventing an unspecified candidate or weakening grounded closure"
+    },
+    {
+      "id": "DGF-EXPLAIN-008",
+      "round_id": "exclusion_explain_v3",
+      "prompt": "When a bound prevents a proof, is incompleteness reported deterministically as unknown rather than false?",
+      "required_evidence": "Repeated bounded command receipts, RCG-RSN-007, complete false, and truncated true",
+      "non_goal": "Presenting a limited prefix as a complete exclusion or witness search"
+    }
+  ],
+  "command_cases": [
+    {
+      "id": "DOCUMENT_VALIDATE_JSON",
+      "route": ["document", "validate"],
+      "format": "json",
+      "repeat_count": 2,
+      "required_options": []
+    },
+    {
+      "id": "MEETING_WEAK_EXPLAIN_JSON",
+      "route": ["recognition", "explain"],
+      "format": "json",
+      "repeat_count": 2,
+      "required_options": ["--scope", "V_MEETING_ACTOR,V_MEETING_COMMITMENT"]
+    },
+    {
+      "id": "MEETING_WEAK_EXPLAIN_TEXT",
+      "route": ["recognition", "explain"],
+      "format": "text",
+      "repeat_count": 2,
+      "required_options": ["--scope", "V_MEETING_ACTOR,V_MEETING_COMMITMENT"]
+    },
+    {
+      "id": "MEETING_EXCLUDES_EXPLAIN_JSON",
+      "route": ["recognition", "explain"],
+      "format": "json",
+      "repeat_count": 2,
+      "required_options": []
+    },
+    {
+      "id": "SUPPORTED_EXCLUDED_EXPLAIN_JSON",
+      "route": ["recognition", "explain"],
+      "format": "json",
+      "repeat_count": 2,
+      "required_options": []
+    },
+    {
+      "id": "SUPPORTED_EXCLUDED_EXPLAIN_TEXT",
+      "route": ["recognition", "explain"],
+      "format": "text",
+      "repeat_count": 2,
+      "required_options": []
+    },
+    {
+      "id": "LIMIT_UNKNOWN_EXPLAIN_JSON",
+      "route": ["recognition", "explain"],
+      "format": "json",
+      "repeat_count": 2,
+      "required_options": ["--limit", "1"]
+    },
+    {
+      "id": "DOCUMENT_AUDIT_JSON",
+      "route": ["document", "audit"],
+      "format": "json",
+      "repeat_count": 2,
+      "required_options": ["--profile", "base", "--fail-on", "error"]
+    },
+    {
+      "id": "DOCUMENT_AUDIT_TEXT",
+      "route": ["document", "audit"],
+      "format": "text",
+      "repeat_count": 2,
+      "required_options": ["--profile", "base", "--fail-on", "error"]
+    }
+  ],
+  "observation_categories": [
+    "contract_semantic",
+    "implementation",
+    "diagnostics_presentation",
+    "documentation",
+    "product_boundary"
+  ],
+  "feedback_dispositions": ["accepted", "rejected", "deferred"],
+  "acceptance": {
+    "receipt_immutable": true,
+    "feedback_binds_receipt_digest": true,
+    "all_questions_answered_or_blocked": true,
+    "all_observations_dispositioned_before_next_gate": true,
+    "contract_change_requires_adr": true,
+    "unfinished_work_reestimated_in_points": true,
+    "elapsed_time_forecast_requires_stable_velocity": true,
+    "support_and_viability_remain_separate": true,
+    "allowed_requires_joint_witness": true,
+    "excluded_requires_grounded_chain": true,
+    "derived_results_are_not_persisted": true
+  }
+}

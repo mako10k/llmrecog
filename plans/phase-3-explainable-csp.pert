@@ -115,6 +115,7 @@ task RUN_EXCLUSION_CONFLICT_DOGFOOD EXCLUDES_AUDIT_ACCEPTED -> EXCLUSION_DOGFOOD
   title "Dogfood exclusion, conflict, and constraint explanations"
   description "After finite excludes and focused audit are accepted, create the next immutable protocol corpus version so accepted status corrections do not alter the completed Round 3a identity. Then rerun the bounded corpus through the complete Phase 3 route and answer the frozen exclusion, supported-plus-excluded conflict, unknown, grounding, limit, and constraint-chain questions. Prove the minimal Sato and Tanaka commitment example end to end, capture deterministic receipts, and inspect whether explain or audit encourages unsupported inference, hidden closure, or persisted solver output."
   duration 4p
+  status done
   priority 40
   requires:
     IMPLEMENTER 1
@@ -248,3 +249,17 @@ work_event FINISH_IMPLEMENT_EXCLUDES_AND_FOCUSED_AUDIT_20260814:
   kind finish
   occurred_at 2026-08-14T14:52:22+09:00
   effort 0.3036111111ph
+
+work_event START_RUN_EXCLUSION_CONFLICT_DOGFOOD_20260814:
+  model 1
+  task RUN_EXCLUSION_CONFLICT_DOGFOOD
+  kind start
+  occurred_at 2026-08-14T14:53:48+09:00
+  planned_value 4p
+
+work_event FINISH_RUN_EXCLUSION_CONFLICT_DOGFOOD_20260814:
+  model 1
+  task RUN_EXCLUSION_CONFLICT_DOGFOOD
+  kind finish
+  occurred_at 2026-08-14T15:14:27+09:00
+  effort 0.3441666667ph

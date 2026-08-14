@@ -89,8 +89,11 @@ Acceptance:
 
 ## Phase 3: one explainable CSP slice
 
-ADR 0008 accepts this phase's explain and focused-audit contract. Runtime
-implementation remains pending and follows the detailed dogfood-first plan.
+ADR 0008 accepts this phase's explain and focused-audit contract. The private
+runtime now implements finite `one_of`, finite `excludes`, typed explanation,
+and the focused base audit through the real parser and semantic model. Phase 3
+itself remains open until the versioned exclusion/conflict dogfood findings are
+reviewed and the final acceptance gate passes.
 
 Implement:
 
@@ -199,20 +202,21 @@ authorized by accepting llmrecog core implementation.
 - versioned provenance and coverage audits across the full
   recog -> think -> perttool chain.
 
-## Recommended first implementation slice
+## Current implementation frontier
 
-After a separate Phase 2 authorization, begin with its dogfood protocol and
-smallest private read path. Start authoring dogfood immediately after that path
-works; do not wait for the complete parser or solver. Do not start producer
-dogfood until explainability, complete initial semantics, and fail-closed local
-source verification have been accepted and a producer contract is separately
-approved.
+Complete the versioned Phase 3 exclusion/conflict dogfood and disposition its
+findings before the final Phase 3 acceptance audit. Do not begin Phase 4 or
+producer dogfood from implementation success alone. Producer dogfood remains
+gated on accepted explainability, the complete initial constraint semantics,
+fail-closed local source verification, a producer-contract ADR, and a
+separately approved adapter.
 
-The detailed execution order, relative effort, acceptance frontier, and
-explicit Non-goals are tracked in
+The current detailed execution order, relative effort, acceptance frontier,
+and explicit Non-goals are tracked in
+[`plans/phase-3-explainable-csp.pert`](../plans/phase-3-explainable-csp.pert).
+The completed Phase 2 plan is retained in
 [`plans/phase-2-parse-validate-show.pert`](../plans/phase-2-parse-validate-show.pert).
 The point-based cross-phase order and repeated feedback gates are tracked in
-[`plans/dogfooding-roadmap.pert`](../plans/dogfooding-roadmap.pert). The
-original [`plans/initial-roadmap.pert`](../plans/initial-roadmap.pert) is
-retained as coarse Phase 0/1 history and is no longer the current
-phase-selection authority.
+[`plans/dogfooding-roadmap.pert`](../plans/dogfooding-roadmap.pert), while the
+original [`plans/initial-roadmap.pert`](../plans/initial-roadmap.pert) remains
+coarse Phase 0/1 history.

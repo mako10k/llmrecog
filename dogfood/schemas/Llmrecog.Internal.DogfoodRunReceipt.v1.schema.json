@@ -29,7 +29,8 @@
         "grammar_authoring_v1",
         "specification_authoring_v1",
         "ambiguity_explain_v2",
-        "exclusion_explain_v2"
+        "exclusion_explain_v2",
+        "exclusion_explain_v3"
       ]
     },
     "started_at": { "type": "string", "format": "date-time" },
@@ -63,7 +64,8 @@
         "path": {
           "enum": [
             "dogfood/protocol-v1/protocol.json",
-            "dogfood/protocol-v2/protocol.json"
+            "dogfood/protocol-v2/protocol.json",
+            "dogfood/protocol-v3/protocol.json"
           ]
         },
         "digest": { "$ref": "#/$defs/sha256" }
